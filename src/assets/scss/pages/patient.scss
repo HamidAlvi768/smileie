@@ -1,0 +1,380 @@
+// Patient Detail Page Styles
+
+// Top Navigation
+// .topnav {
+//   margin-top: -67px;
+// }
+
+// Patient Header
+.patient-header {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  background: #f7f7f9;
+  padding: 0 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+
+  .back-button {
+    font-size: 24px;
+    padding: 0;
+    margin-right: 1.25rem;
+    background: none;
+    border: none;
+    box-shadow: none;
+    i {
+      color: #16b1c7;
+    }
+  }
+
+  .patient-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.25rem;
+    i {
+      font-size: 48px;
+      color: #bfc9d1;
+    }
+  }
+
+  .patient-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    .info-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.5rem;
+      .patient-name {
+        font-size: 22px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .patient-id {
+        color: #bfc9d1;
+        font-size: 18px;
+        font-weight: 400;
+        margin-left: 0.25rem;
+      }
+      .add-label-btn {
+        color: #16b1c7;
+        font-weight: 500;
+        font-size: 13px;
+        text-decoration: none;
+        margin-left: 1.25rem;
+        display: flex;
+        align-items: center;
+        padding-bottom: 0px;
+        i {
+          font-size: 15px;
+          vertical-align: middle;
+          margin-right: 0.25rem;
+        }
+      }
+    }
+    .before-after-link {
+      color: #16b1c7;
+      font-weight: 500;
+      font-size: 15px;
+      text-decoration: none;
+      margin-top: 0.1rem;
+      display: flex;
+      align-items: center;
+      i {
+        font-size: 18px;
+        vertical-align: middle;
+        margin-right: 0.25rem;
+      }
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-left: auto;
+    .add-visit-btn {
+      color: #16b1c7;
+      font-weight: 500;
+      font-size: 14px;
+      text-decoration: none;
+      background: none;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+    .new-action-btn {
+      font-weight: 600;
+      font-size: 14px;
+      background: #16b1c7;
+      border: none;
+      min-height: 32px;
+      border-radius: 50rem;
+      padding: 0 1.25rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      i {
+        font-size: 16px;
+        margin-right: 0.5rem;
+      }
+    }
+  }
+}
+
+// Goals Section
+.goals-section {
+  .goal-item {
+    cursor: pointer;
+
+    i.play-icon {
+      font-size: 18px;
+    }
+  }
+
+  .goal-notification {
+    font-size: 0.85em;
+  }
+}
+
+// Communication Panel
+.communication-icon {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background-color: #16b1c7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: right 0.3s ease;
+  z-index: 1000;
+
+  i {
+    font-size: 20px;
+    color: white;
+  }
+
+  &.open {
+    right: -60px;
+  }
+}
+
+.communication-panel {
+  position: fixed;
+  right: 0;
+  top: 70px;
+  width: 300px;
+  height: calc(100vh - 70px);
+  background-color: #fff;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  border-left: 1px solid #e9ecef;
+
+  &.closed {
+    right: -300px;
+  }
+
+  .messages-container {
+    height: calc(100% - 60px);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+
+    .messages {
+      flex-grow: 1;
+      overflow: auto;
+      margin-bottom: 1rem;
+      max-height: calc(100% - 200px);
+    }
+  }
+}
+
+// Modals
+.modal {
+  .modal-footer {
+    background: #f6fafd;
+  }
+}
+
+// Action Items
+.action-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  text-align: left;
+  font-weight: 500;
+  font-size: 15px;
+  color: #222;
+
+  i {
+    font-size: 22px;
+    color: #16b1c7;
+    margin-right: 1rem;
+  }
+}
+
+// Excluded Teeth Modal
+.excluded-teeth-modal {
+  .modal-body {
+    min-height: 500px;
+  }
+
+  .sidebar-section {
+    border-right: 1px solid #e9ecef;
+    min-width: 260px;
+
+    .nav-item {
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.25rem;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+
+      &.selected {
+        background: #f5fafd;
+        border-left: 4px solid #16b1c7;
+        font-weight: bold;
+        color: #16b1c7;
+      }
+    }
+
+    .search-section {
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.25rem;
+      border-radius: 4px;
+      font-size: 14px;
+
+      &.selected {
+        background: #f5fafd;
+        border-left: 4px solid #16b1c7;
+        font-weight: bold;
+        color: #16b1c7;
+      }
+    }
+
+    .expandable-section {
+      .header {
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.25rem;
+        border-radius: 4px;
+        font-size: 14px;
+        text-transform: uppercase;
+        font-weight: bold;
+        cursor: pointer;
+
+        &.expanded {
+          color: #16b1c7;
+          background: #f5fafd;
+        }
+      }
+
+      .observation-item {
+        padding: 0.25rem 0;
+        font-weight: 400;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 4px;
+
+        &.selected {
+          background: #f5fafd;
+        }
+      }
+    }
+  }
+
+  .modal-footer {
+    background: #f6fafd;
+  }
+}
+
+// Before/After Video Modal
+.before-after-modal-body {
+  min-height: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.before-after-modal-img {
+  max-width: 100%;
+  max-height: 360px;
+  border-radius: 8px;
+}
+
+// Inline styles migrated from inlineStyles.md
+.save-quick-reply {
+  font-size: 0.8rem;
+  color: #16b1c7;
+  cursor: pointer;
+  background-color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+.small-action-button {
+  min-width: 60px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 2px 10px;
+}
+
+.notification-action-button {
+  background-color: #fff;
+  color: inherit;
+  border-color: gray;
+}
+
+.quick-reply-item {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.optional-label {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.select-wide {
+  max-width: 200px;
+}
+.select-narrow {
+  width: 70px;
+}
+
+.large-icon {
+  font-size: 2rem;
+}
+
+.label-input {
+  max-width: 220px;
+}
+
+.emoticon-icon {
+  font-size: 22px;
+  color: #bfc9d1;
+}
+
+.custom-badge {
+  font-size: 14px;
+} 
