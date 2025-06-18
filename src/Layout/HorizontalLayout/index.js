@@ -85,7 +85,7 @@ const Layout = (props) => {
     const title = props.router.location.pathname;
     let currentage = title.charAt(1).toUpperCase() + title.slice(2);
 
-    document.title = currentage + " | Smileie - Dental Monitoring System";
+    document.title = currentage + " | Smileie - Smileie System";
   }, [props.router.location.pathname]);
 
   useEffect(() => {

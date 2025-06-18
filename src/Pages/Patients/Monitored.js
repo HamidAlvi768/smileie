@@ -232,6 +232,12 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   const toggleCreatePatient = () => setCreatePatientModal(!createPatientModal);
   const navigate = useNavigate();
 
+  // State for Create Label Modal
+  const [createLabelModalOpen, setCreateLabelModalOpen] = useState(false);
+  const [labelInput, setLabelInput] = useState("");
+  const [createdLabels, setCreatedLabels] = useState([]);
+  const [selectedPatientName, setSelectedPatientName] = useState("");
+
   const filterKeys = Object.keys(filterOptions);
   const half = Math.ceil(filterKeys.length / 2);
   const firstRowKeys = [
@@ -256,6 +262,34 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     const patientId = row.id || row.name.replace(/\s+/g, '-').toLowerCase();
     navigate(`/patients/${patientId}`);
   };
+
+  // Add label button handler
+  const handleAddLabelClick = (e, row) => {
+    e.stopPropagation();
+    setSelectedPatientName(row.name);
+    setCreateLabelModalOpen(true);
+  };
+
+  // Table columns (override to use handler)
+  const columnsWithAddLabel = columns.map(col => {
+    if (col.name === "PATIENT NAME") {
+      return {
+        ...col,
+        cell: (row) => (
+          <div className="cell-content">
+            <div className="text-muted" style={{ fontSize: "0.85em" }}>
+              {row.doctor}
+            </div>
+            <div className="fw-bold">{row.name}</div>
+            <Button color="link" size="sm" className="p-0" onClick={e => handleAddLabelClick(e, row)}>
+              + Add label
+            </Button>
+          </div>
+        ),
+      };
+    }
+    return col;
+  });
 
   return (
     <div className="page-content">
@@ -476,25 +510,74 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
             {/* Bulk Actions */}
             <Row className="mb-2">
               <Col>
-                <span className="text-primary" style={{ cursor: "pointer" }}>
+                {/* text/ghost button no border color dull to show disabled */}
+                <button className="btn btn-primary text-primary bg-transparent border-0 opacity-50" style={{ cursor: "pointer" }} disabled>
                   ADD LABEL(S)
-                </span>
+                </button>
               </Col>
             </Row>
             {/* Patient List Table */}
             <DataTable
-              columns={columns}
+              columns={columnsWithAddLabel}
               data={data}
               selectableRows
               pagination
               highlightOnHover
               responsive
-              customStyles={customStyles}
+              customStyles={{
+                ...customStyles,
+                rows: {
+                  ...customStyles.rows,
+                  style: {
+                    ...customStyles.rows.style,
+                    cursor: 'pointer',
+                  },
+                },
+              }}
               onRowClicked={handleRowClicked}
             />
           </CardBody>
         </Card>
       </Container>
+      {/* Create Label Modal */}
+      <Modal isOpen={createLabelModalOpen} toggle={() => setCreateLabelModalOpen(false)} centered>
+        <div className="modal-header">
+          <h5 className="modal-title">Add labels to {selectedPatientName || 'patient'}</h5>
+          <button type="button" className="btn-close" onClick={() => setCreateLabelModalOpen(false)} aria-label="Close"></button>
+        </div>
+        <div className="modal-body">
+          <div className="mb-3">
+            <label className="form-label fw-bold">Create a new label.</label>
+            <div className="d-flex align-items-center gap-2">
+              <Input type="text" maxLength={20} value={labelInput} onChange={e => setLabelInput(e.target.value)} className="label-input" />
+              <Button color="primary" size="sm" disabled={!labelInput.trim() || labelInput.length > 20} onClick={() => {
+                if (labelInput.trim() && labelInput.length <= 20) {
+                  setCreatedLabels(labels => [...labels, labelInput.trim()]);
+                  setLabelInput("");
+                }
+              }}>Create</Button>
+            </div>
+            <div className="small text-muted mt-1">{labelInput.length}/20</div>
+          </div>
+          <div className="mb-3">
+            {createdLabels.length === 0 ? (
+              <div className="text-muted text-center py-3">No labels created yet.</div>
+            ) : (
+              <div className="d-flex flex-wrap gap-2">
+                {createdLabels.map((label, idx) => (
+                  <span key={idx} className="badge bg-info text-white px-3 py-2 custom-badge">{label}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="modal-footer">
+          <Button color="light" onClick={() => setCreateLabelModalOpen(false)}>Cancel</Button>
+          <Button color="primary" disabled={createdLabels.length === 0} onClick={() => setCreateLabelModalOpen(false)}>
+            Add {createdLabels.length} label{createdLabels.length !== 1 ? 's' : ''}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { headerMenuItems } from "../../config/navigation";
@@ -7,6 +7,8 @@ import {
   setActiveHeaderMenu,
   setNavbarMenuItems,
 } from "../../store/navigation/actions";
+import { isPathActive } from '../../utils/pathMatch';
+import HelpMobilePanel from "./HelpMobilePanel";
 
 //import images
 import logoSm from "../../assets/images/logo-sm.png";
@@ -19,6 +21,7 @@ import { toggleLeftmenu } from "../../store/actions";
 const Header = (props) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [helpPanelOpen, setHelpPanelOpen] = useState(false);
 
   // Sync navbarMenuItems with current route on load/route change
   useEffect(() => {
@@ -28,16 +31,26 @@ const Header = (props) => {
         menu.navbarItems &&
         menu.navbarItems.some((sub) => location.pathname.startsWith(sub.url))
     );
-    // If not found, check if the current route matches the main menu's own URL (e.g., /quick-replies)
+    
+    // If not found, check if the current route matches the main menu's own URL (e.g., /dashboard)
+    if (!activeMenu) {
+      activeMenu = headerMenuItems.find((menu) =>
+        menu.url && location.pathname === menu.url
+      );
+    }
+    
+    // If still not found, check if the current route matches the main menu's own URL (e.g., /quick-replies)
     if (!activeMenu) {
       activeMenu = headerMenuItems.find((menu) =>
         location.pathname.startsWith(`/${menu.id}`)
       );
     }
+    
     // Special case: if on a patient detail route, set patient-detail menu as active
     if (!activeMenu && /^\/patients\/[\w-]+$/.test(location.pathname)) {
       activeMenu = headerMenuItems.find((menu) => menu.id === "patient-detail");
     }
+    
     if (activeMenu) {
       let navItems = Array.isArray(activeMenu.navbarItems)
         ? activeMenu.navbarItems
@@ -87,10 +100,20 @@ const Header = (props) => {
 
   // Find which menu is active based on the current route
   const getMenuIsActive = (menu) => {
+    // Check if the menu has a direct URL that matches the current pathname
+    if (menu.url && location.pathname === menu.url) {
+      return true;
+    }
+    
     if (!menu.navbarItems) return false;
-    return menu.navbarItems.some((sub) =>
-      location.pathname.startsWith(sub.url)
-    );
+    // For patient-list and patient-detail, use robust path matching
+    if (menu.id === 'patient-list') {
+      return isPathActive(location.pathname, '/patients');
+    }
+    if (menu.id === 'patient-detail') {
+      return /^\/patients\/[\w-]+/.test(location.pathname);
+    }
+    return menu.navbarItems.some((sub) => isPathActive(location.pathname, sub.url));
   };
 
   return (
@@ -99,7 +122,7 @@ const Header = (props) => {
         <div className="navbar-header">
           <div className="d-flex">
             <div className="navbar-brand-box text-center">
-              <Link to="/" className="logo logo-dark">
+              <Link to="/dashboard" className="logo logo-dark">
                 <span className="logo-sm">
                   <img src={logoSm} alt="logo-sm-dark" height="22" />
                 </span>
@@ -108,7 +131,7 @@ const Header = (props) => {
                 </span>
               </Link>
 
-              <Link to="/" className="logo logo-light">
+              <Link to="/dashboard" className="logo logo-light">
                 <span className="logo-sm">
                   <img src={logoSm} alt="logo-sm-light" height="22" />
                 </span>
@@ -139,8 +162,26 @@ const Header = (props) => {
                     getMenuIsActive(menu) ? " active" : ""
                   }`}
                   onClick={() => handleMenuClick(menu)}
+                  style={{ position: 'relative' }}
                 >
                   {menu.label}
+                  {menu.label === 'Notifications' && (
+                    <span style={{
+                      display: 'inline-block',
+                      background: '#ef5350',
+                      color: 'white',
+                      borderRadius: '999px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      minWidth: 20,
+                      height: 20,
+                      lineHeight: '20px',
+                      textAlign: 'center',
+                      marginLeft: 8,
+                      verticalAlign: 'middle',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+                    }}>1</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -148,7 +189,7 @@ const Header = (props) => {
 
           <div className="d-flex">
             {/* Academy */}
-            <div className="dropdown d-inline-block ms-auto">
+            {/* <div className="dropdown d-inline-block ms-auto">
               <button
                 type="button"
                 className="btn header-item"
@@ -159,7 +200,7 @@ const Header = (props) => {
               >
                 Academy
               </button>
-            </div>
+            </div> */}
 
             {/* Help */}
             <div className="dropdown d-inline-block ms-3">
@@ -167,11 +208,21 @@ const Header = (props) => {
                 type="button"
                 className="btn header-item"
                 id="page-header-help-dropdown"
-                data-bs-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
+                onClick={() => setHelpPanelOpen(true)}
               >
                 Help
+              </button>
+            </div>
+
+            {/* Settings */}
+            <div className="dropdown d-inline-block ms-3">
+              <button
+                type="button"
+                className="btn header-item"
+                id="page-header-settings-dropdown"
+                onClick={() => navigate('/settings')}
+              >
+                Settings
               </button>
             </div>
 
@@ -181,18 +232,10 @@ const Header = (props) => {
                 type="button"
                 className="btn header-item"
                 id="page-header-profile-dropdown"
-                data-bs-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
+                onClick={() => navigate('/my-account')}
               >
                 My Account
               </button>
-              <div className="dropdown-menu dropdown-menu-end">
-                <div className="dropdown-item">
-                  <i className="ri-user-line align-middle me-1"></i>
-                  <span>Profile</span>
-                </div>
-              </div>
             </div>
 
             {/* Logout */}
@@ -208,6 +251,9 @@ const Header = (props) => {
           </div>
         </div>
       </header>
+      {helpPanelOpen && (
+        <HelpMobilePanel userName="Abid" onClose={() => setHelpPanelOpen(false)} />
+      )}
     </React.Fragment>
   );
 };

@@ -7,7 +7,6 @@ import Dashboard from "../Pages/Dashboard";
 // Import Calender
 import Calender from "../Pages/Calender";
 
-
 // Import E-mail
 import Inbox from "../Pages/E-mail/Inbox";
 import ReadEmail from "../Pages/E-mail/ReadEmail";
@@ -75,7 +74,6 @@ import BasicTable from "../Pages/Tables/BasicTable.js";
 import ListJs from "../Pages/Tables/ListTables/ListTables";
 import DataTable from "../Pages/Tables/DataTables/DataTables";
 
-
 // Import Charts
 import ApexCharts from "../Pages/Charts/ApexCharts";
 import ChartJs from "../Pages/Charts/ChartjsCharts";
@@ -87,7 +85,7 @@ import JknobCharts from "../Pages/Charts/JqueryKnobCharts";
 import IconMaterialdesign from "../Pages/Icons/IconMaterialdesign";
 import IconFontawesome from "../Pages/Icons/IconFontAwesome";
 import IconDripicons from "../Pages/Icons/IconDrip";
-import IconBoxicons from "../Pages/Icons/IconBoxicons"
+import IconBoxicons from "../Pages/Icons/IconBoxicons";
 
 // Import Map Pages
 import VectorMaps from "../Pages/Maps/VectorMap";
@@ -109,9 +107,45 @@ import NotificationsAppNotActivated from "../Pages/Notifications/AppNotActivated
 import ToDoList from "../Pages/TodoList";
 import QuickReplies from "../Pages/QuickReplies";
 
+// Import MyAccount
+import MyAccount from "../Pages/Account/MyAccount";
+import Settings from "../Pages/Settings";
+import ScanNotificationFrequency from "../Pages/Settings/ScanNotificationFrequency";
+import EntitiesList from "../Pages/Settings/EntitiesList";
+import Reminders from "../Pages/Settings/Reminders";
+import PhotoUploadReminder from "../Pages/Settings/PhotoUploadReminder";
+import NextStepReminder from "../Pages/Settings/NextStepReminder";
+import Countries from "../Pages/Settings/Countries";
+import PostOffices from "../Pages/Settings/PostOffices";
+import ApplicationSettings from "../Pages/Settings/ApplicationSettings";
+
+function RedirectToMainPage() {
+  return <Navigate to="/notifications/messages" />;
+}
+
 const authProtectedRoutes = [
   //dashboard
   { path: "/dashboard", component: <Dashboard /> },
+
+  // Settings Pages
+  { path: "/settings", component: <Settings /> },
+  { path: "/settings/application-settings", component: <ApplicationSettings /> },
+  { path: "/settings/users", component: <Settings /> },
+  { path: "/settings/doctors", component: <Settings /> },
+  { path: "/settings/patients", component: <Settings /> },
+  { path: "/settings/appointments", component: <Settings /> },
+  { path: "/settings/clinics", component: <Settings /> },
+  { path: "/settings/post-offices", component: <PostOffices /> },
+  { path: "/settings/states", component: <Settings /> },
+  { path: "/settings/countries", component: <Countries /> },
+  { path: "/settings/currencies", component: <Settings /> },
+  { path: "/settings/scan-notification-frequency", component: <ScanNotificationFrequency /> },
+  { path: "/settings/sms-templates", component: <Settings /> },
+  { path: "/settings/email-templates", component: <Settings /> },
+  { path: "/settings/entities-list", component: <EntitiesList /> },
+  { path: "/settings/reminders", component: <Reminders /> },
+  { path: "/settings/photo-upload-reminder", component: <PhotoUploadReminder /> },
+  { path: "/settings/next-step-reminder", component: <NextStepReminder /> },
 
   // Calender
   { path: "/calendar", component: <Calender /> },
@@ -194,9 +228,18 @@ const authProtectedRoutes = [
 
   // Notifications Pages
   { path: "/notifications/messages", component: <NotificationsMessages /> },
-  { path: "/notifications/clinical-instructions", component: <NotificationsClinicalInstructions /> },
-  { path: "/notifications/additional-scans", component: <NotificationsAdditionalScans /> },
-  { path: "/notifications/app-not-activated", component: <NotificationsAppNotActivated /> },
+  {
+    path: "/notifications/clinical-instructions",
+    component: <NotificationsClinicalInstructions />,
+  },
+  {
+    path: "/notifications/additional-scans",
+    component: <NotificationsAdditionalScans />,
+  },
+  {
+    path: "/notifications/app-not-activated",
+    component: <NotificationsAppNotActivated />,
+  },
 
   // ToDoList Pages
   { path: "/todo/monitored", component: <ToDoList /> },
@@ -206,6 +249,9 @@ const authProtectedRoutes = [
 
   // Quick Replies Page
   { path: "/quick-replies", component: <QuickReplies /> },
+
+  // MyAccount Page
+  { path: "/my-account", component: <MyAccount /> },
 
   // this route should be at the end of all other routes
   // eslint-disable-next-line react/display-name
@@ -217,7 +263,6 @@ const authProtectedRoutes = [
 ];
 
 const publicRoutes = [
-
   // Authentication Page
   { path: "/logout", component: <Logout /> },
   { path: "/login", component: <Login /> },

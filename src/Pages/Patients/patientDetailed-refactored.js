@@ -302,7 +302,7 @@ const PatientDetail = () => {
         {hoveredMessage === index && (
           <div
             className="save-quick-reply"
-            style={{ fontSize: '0.8rem', color: '#16b1c7', cursor: 'pointer', backgroundColor: 'white', padding: '2px 8px', borderRadius: '4px', zIndex: 1 }}
+            style={{ fontSize: '0.8rem', color: '#1da5fe', cursor: 'pointer', backgroundColor: 'white', padding: '2px 8px', borderRadius: '4px', zIndex: 1 }}
             onClick={openQuickReplyModal} // Example action: open quick reply modal to save this message
           >
             Save as a new quick reply
@@ -691,8 +691,8 @@ const PatientDetail = () => {
           <button type="button" className="btn-close" onClick={() => toggleModal("forceGo")} aria-label="Close"></button>
         </div>
         <div className="modal-body">
-          <div className="mb-4"><p className="mb-0">When Force Go is activated, the patient will be told to <span className="fw-bold" style={{ color: '#16b1c7' }}>switch to their next aligners</span> regardless of what is detected on their Scan.</p></div>
-          <div className="alert alert-info mb-0"><p className="mb-0">This will apply to the <span className="fw-bold" style={{ color: '#16b1c7' }}>next scan only</span>.</p></div>
+          <div className="mb-4"><p className="mb-0">When Force Go is activated, the patient will be told to <span className="fw-bold" style={{ color: '#1da5fe' }}>switch to their next aligners</span> regardless of what is detected on their Scan.</p></div>
+          <div className="alert alert-info mb-0"><p className="mb-0">This will apply to the <span className="fw-bold" style={{ color: '#1da5fe' }}>next scan only</span>.</p></div>
         </div>
         <div className="modal-footer">
           <Button color="light" onClick={() => toggleModal("forceGo")}>Cancel</Button>
@@ -824,7 +824,7 @@ const PatientDetail = () => {
           <div className="p-3 mb-4 border rounded bg-light-subtle">
             <div className="d-flex align-items-center mb-3">
               <div className="form-switch me-2"><Input type="switch" id="goSwitch" checked={!!adaptiveIntervalSettings.go.enabled} onChange={e => setAdaptiveIntervalSettings(s => ({ ...s, go: { ...s.go, enabled: e.target.checked } }))} /></div>
-              <span className="fw-bold" style={{ color: adaptiveIntervalSettings.go.enabled ? '#16b1c7' : '#bfc9d1' }}>GO</span>
+              <span className="fw-bold" style={{ color: adaptiveIntervalSettings.go.enabled ? '#1da5fe' : '#bfc9d1' }}>GO</span>
             </div>
             <div className="d-flex flex-nowrap align-items-center gap-2">
               <Input type="select" value={adaptiveIntervalSettings.go.condition} onChange={e => setAdaptiveIntervalSettings(s => ({ ...s, go: { ...s.go, condition: e.target.value } }))} disabled={!adaptiveIntervalSettings.go.enabled} className="select-wide"><option value="all">All throughout treatment</option><option value="after">After</option></Input>
@@ -839,7 +839,7 @@ const PatientDetail = () => {
           <div className="p-3 border rounded bg-light-subtle">
             <div className="d-flex align-items-center mb-3">
               <div className="form-switch me-2"><Input type="switch" id="noGoSwitch" checked={!!adaptiveIntervalSettings.noGo.enabled} onChange={e => setAdaptiveIntervalSettings(s => ({ ...s, noGo: { ...s.noGo, enabled: e.target.checked } }))} /></div>
-              <span className="fw-bold" style={{ color: adaptiveIntervalSettings.noGo.enabled ? '#16b1c7' : '#bfc9d1' }}>NO-GO/GO-BACK</span>
+              <span className="fw-bold" style={{ color: adaptiveIntervalSettings.noGo.enabled ? '#1da5fe' : '#bfc9d1' }}>NO-GO/GO-BACK</span>
             </div>
             <div className="d-flex flex-nowrap align-items-center gap-2">
               <Input type="select" value={adaptiveIntervalSettings.noGo.condition} onChange={e => setAdaptiveIntervalSettings(s => ({ ...s, noGo: { ...s.noGo, condition: e.target.value } }))} disabled={!adaptiveIntervalSettings.noGo.enabled} style={{ maxWidth: 200 }}><option value="all">All throughout treatment</option><option value="after">After</option></Input>
@@ -1037,7 +1037,7 @@ const PatientDetail = () => {
 function ActionItem({ icon, label, iconColor, onClick }) {
   return (
     <Button color="link" className="action-item d-flex align-items-center p-2 text-start w-100" onClick={onClick} style={{textDecoration: 'none'}}>
-      <i className={`mdi ${icon} me-2`} style={{ color: iconColor || '#16b1c7', fontSize: '1.2rem' }}></i>
+      <i className={`mdi ${icon} me-2`} style={{ color: iconColor || '#1da5fe', fontSize: '1.2rem' }}></i>
       <span style={{color: '#495057'}}>{label}</span>
     </Button>
   );

@@ -1,20 +1,32 @@
-import React, { useState } from "react";
+import React from "react";
 
 const Navdata = () => {
-  const [ui, setui] = useState(false);
-
   const NavnavData = [
     {
-      id: 1,
-      label: "Dashboard",
-      icon: "mdi mdi-home-variant-outline me-2",
-      isdropDown: true,
-      click: function () {
-        setui(false);
-      },
+      label: "Menu",
+      isMainMenu: true,
+    },
+    {
+      label: "Notifications",
+      icon: "mdi mdi-bell-outline",
+      url: "/notifications"
+    },
+    {
+      label: "Patients",
+      icon: "mdi mdi-account-group-outline",
+      url: "/patients"
+    },
+    {
+      label: "To-Do List",
+      icon: "mdi mdi-format-list-checks",
+      url: "/todo-list"
+    },
+    {
+      label: "Quick Replies",
+      icon: "mdi mdi-reply-all-outline",
+      url: "/quick-replies"
     }
   ];
-  
   return <React.Fragment>{NavnavData}</React.Fragment>;
 };
 

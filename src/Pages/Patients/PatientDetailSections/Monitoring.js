@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment, useRef, useEffect } from 'react';
 import { Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, Label } from 'reactstrap';
+import VisTimeline from './VisTimeline';
+import FullscreenImageModal from './FullscreenImageModal';
+import FullscreenComparisonModal from './FullscreenComparisonModal';
+import DetailedStatsModal from './DetailedStatsModal';
 
+// --- MOCK DATA ---
 const mockImages = [
   require('../../../assets/images/intraoral_1.jpg'),
   require('../../../assets/images/intraoral_1.jpg'),
   require('../../../assets/images/intraoral_1.jpg'),
-  require('../../../assets/images/intraoral_1.jpg'),
-  require('../../../assets/images/intraoral_1.jpg'),
+  require('../../../assets/images/intraoral_2.jpg'),
+  require('../../../assets/images/intraoral_2.jpg'),
+  require('../../../assets/images/intraoral_2.jpg'),
+  require('../../../assets/images/intraoral_2.jpg'),
+  require('../../../assets/images/intraoral_2.jpg'),
+  require('../../../assets/images/intraoral_2.jpg'),
+  require('../../../assets/images/intraoral_2.jpg'),
+  require('../../../assets/images/intraoral_2.jpg'),
 ];
 
 const mockObservations = {
@@ -30,44 +41,101 @@ const mockObservations = {
 };
 
 const mockIndices = {
-  overbite: '-',
-  overjet: '-',
-  midlineDeviation: '-',
+  overbite: '2mm',
+  overjet: '1.5mm',
+  midlineDeviation: '0.5mm Right',
   right: { molar: '-', cuspid: '-' },
   left: { molar: '-', cuspid: '-' },
 };
 
-const ImageViewer = ({ images, onSendPhoto, onSendVideo }) => {
-  // For now, always select the first image as main (can be made dynamic later)
+const mockTimelinePoints = [
+  { alignerIndex: 'Slight unseat', dataObjectLabel: '2025-05-01', tooltip: 'Slight unseat: 1.2' },
+  { alignerIndex: 'Noticeable unseat', dataObjectLabel: '2025-05-10', tooltip: 'Noticeable unseat: 2.2' },
+  { alignerIndex: 'Slight unseat', dataObjectLabel: '2025-05-15', tooltip: 'Slight unseat: 1.3' },
+  { alignerIndex: 'Noticeable unseat', dataObjectLabel: '2025-05-20', tooltip: 'Noticeable unseat: 2.3' },
+  // ... more points as needed
+];
+
+// --- CONSTANTS ---
+const QUICK_REPLIES = [
+  '',
+  'Please use chewies for better aligner fit',
+  'Please send a new scan',
+  'Please schedule your next appointment',
+];
+
+// --- PRESENTATIONAL COMPONENTS ---
+
+const ImageViewer = ({ images, onSendPhoto, onSendVideo, onMainImageClick }) => {
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const thumbnailsRef = useRef(null);
+
+  // Get the currently selected image
+  const mainImage = images.length > 0 ? images[selectedImageIndex] : 'placeholder.jpg';
+
+  // Handler for thumbnail click
+  const handleThumbnailClick = (index) => {
+    setSelectedImageIndex(index);
+  };
+
+  // Scroll the selected thumbnail into view
+  useEffect(() => {
+    if (thumbnailsRef.current) {
+      const selectedThumb = thumbnailsRef.current.children[selectedImageIndex];
+      if (selectedThumb) {
+        // Only scroll if the selected index is 3 or greater (4th thumbnail onwards)
+        if (selectedImageIndex >= 3) {
+          // Calculate the scroll position to center the thumbnail
+          const containerHeight = thumbnailsRef.current.clientHeight;
+          const thumbHeight = selectedThumb.offsetHeight;
+          const thumbTop = selectedThumb.offsetTop;
+          const scrollPosition = thumbTop - (containerHeight / 2) + (thumbHeight / 2);
+
+          thumbnailsRef.current.scrollTo({
+            top: scrollPosition,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+  }, [selectedImageIndex]);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 32, minHeight: 400 }}>
-      {/* Main Image and actions */}
-      <div style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', padding: 8 }}>
+    <div className="image-viewer-container">
+      <div className="image-viewer-main-content">
         <img
-          src={images[0]}
+          src={mainImage}
           alt="Main intraoral"
-          style={{ width: 520, height: 390, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee', background: '#fff' }}
+          className="image-viewer-main-image"
+          style={{ cursor: 'zoom-in' }}
+          onClick={onMainImageClick}
         />
-        {/* Action buttons below image */}
-        <div style={{ display: 'flex', flexDirection: 'row', gap: 24, marginTop: 18, justifyContent: 'center' }}>
-          <button type="button" style={{ background: 'none', border: 'none', color: '#16b1c7', fontWeight: 500, fontSize: 16, display: 'flex', alignItems: 'center', cursor: 'pointer', padding: 0 }} onClick={onSendPhoto}>
-            <i className="mdi mdi-camera-outline" style={{ fontSize: 22, marginRight: 6 }}></i>
+        <div className="image-viewer-actions">
+          <button type="button" className="image-viewer-action-button" onClick={onSendPhoto}>
+            <i className="mdi mdi-camera-outline"></i>
             Send photo
           </button>
-          <button type="button" style={{ background: 'none', border: 'none', color: '#16b1c7', fontWeight: 500, fontSize: 16, display: 'flex', alignItems: 'center', cursor: 'pointer', padding: 0 }} onClick={onSendVideo}>
-            <i className="mdi mdi-video-outline" style={{ fontSize: 22, marginRight: 6 }}></i>
+          <button type="button" className="image-viewer-action-button" onClick={onSendVideo}>
+            <i className="mdi mdi-video-outline"></i>
             Send video
           </button>
         </div>
       </div>
-      {/* Thumbnails on the right */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'flex-start', marginLeft: 16 }}>
+      <div 
+        className="image-viewer-thumbnails"
+        ref={thumbnailsRef}
+        onWheel={(e) => {
+          // Prevent the page from scrolling when using the mouse wheel on thumbnails
+          e.stopPropagation();
+        }}
+      >
         {images.map((img, idx) => (
           <img
-            key={idx}
+            key={`thumb-${idx}`}
             src={img}
             alt={`Thumbnail ${idx + 1}`}
-            style={{ width: 100, height: 75, objectFit: 'cover', borderRadius: 6, border: idx === 0 ? '3px solid #16b1c7' : '1px solid #eee', boxShadow: idx === 0 ? '0 0 0 2px #e0f7fa' : 'none', background: '#fff' }}
+            onClick={() => handleThumbnailClick(idx)}
+            className={`thumbnail-image ${idx === selectedImageIndex ? 'active' : ''}`}
           />
         ))}
       </div>
@@ -75,205 +143,390 @@ const ImageViewer = ({ images, onSendPhoto, onSendVideo }) => {
   );
 };
 
-const ObservationsGoals = ({ obs }) => (
-  <div style={{ marginBottom: 24 }}>
-    <div style={{ marginBottom: 8 }}>
-      <h5>Goal(s)</h5>
-      <ul>{obs.generalGoals.map((item, i) => <li key={i}>{item}</li>)}</ul>
-    </div>
-    <h5>Observation(s)</h5>
-    <div style={{ marginBottom: 8 }}>
-      <strong style={{ color: '#e74c3c' }}>Alert</strong>
-      <ul>{obs.alert.map((item, i) => <li key={i}>{item}</li>)}</ul>
-    </div>
-    <div style={{ marginBottom: 8 }}>
-      <strong style={{ color: '#f39c12' }}>Warning</strong>
-      <ul>{obs.warning.map((item, i) => <li key={i}>{item}</li>)}</ul>
-    </div>
-    <div style={{ marginBottom: 8 }}>
-      <strong style={{ color: '#888' }}>Silent</strong>
-      <ul>{obs.silent.map((item, i) => <li key={i}>{item}</li>)}</ul>
-    </div>
-    {obs.info.length > 0 && (
-      <div style={{ marginBottom: 8 }}>
-        <strong>Info</strong>
-        <ul>{obs.info.map((item, i) => <li key={i}>{item}</li>)}</ul>
+const ObservationsGoals = ({ obs }) => {
+  const observationCategories = [
+    { type: 'alert', title: 'Alert', className: 'text-alert' },
+    { type: 'warning', title: 'Warning', className: 'text-warning' },
+    { type: 'silent', title: 'Silent', className: 'text-silent' }, // Assuming 'text-silent' is a defined CSS class
+    { type: 'info', title: 'Info', className: '' }, // No specific class for info or add one if needed
+  ];
+
+  return (
+    <div className="observations-goals-container">
+      <div className="observations-goals-title-group">
+        <h5>Goal(s)</h5>
+        {obs.generalGoals && obs.generalGoals.length > 0 ? (
+          <ul>{obs.generalGoals.map((item, i) => <li key={`goal-${i}`}>{item}</li>)}</ul>
+        ) : (
+          <p>No general goals specified.</p>
+        )}
       </div>
-    )}
-    {/* Add Anteroposterior, Transverse, Vertical if needed */}
-  </div>
-);
+      <h5>Observation(s)</h5>
+      {observationCategories.map(category => {
+        const items = obs[category.type];
+        if (items && items.length > 0) {
+          return (
+            <div className="observation-category" key={category.type}>
+              <strong className={category.className}>{category.title}</strong>
+              <ul>{items.map((item, i) => <li key={`${category.type}-item-${i}`}>{item}</li>)}</ul>
+            </div>
+          );
+        }
+        return null;
+      })}
+    </div>
+  );
+};
 
 const IndicesPanel = ({ indices }) => (
-  <div style={{ border: '1px solid #eee', borderRadius: 8, padding: 16, background: '#fafbfc', minWidth: 260 }}>
-    <h6 style={{ fontWeight: 600, marginBottom: 12 }}>Indices</h6>
-    {/* Indices Table */}
-    <table style={{ width: '100%', fontSize: 14, marginBottom: 18 }}>
+  <div className="indices-panel">
+    <h6 className="indices-panel-title">Indices</h6>
+    <table className="indices-table">
       <tbody>
         <tr>
-          <td style={{ fontWeight: 500 }}>Overbite</td>
-          <td style={{ textAlign: 'right' }}>-</td>
+          <td>Overbite</td>
+          <td>{indices.overbite || '-'}</td>
         </tr>
         <tr>
-          <td style={{ fontWeight: 500 }}>Overjet</td>
-          <td style={{ textAlign: 'right' }}>-</td>
+          <td>Overjet</td>
+          <td>{indices.overjet || '-'}</td>
         </tr>
         <tr>
-          <td style={{ fontWeight: 500 }}>Midline deviation</td>
-          <td style={{ textAlign: 'right' }}>-</td>
+          <td>Midline deviation</td>
+          <td>{indices.midlineDeviation || '-'}</td>
         </tr>
       </tbody>
     </table>
-    <h6 style={{ fontWeight: 600, marginBottom: 8, marginTop: 8 }}>Occlusions</h6>
-    {/* Occlusions Table */}
-    <table style={{ width: '100%', fontSize: 14, borderCollapse: 'collapse' }}>
+    <h6 className="indices-panel-title">Occlusions</h6>
+    <table className="occlusions-table">
       <thead>
         <tr>
-          <th style={{ fontWeight: 500, textAlign: 'center', borderBottom: '1px solid #e0e0e0' }}></th>
-          <th style={{ fontWeight: 500, textAlign: 'center', borderBottom: '1px solid #e0e0e0' }}>Right</th>
-          <th style={{ fontWeight: 500, textAlign: 'center', borderBottom: '1px solid #e0e0e0' }}>Left</th>
+          <th></th>
+          <th>Right</th>
+          <th>Left</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td style={{ fontWeight: 500, textAlign: 'left' }}>Molar</td>
-          <td style={{ textAlign: 'center' }}>-</td>
-          <td style={{ textAlign: 'center' }}>-</td>
+          <td>Molar</td>
+          <td>{indices.right?.molar || '-'}</td>
+          <td>{indices.left?.molar || '-'}</td>
         </tr>
         <tr>
-          <td style={{ fontWeight: 500, textAlign: 'left' }}>Cuspid</td>
-          <td style={{ textAlign: 'center' }}>-</td>
-          <td style={{ textAlign: 'center' }}>-</td>
+          <td>Cuspid</td>
+          <td>{indices.right?.cuspid || '-'}</td>
+          <td>{indices.left?.cuspid || '-'}</td>
         </tr>
       </tbody>
     </table>
   </div>
 );
 
+// --- MAIN COMPONENT ---
+
 const Monitoring = ({ patient }) => {
-  const [sendPhotoModal, setSendPhotoModal] = useState(false);
-  const [sendVideoModal, setSendVideoModal] = useState(false);
-  const [quickReply, setQuickReply] = useState('');
-  const [message, setMessage] = useState('');
-  const [scheduleLater, setScheduleLater] = useState(false);
-  const [scheduledDate, setScheduledDate] = useState('2025-05-27');
-  const [scheduledTime, setScheduledTime] = useState('12:00');
-  const [videoQuickReply, setVideoQuickReply] = useState('');
-  const [videoMessage, setVideoMessage] = useState('');
-  const [addTodo, setAddTodo] = useState(false);
-  const [todoDueDate, setTodoDueDate] = useState('2025-05-27');
-  const quickReplies = [
-    '',
-    'Please use chewies for better aligner fit',
-    'Please send a new scan',
-    'Please schedule your next appointment',
-  ];
+  const [sendPhotoModalOpen, setSendPhotoModalOpen] = useState(false);
+  const [sendVideoModalOpen, setSendVideoModalOpen] = useState(false);
+  const [fullscreenModalOpen, setFullscreenModalOpen] = useState(false);
+  const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
+  const [statsModalOpen, setStatsModalOpen] = useState(false);
+
+  // State for Send Photo Modal
+  const [photoQuickReply, setPhotoQuickReply] = useState('');
+  const [photoMessage, setPhotoMessage] = useState('');
+  const [photoScheduleLater, setPhotoScheduleLater] = useState(false);
+  const [photoScheduledDate, setPhotoScheduledDate] = useState('2025-05-27'); // Default or set dynamically
+  const [photoScheduledTime, setPhotoScheduledTime] = useState('12:00');    // Default or set dynamically
+
+  const toggleSendPhotoModal = () => setSendPhotoModalOpen(!sendPhotoModalOpen);
+  const toggleSendVideoModal = () => setSendVideoModalOpen(!sendVideoModalOpen);
+
+  const handleSendPhoto = () => {
+    // Logic to send photo message
+    console.log({
+      patient: patient?.name,
+      quickReply: photoQuickReply,
+      message: photoMessage,
+      scheduleLater: photoScheduleLater,
+      scheduledDate: photoScheduleLater ? photoScheduledDate : null,
+      scheduledTime: photoScheduleLater ? photoScheduledTime : null,
+    });
+    toggleSendPhotoModal();
+    // Reset form fields if needed
+    setPhotoQuickReply('');
+    setPhotoMessage('');
+    setPhotoScheduleLater(false);
+  };
+
+  const handleSendVideo = () => {
+    // Logic to proceed with video
+    console.log("Proceeding to video recording steps for patient:", patient?.name);
+    // This would typically involve more complex logic, perhaps another modal step or redirect.
+    toggleSendVideoModal();
+  };
+
+  const handleOpenFullscreenModal = () => setFullscreenModalOpen(true);
+  const handleCloseFullscreenModal = () => setFullscreenModalOpen(false);
+  const handleOpenComparisonModal = () => setComparisonModalOpen(true);
+  const handleCloseComparisonModal = () => setComparisonModalOpen(false);
+  const handleOpenStatsModal = () => setStatsModalOpen(true);
+  const handleCloseStatsModal = () => setStatsModalOpen(false);
+
+  // Prepare mock data for both sides
+  const leftData = {
+    patientName: patient?.name || 'Patient Left',
+    patientId: patient?.id || 'ID-LEFT',
+    timelineProps: {
+      timelinePoints: mockTimelinePoints,
+      hygienePoints: [],
+      height: 120,
+    },
+    imageViewerProps: {
+      images: mockImages,
+      onSendPhoto: toggleSendPhotoModal,
+      onSendVideo: toggleSendVideoModal,
+      onMainImageClick: () => {},
+    },
+    indicesPanelProps: { indices: mockIndices },
+    observationsGoalsProps: { obs: mockObservations },
+  };
+  const rightData = {
+    patientName: patient?.name || 'Patient Right',
+    patientId: patient?.id || 'ID-RIGHT',
+    timelineProps: {
+      timelinePoints: mockTimelinePoints,
+      hygienePoints: [],
+      height: 120,
+    },
+    imageViewerProps: {
+      images: mockImages,
+      onSendPhoto: toggleSendPhotoModal,
+      onSendVideo: toggleSendVideoModal,
+      onMainImageClick: () => {},
+    },
+    indicesPanelProps: { indices: mockIndices },
+    observationsGoalsProps: { obs: mockObservations },
+  };
+
+  // Example stats data for the modal
+  const statsData = {
+    aligners: [
+      { label: 'GO', color: '#16b77c', percentage: 67 },
+      { label: 'NO-GO/GO-BACK', color: '#e74c3c', percentage: 33 }
+    ],
+    debondedAttachments: 2,
+    hygiene: [
+      { label: 'No issues', color: '#16b77c', percentage: 50, scans: 3 },
+      { label: 'At least one issue', color: '#e74c3c', percentage: 50, scans: 3 }
+    ],
+    hygieneConditions: [
+      { label: 'Slight gingivitis', segments: [{ percentage: 40, scans: 2 }] },
+      { label: 'Buccal dental calculus', segments: [{ percentage: 30, scans: 1 }] },
+      { label: 'Slight gingivitis still present', segments: [{ percentage: 20, scans: 1 }] },
+      { label: 'Noticeable gingivitis', segments: [{ percentage: 10, scans: 1 }] },
+      { label: 'Persistent buccal dental calculus', segments: [{ percentage: 5, scans: 1 }] },
+    ],
+    scan: {
+      slightUnseat: [
+        { label: 'Slight unseat', color: '#1da5fe', percentage: 60 },
+        { label: '', color: '#e9ecef', percentage: 40 }
+      ],
+      noticeableUnseat: [
+        { label: 'Noticeable unseat', color: '#e74c3c', percentage: 30 },
+        { label: '', color: '#e9ecef', percentage: 70 }
+      ]
+    },
+    scanCompliance: [
+      { label: 'On time', color: '#16b77c', percentage: 55, scans: 5 },
+      { label: 'Late', color: '#e74c3c', percentage: 45, scans: 4 }
+    ],
+    scanComplianceTimeframes: [
+      { label: 'On time', segments: [{ percentage: 55, scans: 5 }] },
+      { label: '2 days to 1 week', segments: [{ percentage: 20, scans: 2 }] },
+      { label: '1-2 weeks', segments: [{ percentage: 10, scans: 1 }] },
+      { label: '2-4 weeks', segments: [{ percentage: 10, scans: 1 }] },
+      { label: 'More than 4 weeks', segments: [{ percentage: 5, scans: 1 }] },
+    ],
+  };
 
   return (
-    <div className="monitoring-section" style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-      {/* Image Viewer and Panels in a Card */}
-      <Card style={{ flex: '0 0 auto', minWidth: '100%', maxWidth: 'auto', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', borderRadius: 16 }}>
+    <div className="monitoring-section">
+      <Card className="monitoring-main-card">
         <CardBody>
-          <ImageViewer images={mockImages} onSendPhoto={() => setSendPhotoModal(true)} onSendVideo={() => setSendVideoModal(true)} />
-          <div style={{ marginTop: 24, display: 'flex', flexDirection: 'row', gap: 24, alignItems: 'flex-start' }}>
-            <div style={{ flex: 1 }}>
+          <VisTimeline
+            timelinePoints={mockTimelinePoints}
+            hygienePoints={[]}
+            height={120}
+            onCompare={handleOpenComparisonModal}
+            onShowStats={handleOpenStatsModal}
+          />
+          <ImageViewer
+            images={mockImages}
+            onSendPhoto={toggleSendPhotoModal}
+            onSendVideo={toggleSendVideoModal}
+            onMainImageClick={handleOpenFullscreenModal}
+          />
+          {/* <div className="monitoring-details-flex">
+            <div className="monitoring-observations-wrapper">
               <ObservationsGoals obs={mockObservations} />
             </div>
-            <div style={{ minWidth: 260, maxWidth: 320 }}>
+            <div className="monitoring-indices-wrapper">
               <IndicesPanel indices={mockIndices} />
             </div>
-          </div>
-        </CardBody>
-      </Card>
-      {/* Right: Placeholder for additional details or content */}
-      <div style={{ flex: 1, minWidth: 320 }}>
-        <div className="card">
-          <div className="card-body">
-            <p>Monitoring content will go here</p>
-          </div>
-        </div>
-      </div>
-      {/* Send Photo Modal */}
-      <Modal isOpen={sendPhotoModal} toggle={() => setSendPhotoModal(false)} centered size="lg">
-        <ModalHeader toggle={() => setSendPhotoModal(false)}>
-          Write a message to send to your patient {patient?.name || '[Name]'}
-        </ModalHeader>
-        <ModalBody style={{ minWidth: 600 }}>
-          <div style={{ textAlign: 'center', marginBottom: 16 }}>
-            <img src={mockImages[0]} alt="Intraoral" style={{ width: 320, height: 240, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee' }} />
-            <div>
-              <a href="#" style={{ color: '#888', fontSize: 15, textDecoration: 'underline', marginTop: 8, display: 'inline-block' }}>Annotate picture</a>
+          </div> */}
+          <div className="monitoring-details-flex">
+            <div className="monitoring-observations-wrapper">
+              {/* long but meaning full description text instead of any component */}
+              <p>Clinical assessment reveals the presence of a slight unseat involving the patient's right coxofemoral prosthesis.  </p>
             </div>
           </div>
-          <div style={{ marginBottom: 16 }}>
-            <Label className="fw-bold mb-2">Write your message</Label>
-            <Input type="select" value={quickReply} onChange={e => setQuickReply(e.target.value)} className="mb-2">
-              {quickReplies.map((qr, idx) => (
-                <option key={idx} value={qr}>{qr ? qr : 'Select a quick reply'}</option>
-              ))}
-            </Input>
-            <Input type="textarea" rows="3" value={message} onChange={e => setMessage(e.target.value)} placeholder="Type your message..." />
+          
+
+        </CardBody>
+      </Card>
+
+      {/* Send Photo Modal */}
+      <Modal isOpen={sendPhotoModalOpen} toggle={toggleSendPhotoModal} centered size="lg">
+        <ModalHeader toggle={toggleSendPhotoModal}>
+          Write a message to send to your patient {patient?.name || '[Patient Name]'}
+        </ModalHeader>
+        <ModalBody className="send-message-modal-body">
+          <div className="modal-image-preview-container">
+            {mockImages.length > 0 && (
+              <img src={mockImages[0]} alt="Intraoral preview" className="modal-image-preview" />
+            )}
+            <div>
+              {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+              <a href="#" className="modal-annotate-link">Annotate picture</a>
+            </div>
           </div>
-          <div style={{ borderTop: '1px solid #eee', paddingTop: 12, marginTop: 12 }}>
+          <div className="message-label-container">
+            <Label className="form-label-block fw-bold mb-2">WRITE YOUR MESSAGE:</Label>
+            <div className="message-input-area-wrapper">
+              <div className="message-toolbar">
+                <Input
+                  type="select"
+                  value={photoQuickReply}
+                  onChange={e => setPhotoQuickReply(e.target.value)}
+                  className="quick-reply-select"
+                  bsSize="sm" // Optional: for smaller select
+                >
+                  {QUICK_REPLIES.map((qr, idx) => (
+                    <option key={`qr-${idx}`} value={qr}>{qr ? qr : 'Select a quick reply'}</option>
+                  ))}
+                </Input>
+              </div>
+              <Input
+                type="textarea"
+                rows="6"
+                value={photoMessage}
+                onChange={e => setPhotoMessage(e.target.value)}
+                placeholder="Type your message..."
+                className="message-textarea"
+              />
+            </div>
+          </div>
+          <div className="schedule-message-container">
             <FormGroup check className="mb-2">
               <Input
                 type="checkbox"
                 id="send-photo-schedule-later"
               />
-              <Label for="send-photo-schedule-later" check style={{ marginLeft: 8, fontWeight: 500 }}>
+              <Label for="send-photo-schedule-later" check className="checkbox-label-styled">
                 Send this message later
               </Label>
             </FormGroup>
-            <div style={{ display: 'flex', width: '100%', gap: 12, marginTop: 8 }}>
-              <Input type="date" value={scheduledDate} onChange={e => setScheduledDate(e.target.value)} style={{ flex: 3, minWidth: 0 }} />
-              <Input type="time" value={scheduledTime} onChange={e => setScheduledTime(e.target.value)} style={{ flex: 2, minWidth: 0 }} />
+            <div className="datetime-input-group">
+              <Input
+                type="date"
+                className="date-input-flex"
+              />
+              <Input
+                type="time"
+                className="time-input-flex"
+              />
             </div>
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button color="light" onClick={() => setSendPhotoModal(false)}>Cancel</Button>
-          <Button color="primary" onClick={() => setSendPhotoModal(false)}>Send</Button>
+          <Button color="light" onClick={toggleSendPhotoModal}>Cancel</Button>
+          <Button color="primary" onClick={handleSendPhoto}>Send</Button>
         </ModalFooter>
       </Modal>
+
       {/* Send Video Modal */}
-      <Modal isOpen={sendVideoModal} toggle={() => setSendVideoModal(false)} centered size="lg">
-        <ModalHeader toggle={() => setSendVideoModal(false)}>
-          Send a video message to {patient?.name || '[Name]'}
+      <Modal isOpen={sendVideoModalOpen} toggle={toggleSendVideoModal} centered size="lg">
+        <ModalHeader toggle={toggleSendVideoModal}>
+          Send a video message to {patient?.name || '[Patient Name]'}
         </ModalHeader>
-        <ModalBody style={{ minWidth: 600 }}>
-          <div style={{ marginBottom: 16 }}>
-            <Label className="fw-bold mb-2">Instruction</Label>
-            <Input type="select" value={videoQuickReply} onChange={e => setVideoQuickReply(e.target.value)} className="mb-2">
-              {quickReplies.map((qr, idx) => (
-                <option key={idx} value={qr}>{qr ? qr : 'Select a quick reply'}</option>
-              ))}
-            </Input>
-            <Input type="textarea" rows="3" value={videoMessage} onChange={e => setVideoMessage(e.target.value)} placeholder="Type your instruction..." />
+        <ModalBody className="send-message-modal-body">
+          <div className="video-modal-steps-header">
+            <ol className="video-modal-steps-list">
+              <li className="video-modal-step-item">Define settings</li>
+              <li className="video-modal-step-item">Share the screen (select current browser tab)</li>
+              <li className="video-modal-step-item">Record video (max 2min)</li>
+              <li>Preview and send</li>
+            </ol>
           </div>
-          <div style={{ borderTop: '1px solid #eee', paddingTop: 12, marginTop: 12 }}>
-            <FormGroup check className="mb-2">
-              <Input
-                type="checkbox"
-                id="send-video-add-todo"
-                checked={addTodo}
-                onChange={e => setAddTodo(e.target.checked)}
-              />
-              <Label for="send-video-add-todo" check style={{ marginLeft: 8, fontWeight: 500 }}>
-                Add to the To-do List
+          <div className="d-flex gap-4 mb-3">
+            <FormGroup check className="mb-0">
+              <Input type="checkbox" id="video-mic" />
+              <Label for="video-mic" check className="checkbox-label-styled">
+                I have a microphone
               </Label>
             </FormGroup>
-            <div style={{ display: 'flex', width: '100%', gap: 12, marginTop: 8 }}>
-              <Input type="date" value={todoDueDate} onChange={e => setTodoDueDate(e.target.value)} style={{ flex: 1, minWidth: 0 }} />
+            <FormGroup check className="mb-0">
+              <Input type="checkbox" id="video-webcam" />
+              <Label for="video-webcam" check className="checkbox-label-styled">
+                I have a webcam
+              </Label>
+            </FormGroup>
+          </div>
+          <div className="warning-box-modal">
+            <i className="mdi mdi-alert-circle-outline warning-box-icon"></i>
+            <div>
+              Your browser will request authorization for <b>screen</b>, <b>microphone</b>, and <b>webcam</b> access. Please accept these requests. You can disable access later in your browser settings.
+            </div>
+          </div>
+          <div className="tip-box-modal">
+            <i className="mdi mdi-lightbulb-on-outline tip-box-icon"></i>
+            <div>
+              Tip: Use <b>arrow keys</b> to navigate scans/photos and <b>draw with your mouse</b> for annotations.
             </div>
           </div>
         </ModalBody>
-        <ModalFooter>
-          <Button color="light" onClick={() => setSendVideoModal(false)}>Cancel</Button>
-          <Button color="primary" onClick={() => setSendVideoModal(false)}>Send</Button>
+        <ModalFooter className="video-modal-footer">
+          <Button color="light" onClick={toggleSendVideoModal}>Cancel</Button>
+          <Button color="primary" onClick={handleSendVideo}>Next</Button>
         </ModalFooter>
       </Modal>
+
+      {/* Fullscreen Image Modal */}
+      <FullscreenImageModal
+        isOpen={fullscreenModalOpen}
+        toggle={handleCloseFullscreenModal}
+        onCompare={() => {}}
+      />
+
+      <FullscreenComparisonModal
+        isOpen={comparisonModalOpen}
+        toggle={handleCloseComparisonModal}
+        leftData={leftData}
+        rightData={rightData}
+      />
+
+      <DetailedStatsModal
+        isOpen={statsModalOpen}
+        toggle={handleCloseStatsModal}
+        statsData={statsData}
+      />
     </div>
   );
 };
 
-export default Monitoring; 
+// To use this component, you would import it and pass a patient object:
+// import Monitoring from './Monitoring'; // Assuming this file is named Monitoring.js
+// <Monitoring patient={{ name: 'Jane Doe' }} />
+
+export { ImageViewer, IndicesPanel, ObservationsGoals };
+export default Monitoring;

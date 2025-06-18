@@ -103,6 +103,10 @@
 
 .page-content {
     padding: calc(70px + 24px) calc(24px / 2) 60px calc(24px / 2);
+
+    &.no-navbar {
+        padding-top: 1rem;
+    }
 }
 
 .header-item {
@@ -319,6 +323,11 @@ body[data-layout="horizontal"] {
         margin-top: calc(#{$header-height} - 10px);
         padding: calc(55px + #{$grid-gutter-width}) calc(#{$grid-gutter-width} / 2) $footer-height
             calc(#{$grid-gutter-width} / 2);
+
+        &.no-navbar {
+            margin-top: 3rem;
+            padding-top: 3rem;
+        }
     }
 }
 

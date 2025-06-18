@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
 import { withTranslation } from "react-i18next";
+import { isPathActive } from '../../utils/pathMatch';
 
 const Navbar = (props) => {
   const location = useLocation();
@@ -23,16 +24,37 @@ const Navbar = (props) => {
                 id="topnav-menu-content"
               >
                 <ul className="navbar-nav">
-                  {props.navbarMenuItems.map((item, key) => (
-                    <li key={key} className="nav-item">
-                      <Link
-                        to={item.url}
-                        className={`nav-link${location.pathname === item.url ? ' active' : ''}`}
-                      >
-                        {props.t(item.label)}
-                      </Link>
-                    </li>
-                  ))}
+                  {props.navbarMenuItems.map((item, key) => {
+                    const isActive = isPathActive(location.pathname, item.url);
+                    const isNotifications = item.label === 'Notifications';
+                    return (
+                      <li key={key} className="nav-item">
+                        <Link
+                          to={item.url}
+                          className={`nav-link${isActive ? ' active' : ''}`}
+                        >
+                          {props.t(item.label)}
+                          {isNotifications && (
+                            <span style={{
+                              display: 'inline-block',
+                              background: '#ef5350',
+                              color: 'white',
+                              borderRadius: '999px',
+                              fontSize: '13px',
+                              fontWeight: 600,
+                              minWidth: 20,
+                              height: 20,
+                              lineHeight: '20px',
+                              textAlign: 'center',
+                              marginLeft: 8,
+                              verticalAlign: 'middle',
+                              boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+                            }}>4</span>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </Collapse>
             </nav>

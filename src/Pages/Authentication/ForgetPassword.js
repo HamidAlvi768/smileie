@@ -145,8 +145,8 @@ const { forgetSuccessMsg, forgetError } = useSelector(forgetpass);
                   </Link>{" "}
                 </p>
                 <p>
-                  © {new Date().getFullYear()} Upzet. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger" /> by Themesdesign
+                  © {new Date().getFullYear()} Developed by{" "}
+                  <i className="mdi mdi-heart text-danger" /> by Jantrah Tech
                 </p>
               </div>
             </Col>

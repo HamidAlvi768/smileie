@@ -1,24 +1,27 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import UsePanel from "./UserPanel";
-import OrderStatus from "./OrderStatus";
-import Notifications from "./Notifications";
 import SocialSource from "./SocialSource";
 import OverView from "./OverView";
 import RevenueByLocation from "./RevenueByLocation";
 import LatestTransation from "./LatestTransation";
 
-import { Row, Container } from "reactstrap";
+import { Row, Container, Col } from "reactstrap";
 
 //Import Breadcrumb
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import shouldHaveNavbar from "../../utils/navbar";
 
 const Dashboard = () => {
-  document.title = "Dashboard | Upzet - React Admin & Dashboard Template";
+  document.title = "Dashboard | Smileie";
+  const location = useLocation();
+  const hasNavbar = shouldHaveNavbar(location.pathname);
+  
   return (
     <React.Fragment>
-      <div className="page-content">
+      <div className={`page-content no-navbar`}>
         <Container fluid={true}>
-          <Breadcrumbs title="Upzet" breadcrumbItem="Dashboard" />
+          <Breadcrumbs title="Smileie" breadcrumbItem="Dashboard" />
           {/* User Panel Charts */}
           <UsePanel />
 
@@ -30,16 +33,11 @@ const Dashboard = () => {
           </Row>
 
           <Row>
-            {/* Order Stats */}
-            <OrderStatus />
-            {/* Notifications */}
-            <Notifications />
+            {/* Recent Patients Table */}
+              <LatestTransation />
             {/* Revenue by Location Vector Map */}
-            <RevenueByLocation />
+              <RevenueByLocation />
           </Row>
-
-          {/* Latest Transaction Table */}
-          <LatestTransation />
         </Container>
       </div>
     </React.Fragment>

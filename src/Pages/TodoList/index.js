@@ -89,22 +89,32 @@ const ToDoList = () => {
         <ModalBody>
           {actionType === "assign" && (
             <Form>
-              <FormGroup>
-                <Label>Assignee</Label>
-                <Input type="select">
-                  <option>Select Assignee</option>
-                  <option>Dr. Smith</option>
-                  <option>Dr. Johnson</option>
-                </Input>
-              </FormGroup>
-              <FormGroup>
-                <Label>Due Date</Label>
-                <Input type="date" />
-              </FormGroup>
-              <FormGroup>
-                <Label>Comments</Label>
-                <Input type="textarea" />
-              </FormGroup>
+              <Row>
+                <Col md={6}>
+                  <FormGroup>
+                    <Label>Assignee</Label>
+                    <Input type="select">
+                      <option>Select Assignee</option>
+                      <option>Dr. Smith</option>
+                      <option>Dr. Johnson</option>
+                    </Input>
+                  </FormGroup>
+                </Col>
+                <Col md={6}>
+                  <FormGroup>
+                    <Label>Due Date</Label>
+                    <Input type="date" />
+                  </FormGroup>
+                </Col>
+              </Row>
+              <Row>
+                <Col md={12}>
+                  <FormGroup>
+                      <Label>Comments</Label>
+                    <Input type="textarea" />
+                  </FormGroup>
+                </Col>
+              </Row>
             </Form>
           )}
           {actionType === "message" && (
@@ -244,27 +254,6 @@ const ToDoList = () => {
                                   onClick={() => toggle("assign", item)}
                                 >
                                   Assign
-                                </Button>
-                                <Button
-                                  color="info"
-                                  size="sm"
-                                  onClick={() => toggle("message", item)}
-                                >
-                                  Message
-                                </Button>
-                                <Button
-                                  color="warning"
-                                  size="sm"
-                                  onClick={() => toggle("clinical", item)}
-                                >
-                                  Clinical
-                                </Button>
-                                <Button
-                                  color="success"
-                                  size="sm"
-                                  onClick={() => toggle("review", item)}
-                                >
-                                  Review
                                 </Button>
                               </div>
                             </td>

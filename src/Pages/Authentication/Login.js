@@ -318,8 +318,8 @@ const Login = (props) => {
                   </Link>{" "}
                 </p>
                 <p className="text-white-50">
-                  © {new Date().getFullYear()} Upzet. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger"></i> by Themesdesign
+                  © {new Date().getFullYear()} Developed by{" "}
+                   by Jantrah Tech
                 </p>
               </div>
             </Col>

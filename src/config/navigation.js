@@ -1,6 +1,10 @@
-
-
 export const headerMenuItems = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: "mdi mdi-home-outline",
+    url: "/dashboard",
+  },
   {
     id: "notifications",
     label: "Notifications",
@@ -50,38 +54,38 @@ export const headerMenuItems = [
       },
     ],
   },
-  {
-    id: "todo",
-    label: "To-Do List",
-    icon: "mdi mdi-format-list-checks",
-    navbarItems: [
-      {
-        id: "monitored",
-        label: "Monitored",
-        url: "/todo/monitored",
-      },
-      {
-        id: "not-monitored",
-        label: "Not Monitored",
-        url: "/todo/not-monitored",
-      },
-      {
-        id: "guardians",
-        label: "Guardians",
-        url: "/todo/guardians",
-      },
-    ],
-  },
-  {
-    id: "quick-replies",
-    label: "Quick Replies",
-    icon: "mdi mdi-reply-all-outline",
-    navbarItems: [
-      {
-        id: "templates",
-        label: "Templates",
-        url: "/quick-replies",
-      }
-    ],
-  },
+  // {
+  //   id: "todo",
+  //   label: "To-Do List",
+  //   icon: "mdi mdi-format-list-checks",
+  //   navbarItems: [
+  //     {
+  //       id: "monitored",
+  //       label: "Monitored",
+  //       url: "/todo/monitored",
+  //     },
+  //     {
+  //       id: "not-monitored",
+  //       label: "Not Monitored",
+  //       url: "/todo/not-monitored",
+  //     },
+  //     {
+  //       id: "guardians",
+  //       label: "Guardians",
+  //       url: "/todo/guardians",
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: "quick-replies",
+  //   label: "Quick Replies",
+  //   icon: "mdi mdi-reply-all-outline",
+  //   navbarItems: [
+  //     {
+  //       id: "templates",
+  //       label: "Templates",
+  //       url: "/quick-replies",
+  //     }
+  //   ],
+  // },
 ]; 

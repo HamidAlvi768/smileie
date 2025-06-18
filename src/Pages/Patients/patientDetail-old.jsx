@@ -300,7 +300,7 @@ const PatientDetail = () => {
             className="save-quick-reply"
             style={{
               fontSize: '0.8rem',
-              color: '#16b1c7',
+              color: '#1da5fe',
               cursor: 'pointer',
               backgroundColor: 'white',
               padding: '2px 8px',
@@ -373,7 +373,7 @@ const PatientDetail = () => {
   return (
     <div className="page-content">
       
-      <div className="topnav" style={{ marginTop: "-67px" }}>
+      <div className="topnav" style={{ marginTop: "-70px" }}>
         <Container fluid>
           <nav className="navbar navbar-light navbar-expand-lg topnav-menu" id="navigation">
             <Collapse isOpen={true} className="navbar-collapse" id="topnav-menu-content">
@@ -396,7 +396,7 @@ const PatientDetail = () => {
       <Container fluid>
         <div className="d-flex align-items-center mb-3" style={{ minHeight: 56 }}>
           <Button color="link" className="p-0 me-3" style={{ fontSize: 24 }}>
-            <i className="mdi mdi-chevron-left" style={{ color: '#16b1c7' }}></i>
+            <i className="mdi mdi-chevron-left" style={{ color: '#1da5fe' }}></i>
           </Button>
           <div className="me-3" style={{ width: 56, height: 56, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <i className="mdi mdi-account-circle-outline" style={{ fontSize: 48, color: '#bfc9d1' }}></i>
@@ -405,23 +405,23 @@ const PatientDetail = () => {
             <div className="d-flex align-items-end gap-2">
               <span style={{ fontSize: 22, fontWeight: 500 }}>{patient.name}</span>
               <span style={{ color: '#bfc9d1', fontSize: 18, fontWeight: 400 }}>(A78B-58F2-W)</span>
-              <Button color="link" className="p-0 ms-3 d-flex align-items-center" style={{ color: '#16b1c7', fontWeight: 500, fontSize: 13, textDecoration: 'none' }} onClick={() => setCreateLabelModal(true)}>
+              <Button color="link" className="p-0 ms-3 d-flex align-items-center" style={{ color: '#1da5fe', fontWeight: 500, fontSize: 13, textDecoration: 'none' }} onClick={() => setCreateLabelModal(true)}>
                 <i className="mdi mdi-plus-circle-outline me-1" style={{ fontSize: 15, verticalAlign: 'middle' }}></i>
                 Add label
               </Button>
             </div>
             <div>
-              <a href="#" style={{ color: '#16b1c7', fontWeight: 500, fontSize: 15, textDecoration: 'none' }}>
+              <a href="#" style={{ color: '#1da5fe', fontWeight: 500, fontSize: 15, textDecoration: 'none' }}>
                 <i className="mdi mdi-play-circle-outline me-1" style={{ fontSize: 18, verticalAlign: 'middle' }}></i>
                 BEFORE/AFTER VIDEO
               </a>
             </div>
           </div>
           <div className="d-flex align-items-center gap-3 ms-auto">
-            <Button color="link" className="p-0" style={{ color: '#16b1c7', fontWeight: 500, fontSize: 14, textDecoration: 'none' }} onClick={() => { setNewActionModal(false); setAddVisitModal(true); }}>
+            <Button color="link" className="p-0" style={{ color: '#1da5fe', fontWeight: 500, fontSize: 14, textDecoration: 'none' }} onClick={() => { setNewActionModal(false); setAddVisitModal(true); }}>
               Add a visit
             </Button>
-            <Button color="primary" className="rounded-pill d-flex align-items-center px-3" style={{ fontWeight: 600, fontSize: 14, background: '#16b1c7', border: 'none', minHeight: 32 }} onClick={toggleNewActionModal}>
+            <Button color="primary" className="rounded-pill d-flex align-items-center px-3" style={{ fontWeight: 600, fontSize: 14, background: '#1da5fe', border: 'none', minHeight: 32 }} onClick={toggleNewActionModal}>
               <i className="mdi mdi-plus-circle-outline me-2" style={{ fontSize: 16 }}></i>
               New action
             </Button>
@@ -682,7 +682,7 @@ const PatientDetail = () => {
                         <div className="fw-bold">{sub}</div>
                         <button
                           className="btn btn-link btn-sm p-0 ms-2"
-                          style={{ color: '#16b1c7', fontWeight: 500, textDecoration: 'none' }}
+                          style={{ color: '#1da5fe', fontWeight: 500, textDecoration: 'none' }}
                           onClick={() => alert(`Edit ${sub}`)}
                         >
                           Edit
@@ -709,7 +709,7 @@ const PatientDetail = () => {
                 transform: 'translateY(-50%)',
                 width: '40px',
                 height: '40px',
-                backgroundColor: '#16b1c7',
+                backgroundColor: '#1da5fe',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -1080,7 +1080,7 @@ const PatientDetail = () => {
           <div className="mb-4">
             <p className="mb-0">
               When Force Go is activated, the patient will be told to{" "}
-              <span className="fw-bold" style={{ color: '#16b1c7' }}>
+              <span className="fw-bold" style={{ color: '#1da5fe' }}>
                 switch to their next aligners
               </span>{" "}
               regardless of what is detected on their Scan.
@@ -1089,7 +1089,7 @@ const PatientDetail = () => {
           <div className="alert alert-info mb-0">
             <p className="mb-0">
               This will apply to the{" "}
-              <span className="fw-bold" style={{ color: '#16b1c7' }}>
+              <span className="fw-bold" style={{ color: '#1da5fe' }}>
                 next scan only
               </span>
               .
@@ -1376,7 +1376,7 @@ const PatientDetail = () => {
                   onChange={e => setGoSettings(s => ({ ...s, enabled: e.target.checked }))}
                 />
               </div>
-              <span className="fw-bold" style={{ color: goSettings.enabled ? '#16b1c7' : '#bfc9d1' }}>GO</span>
+              <span className="fw-bold" style={{ color: goSettings.enabled ? '#1da5fe' : '#bfc9d1' }}>GO</span>
             </div>
             <div className="d-flex flex-nowrap align-items-center gap-2">
               <Input
@@ -1438,7 +1438,7 @@ const PatientDetail = () => {
                   onChange={e => setNoGoSettings(s => ({ ...s, enabled: e.target.checked }))}
                 />
               </div>
-              <span className="fw-bold" style={{ color: noGoSettings.enabled ? '#16b1c7' : '#bfc9d1' }}>NO-GO/GO-BACK</span>
+              <span className="fw-bold" style={{ color: noGoSettings.enabled ? '#1da5fe' : '#bfc9d1' }}>NO-GO/GO-BACK</span>
             </div>
             <div className="d-flex flex-nowrap align-items-center gap-2">
               <Input
@@ -1637,7 +1637,7 @@ const PatientDetail = () => {
                           <div className="fw-bold">{sub}</div>
                           <button
                             className="btn btn-link btn-sm p-0 ms-2"
-                            style={{ color: '#16b1c7', fontWeight: 500, textDecoration: 'underline' }}
+                            style={{ color: '#1da5fe', fontWeight: 500, textDecoration: 'underline' }}
                             onClick={() => alert(`Edit ${sub}`)}
                           >
                             Edit
@@ -1822,7 +1822,7 @@ const PatientDetail = () => {
 function ActionItem({ icon, label, iconColor, onClick }) {
   return (
     <Button color="link" className="w-100 d-flex align-items-center justify-content-start mb-2 px-2 py-2" style={{ textAlign: 'left', fontWeight: 500, fontSize: 15, color: '#222' }} onClick={onClick}>
-      <i className={`mdi ${icon} me-3`} style={{ fontSize: 22, color: iconColor || '#16b1c7' }}></i>
+      <i className={`mdi ${icon} me-3`} style={{ fontSize: 22, color: iconColor || '#1da5fe' }}></i>
       {label}
     </Button>
   );

@@ -3,7 +3,27 @@ import RadialChart from "./RadialChart";
 
 import { Card, CardBody, Col, Row } from "reactstrap";
 
-import { SocialSourceData } from "../../CommonData/Data/index";
+// Updated data for patient sources
+const PatientSourceData = [
+    {
+        title: "Referrals",
+        count: "425",
+        icon: "ri-user-follow-line",
+        bgcolor: "primary"
+    },
+    {
+        title: "Website",
+        count: "312",
+        icon: "ri-global-line",
+        bgcolor: "success"
+    },
+    {
+        title: "Direct",
+        count: "185",
+        icon: "ri-user-line",
+        bgcolor: "warning"
+    }
+];
 
 const SocialSource = () => {
   return (
@@ -11,19 +31,18 @@ const SocialSource = () => {
       <Col xl={4}>
         <Card>
           <CardBody>
-            <div className="d-flex  align-items-center">
+            <div className="d-flex align-items-center">
               <div className="flex-grow-1">
-                <h5 className="card-title">Social Source</h5>
+                <h5 className="card-title">Patient Sources</h5>
               </div>
               <div className="flex-shrink-0">
                 <select className="form-select form-select-sm mb-0 my-n1">
                   {[
-                    "May",
-                    "April",
-                    "March",
-                    "February",
-                    "January",
-                    "December",
+                    "Last 6 Months",
+                    "Last 3 Months",
+                    "Last Month",
+                    "Last Week",
+                    "Today",
                   ].map((item, key) => (
                     <option key={key} value={item}>
                       {item}
@@ -35,7 +54,7 @@ const SocialSource = () => {
             {/* RadialChart */}
             <RadialChart />
             <Row>
-              {SocialSourceData.map((item, key) => (
+              {PatientSourceData.map((item, key) => (
                 <div key={key} className="col-4">
                   <div className="social-source text-center mt-3">
                     <div className="avatar-xs mx-auto mb-3">
@@ -49,7 +68,7 @@ const SocialSource = () => {
                       </span>
                     </div>
                     <h5 className="font-size-15">{item.title}</h5>
-                    <p className="text-muted mb-0">{item.count} sales</p>
+                    <p className="text-muted mb-0">{item.count} patients</p>
                   </div>
                 </div>
               ))}
