@@ -1,6 +1,6 @@
 import axios from "axios";
 import config from "../config";
-import { GET_DOCTOR_API, ADD_DOCTOR_API } from "./url_helper";
+import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API } from "./url_helper";
 
 // default
 axios.defaults.baseURL = config.API_URL;
@@ -87,3 +87,4 @@ const api = new APIClient();
 
 export const getDoctorsAPI = () => api.get(GET_DOCTOR_API);
 export const addDoctorAPI = (doctor) => api.create(ADD_DOCTOR_API, doctor);
+export const getPlansAPI = () => api.get(GET_PLANS_API);

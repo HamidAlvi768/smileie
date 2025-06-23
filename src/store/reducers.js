@@ -1,5 +1,6 @@
 import { combineReducers } from "redux";
 import doctorReducer from "./doctors/reducer";
+import plansReducer from "./plans/reducer";
 
 // Front
 import Layout from "./layout/reducer";
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   profile,
   account,
   doctor: doctorReducer,
+  plans: plansReducer,
 });
 
 export default rootReducer;

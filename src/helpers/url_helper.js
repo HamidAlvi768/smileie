@@ -23,4 +23,7 @@ export const GET_CATEGORIES = "/categories";
 export const GET_DOCTOR_API = "/doctors";
 export const ADD_DOCTOR_API = "/doctors/create";
 
+//plans
+export const GET_PLANS_API = "/plans";
+
 

@@ -50,7 +50,7 @@ const RecoverPassword = () => {
                                     </CardBody>
                                 </Card>
                                 <div className="mt-5 text-center">
-                                    <p className="text-white-50">Don't have an account ?  <Link to="/auth-register" className="fw-medium text-primary"> Register  </Link> </p>
+                                    {/* <p className="text-white-50">Don't have an account ?  <Link to="/auth-register" className="fw-medium text-primary"> Register  </Link> </p> */}
                                     <p className="text-white-50">© {new Date().getFullYear()} Developed by Jantrah Tech</p>
                                 </div>
                             </Col>

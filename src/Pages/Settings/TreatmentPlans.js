@@ -1,29 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { getPlans } from "../../store/plans/actions";
 import { Container, Row, Col, Card, CardBody, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
-const initialPlans = [
-  {
-    id: 1,
-    name: "Standard Ortho Plan",
-    duration: 24,
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Express Aligner Plan",
-    duration: 8,
-    status: "Inactive",
-  },
-];
-
 const TreatmentPlans = () => {
-  const [plans, setPlans] = useState(initialPlans);
+  const dispatch = useDispatch();
+  const plansRaw = useSelector((state) => state.plans.plans);
+  const plans = Array.isArray(plansRaw) ? plansRaw : [];
   const [modal, setModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
   const [planToDelete, setPlanToDelete] = useState(null);
   const [formData, setFormData] = useState({ name: "", duration: "", status: "Active" });
+
+  useEffect(() => {
+    dispatch(getPlans());
+  }, [dispatch]);
 
   const toggleModal = () => setModal(!modal);
   const toggleDeleteModal = () => setDeleteModal(!deleteModal);
@@ -52,19 +45,12 @@ const TreatmentPlans = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (editingPlan) {
-      setPlans((prev) => prev.map((p) => (p.id === editingPlan.id ? { ...editingPlan, ...formData } : p)));
-    } else {
-      setPlans((prev) => [
-        ...prev,
-        { id: Date.now(), ...formData },
-      ]);
-    }
+    // Add/edit logic would go here (not implemented for API yet)
     setModal(false);
   };
 
   const confirmDelete = () => {
-    setPlans((prev) => prev.filter((p) => p.id !== planToDelete.id));
+    // Delete logic would go here (not implemented for API yet)
     setDeleteModal(false);
   };
 
@@ -103,9 +89,9 @@ const TreatmentPlans = () => {
                     plans.map((plan) => (
                       <tr key={plan.id}>
                         <td>{plan.name}</td>
-                        <td>{plan.duration}</td>
+                        <td>{plan.weeks}</td>
                         <td>
-                          <span className={`badge bg-${plan.status === "Active" ? "success" : "secondary"}`}>{plan.status}</span>
+                          <span className={`badge bg-${plan.active ? "success" : "secondary"}`}>{plan.active ? "Active" : "Inactive"}</span>
                         </td>
                         <td>
                           <Button color="link" size="sm" onClick={() => handleEdit(plan)}>
