@@ -125,7 +125,7 @@ function renderBar(barKey, segments, label, showTooltip, setShowTooltip, barRef)
   );
 }
 
-const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare, minimal, onShowStats }) => {
+const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare, minimal, onShowStats, selectedDate, onDateChange }) => {
   const containerRef = useRef(null);
   const timelineRef = useRef(null);
   const alignersBarRef = useRef(null);
@@ -133,12 +133,6 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
   const scanBarRef = useRef(null);
 
   // Date navigation state
-  const [selectedDate, setSelectedDate] = useState(() => {
-    if (timelinePoints && timelinePoints.length > 0) {
-      return timelinePoints[0].dataObjectLabel;
-    }
-    return '';
-  });
   const [compare, setCompare] = useState(false);
   const [showTooltip, setShowTooltip] = useState(null); // 'aligners', 'hygiene', 'scan'
 
@@ -183,6 +177,14 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
     };
   }, [timelinePoints, hygienePoints, height]);
 
+  // Sync timeline visual focus with selectedDate
+  useEffect(() => {
+    if (selectedDate) {
+      moveTimelineToDate(selectedDate);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate]);
+
   const bars = barData || defaultBarData;
 
   // Helper to move timeline to a date and focus the item
@@ -200,7 +202,7 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
   // Navigation handlers
   const goToFirst = () => {
     if (timelinePoints && timelinePoints.length > 0) {
-      setSelectedDate(timelinePoints[0].dataObjectLabel);
+      onDateChange(timelinePoints[0].dataObjectLabel);
       moveTimelineToDate(timelinePoints[0].dataObjectLabel);
     }
   };
@@ -208,7 +210,7 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
     if (timelinePoints && timelinePoints.length > 0) {
       const idx = timelinePoints.findIndex(p => p.dataObjectLabel === selectedDate);
       if (idx > 0) {
-        setSelectedDate(timelinePoints[idx - 1].dataObjectLabel);
+        onDateChange(timelinePoints[idx - 1].dataObjectLabel);
         moveTimelineToDate(timelinePoints[idx - 1].dataObjectLabel);
       }
     }
@@ -217,23 +219,27 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
     if (timelinePoints && timelinePoints.length > 0) {
       const idx = timelinePoints.findIndex(p => p.dataObjectLabel === selectedDate);
       if (idx < timelinePoints.length - 1 && idx !== -1) {
-        setSelectedDate(timelinePoints[idx + 1].dataObjectLabel);
+        onDateChange(timelinePoints[idx + 1].dataObjectLabel);
         moveTimelineToDate(timelinePoints[idx + 1].dataObjectLabel);
       }
     }
   };
   const goToLast = () => {
     if (timelinePoints && timelinePoints.length > 0) {
-      setSelectedDate(timelinePoints[timelinePoints.length - 1].dataObjectLabel);
+      onDateChange(timelinePoints[timelinePoints.length - 1].dataObjectLabel);
       moveTimelineToDate(timelinePoints[timelinePoints.length - 1].dataObjectLabel);
     }
   };
 
   // On dropdown change
   const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
+    onDateChange(e.target.value);
     moveTimelineToDate(e.target.value);
   };
+
+  // Determine if at first or last date
+  const isFirst = timelinePoints && timelinePoints.length > 0 && selectedDate === timelinePoints[0].dataObjectLabel;
+  const isLast = timelinePoints && timelinePoints.length > 0 && selectedDate === timelinePoints[timelinePoints.length - 1].dataObjectLabel;
 
   return (
     <div style={{ border: 'none' }}>
@@ -278,10 +284,10 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
         marginTop: 8,
         boxShadow: '0 1px 4px rgba(22, 177, 199, 0.04)'
       }}>
-        <button onClick={goToFirst} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1da5fe', fontSize: 18 }} title="First">
+        <button onClick={goToFirst} disabled={isFirst} style={{ background: 'none', border: 'none', cursor: isFirst ? 'not-allowed' : 'pointer', color: isFirst ? '#bfc9d1' : '#1da5fe', fontSize: 18, opacity: isFirst ? 0.5 : 1 }} title="First">
           <FontAwesomeIcon icon={faAngleDoubleLeft} />
         </button>
-        <button onClick={goToPrev} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1da5fe', fontSize: 18 }} title="Previous">
+        <button onClick={goToPrev} disabled={isFirst} style={{ background: 'none', border: 'none', cursor: isFirst ? 'not-allowed' : 'pointer', color: isFirst ? '#bfc9d1' : '#1da5fe', fontSize: 18, opacity: isFirst ? 0.5 : 1 }} title="Previous">
           <FontAwesomeIcon icon={faAngleLeft} />
         </button>
         {/* Date dropdown */}
@@ -306,10 +312,10 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
             </option>
           ))}
         </select>
-        <button onClick={goToNext} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1da5fe', fontSize: 18 }} title="Next">
+        <button onClick={goToNext} disabled={isLast} style={{ background: 'none', border: 'none', color: isLast ? '#bfc9d1' : '#1da5fe', fontSize: 18, opacity: isLast ? 0.5 : 1 }} title="Next">
           <FontAwesomeIcon icon={faAngleRight} />
         </button>
-        <button onClick={goToLast} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1da5fe', fontSize: 18 }} title="Last">
+        <button onClick={goToLast} disabled={isLast} style={{ background: 'none', border: 'none', color: isLast ? '#bfc9d1' : '#1da5fe', fontSize: 18, opacity: isLast ? 0.5 : 1 }} title="Last">
           <FontAwesomeIcon icon={faAngleDoubleRight} />
         </button>
         {/* Compare button moved here, only if not minimal */}

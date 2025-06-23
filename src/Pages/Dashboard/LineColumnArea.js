@@ -5,17 +5,17 @@ const LineColumnArea = () => {
   const [chartData, setChartData] = useState({
     series: [
       {
-        name: "Appointments",
+        name: "Inquiries",
         type: "column",
         data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 18],
       },
       {
-        name: "Follow-ups",
+        name: "Orders",
         type: "area",
         data: [44, 55, 41, 42, 22, 43, 21, 41, 56, 27, 43, 27],
       },
       {
-        name: "New Patients",
+        name: "Treatments Completed",
         type: "line",
         data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51],
       },
@@ -49,7 +49,7 @@ const LineColumnArea = () => {
       legend: {
         show: false,
       },
-      colors: ["#0ab39c", "rgba(212, 218, 221, 0.18)", "rgb(251, 77, 83)"],
+      colors: ["#0ab39c", "rgba(212, 218, 221, 0.18)", "#0dcaf0"],
       fill: {
         opacity: [0.85, 0.25, 1],
         gradient: {

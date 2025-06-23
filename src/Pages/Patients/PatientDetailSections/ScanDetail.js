@@ -4,33 +4,84 @@ import { Card, CardBody, Button, Modal, ModalBody } from 'reactstrap';
 
 // Use the provided image for all thumbnails
 const intraoralImg = require('../../../assets/images/intraoral_1.jpg');
+const intraoralImg2 = require('../../../assets/images/intraoral_2.jpg');
 const lowerJawImg = require('../../../assets/images/lower-jaw.jpg');
+const lowerJawImg2 = require('../../../assets/images/lower-jaw2.jpg');
 const upperJawImg = require('../../../assets/images/upper-jaw.jpg');
+const upperJawImg2 = require('../../../assets/images/upper-jaw2.jpg');
 const rightJawImg = require('../../../assets/images/right-view.jpg');
+const rightJawImg2 = require('../../../assets/images/right-view2.jpg');
 const leftJawImg = require('../../../assets/images/left-view.jpg');
+const leftJawImg2 = require('../../../assets/images/left-view2.jpg');
+const frontViewImg2 = require('../../../assets/images/front-view2.jpg');
 
 const mockScan = {
   timestamp: '2025-05-27 12:14 GMT+5',
   sections: [
     {
       name: 'Front View',
-      images: [intraoralImg, intraoralImg],
+      subsections: [
+        {
+          name: 'With Aligner',
+          images: [intraoralImg, intraoralImg2],
+        },
+        {
+          name: 'Without Aligner',
+          images: [intraoralImg2, frontViewImg2],
+        },
+      ],
     },
     {
       name: 'Left View',
-      images: [leftJawImg, leftJawImg],
+      subsections: [
+        {
+          name: 'With Aligner',
+          images: [leftJawImg, rightJawImg],
+        },
+        {
+          name: 'Without Aligner',
+          images: [leftJawImg2, rightJawImg2],
+        },
+      ],
     },
     {
       name: 'Right View',
-      images: [rightJawImg, rightJawImg],
+      subsections: [
+        {
+          name: 'With Aligner',
+          images: [rightJawImg, leftJawImg],
+        },
+        {
+          name: 'Without Aligner',
+          images: [rightJawImg2, leftJawImg2],
+        },
+      ],
     },
     {
       name: 'Upper Jaw',
-      images: [upperJawImg, upperJawImg, upperJawImg],
+      subsections: [
+        {
+          name: 'With Aligner',
+          images: [upperJawImg, lowerJawImg],
+        },
+        {
+          name: 'Without Aligner',
+          images: [upperJawImg2, lowerJawImg2],
+        },
+      ],
     },
     {
       name: 'Lower Jaw',
-      images: [lowerJawImg, lowerJawImg],
+      subsections: [
+        {
+          name: 'With Aligner',
+          images: [lowerJawImg, upperJawImg],
+        },
+        {
+          name: 'Without Aligner',
+          images: [lowerJawImg2, upperJawImg2],
+        },
+      ],
     },
   ],
 };
@@ -48,22 +99,25 @@ const ScanDetail = () => {
   useEffect(() => {
     const images = [];
     mockScan.sections.forEach(section => {
-      section.images.forEach((img, index) => {
-        images.push({
-          src: img,
-          alt: `${section.name} ${index + 1}`,
-          section: section.name
+      section.subsections.forEach(subsection => {
+        subsection.images.forEach((img, index) => {
+          images.push({
+            src: img,
+            alt: `${section.name} - ${subsection.name} ${index + 1}`,
+            section: section.name,
+            subsection: subsection.name
+          });
         });
       });
     });
     setAllImages(images);
   }, []);
 
-  const openModal = (sectionName, imageIndexInThatSection) => {
-    const imagesForSection = allImages.filter(img => img.section === sectionName);
-    setCurrentSectionImages(imagesForSection);
-    setCurrentImageIndex(imageIndexInThatSection);
-    setCurrentSectionName(sectionName);
+  const openModal = (sectionName, subsectionName, imageIndexInThatSubsection) => {
+    const imagesForSubsection = allImages.filter(img => img.section === sectionName && img.subsection === subsectionName);
+    setCurrentSectionImages(imagesForSubsection);
+    setCurrentImageIndex(imageIndexInThatSubsection);
+    setCurrentSectionName(`${sectionName} - ${subsectionName}`);
     setIsModalOpen(true);
   };
 
@@ -138,39 +192,54 @@ const ScanDetail = () => {
       
       <Card>
         <CardBody>
-          {mockScan.sections.map((section, sectionIdx) => (
+          {mockScan.sections.map((section) => (
             <div key={section.name} className="mb-4">
               <div className="section-header mb-2">
                 <h6 className="mb-0 fw-semibold">{section.name}</h6>
               </div>
-              <div className="p-3 border rounded bg-light-subtle">
-                <div className="d-flex flex-wrap gap-3">
-                  {section.images.map((img, imgIdx) => (
-                    <img
-                      key={imgIdx}
-                      src={img}
-                      alt={`${section.name} ${imgIdx + 1}`}
-                      className="scan-thumbnail"
-                      style={{ 
-                        width: 120, 
-                        height: 90, 
-                        objectFit: 'cover', 
-                        borderRadius: 6, 
-                        border: '1px solid #eee',
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s ease-in-out'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.transform = 'scale(1.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.transform = 'scale(1)';
-                      }}
-                      onClick={() => openModal(section.name, imgIdx)} // Pass section name and local image index
-                    />
-                  ))}
+              {section.subsections.map((subsection, subIdx) => (
+                <div key={subsection.name} className="mb-2 ms-3">
+                  <div 
+                    className="mb-1"
+                    style={{
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color: '#3b4453',
+                      letterSpacing: '0.01em',
+                    }}
+                  >
+                    {subsection.name}
+                  </div>
+                  <div className="p-3 border rounded bg-light-subtle">
+                    <div className="d-flex flex-wrap gap-3">
+                      {subsection.images.map((img, imgIdx) => (
+                        <img
+                          key={imgIdx}
+                          src={img}
+                          alt={`${section.name} - ${subsection.name} ${imgIdx + 1}`}
+                          className="scan-thumbnail"
+                          style={{ 
+                            width: 120, 
+                            height: 90, 
+                            objectFit: 'cover', 
+                            borderRadius: 6, 
+                            border: '1px solid #eee',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s ease-in-out'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.transform = 'scale(1.05)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.transform = 'scale(1)';
+                          }}
+                          onClick={() => openModal(section.name, subsection.name, imgIdx)}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           ))}
         </CardBody>
@@ -191,6 +260,18 @@ const ScanDetail = () => {
         >
           {currentSectionImages[currentImageIndex] && (
             <div className="position-relative d-flex align-items-center justify-content-center h-100" style={{ width: '100%', height: '100%' }}>
+              {/* Previous Button */}
+              {currentSectionImages.length > 1 && (
+                <button
+                  type="button"
+                  className="btn btn-lg btn-icon position-absolute top-50 start-0 translate-middle-y"
+                  style={{ background: 'rgba(0,0,0,0.3)', border: 'none', color: 'white', zIndex: 10 }}
+                  onClick={e => { e.stopPropagation(); navigateImage('prev'); }}
+                  aria-label="Previous"
+                >
+                  <i className="ri-arrow-left-s-line" style={{ fontSize: '2rem' }}></i>
+                </button>
+              )}
               <img
                 src={currentSectionImages[currentImageIndex].src}
                 alt={currentSectionImages[currentImageIndex].alt}
@@ -200,6 +281,18 @@ const ScanDetail = () => {
                   objectFit: 'contain'
                 }}
               />
+              {/* Next Button */}
+              {currentSectionImages.length > 1 && (
+                <button
+                  type="button"
+                  className="btn btn-lg btn-icon position-absolute top-50 end-0 translate-middle-y"
+                  style={{ background: 'rgba(0,0,0,0.3)', border: 'none', color: 'white', zIndex: 10 }}
+                  onClick={e => { e.stopPropagation(); navigateImage('next'); }}
+                  aria-label="Next"
+                >
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: '2rem' }}></i>
+                </button>
+              )}
               {/* Image counter overlay */}
               <div
                 style={{

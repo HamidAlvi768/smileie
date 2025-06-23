@@ -6,33 +6,6 @@ export const headerMenuItems = [
     url: "/dashboard",
   },
   {
-    id: "notifications",
-    label: "Notifications",
-    icon: "mdi mdi-bell-outline",
-    navbarItems: [
-      {
-        id: "messages",
-        label: "Messages",
-        url: "/notifications/messages",
-      },
-      {
-        id: "clinical-instructions",
-        label: "Clinical Instructions",
-        url: "/notifications/clinical-instructions",
-      },
-      {
-        id: "additional-scans",
-        label: "Additional Scans",
-        url: "/notifications/additional-scans",
-      },
-      {
-        id: "app-not-activated",
-        label: "App Not Activated",
-        url: "/notifications/app-not-activated",
-      },
-    ],
-  },
-  {
     id: "patients",
     label: "Patients",
     icon: "mdi mdi-account-group-outline",
@@ -52,6 +25,25 @@ export const headerMenuItems = [
         label: "Guardians",
         url: "/patients/guardians",
       },
+    ],
+  },
+  {
+    id: "doctors",
+    label: "Doctors",
+    icon: "mdi mdi-stethoscope",
+    url: "/doctors",
+  },
+  {
+    id: "orders",
+    label: "Orders",
+    icon: "mdi mdi-package-variant-closed",
+    url: "/orders",
+    navbarItems: [
+      {
+        id: "order-list",
+        label: "Order List",
+        url: "/orders",
+      }
     ],
   },
   // {
@@ -88,4 +80,33 @@ export const headerMenuItems = [
   //     }
   //   ],
   // },
+];
+
+export const headerRightMenuItems = [
+  {
+    id: "notifications",
+    label: "Notifications",
+    url: "/notifications/messages",
+    badge: 1,
+  },
+  {
+    id: "help",
+    label: "Help",
+    url: "/help", // This will be handled specially in Header.js if needed
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    url: "/settings",
+  },
+  {
+    id: "my-account",
+    label: "My Account",
+    url: "/my-account",
+  },
+  {
+    id: "logout",
+    label: "Logout",
+    url: "/auth-login",
+  },
 ]; 

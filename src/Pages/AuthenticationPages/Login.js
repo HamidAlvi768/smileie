@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 // import
 
 const Login = () => {
-  document.title = "Login | Upzet - React Admin & Dashboard Template";
+  document.title = "Login | Smileie - React Admin & Dashboard Template";
     useEffect(() => {
         document.body.className = "bg-pattern";
         // remove classname when component will unmount
@@ -46,7 +46,7 @@ const Login = () => {
                       Welcome Back !
                     </h4>
                     <p className="mb-5 text-center">
-                      Sign in to continue to Upzet.
+                      Sign in to continue to Smileie.
                     </p>
                     <Form className="form-horizontal" action="#">
                       <Row>
@@ -123,15 +123,15 @@ const Login = () => {
                 </CardBody>
               </Card>
               <div className="mt-5 text-center">
-                <p className="text-white-50">
+                {/* <p className="text-white-50">
                   Don't have an account ?{" "}
                   <Link to="/auth-register" className="fw-medium text-primary">
                     {" "}
                     Register{" "}
                   </Link>{" "}
-                </p>
+                </p> */}
                 <p className="text-white-50">
-                  © {new Date().getFullYear()} Developed by{" "}
+                  © {new Date().getFullYear()} Developed {" "}
                    by Jantrah Tech
                 </p>
               </div>

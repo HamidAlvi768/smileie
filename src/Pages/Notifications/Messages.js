@@ -21,7 +21,7 @@ const dueDateOptions = [
 
 const Messages = () => {
   return (
-    <div className="page-content">
+    <div className="page-content no-navbar">
       <Container fluid>
         <div className="filter-panel-bg mb-4">
           <Row className="mb-3 align-items-center">

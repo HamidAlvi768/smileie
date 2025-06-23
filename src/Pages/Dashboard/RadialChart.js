@@ -37,7 +37,7 @@ const RadialChart = () => {
         },
       },
     },
-    labels: ["Facebook", "Twitter", "Instagram"],
+    labels: ["Referrals", "Website", "Direct"],
     colors: ["#099680", "#4aa3ff", "#5664d2"],
   };
   return (

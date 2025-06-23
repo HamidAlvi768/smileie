@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, ModalBody } from 'reactstrap';
 import VisTimeline from './VisTimeline';
 import { ImageViewer, IndicesPanel, ObservationsGoals } from './Monitoring';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
-import '../../../assets/scss/pages/patient.scss';
+// Make sure to import the new SCSS file
+import '../../../assets/scss/pages/patient.scss'; 
 
 const FullscreenComparisonModal = ({
   isOpen,
@@ -12,66 +13,73 @@ const FullscreenComparisonModal = ({
   leftData,
   rightData
 }) => {
+  // Add local selectedDate state for both sides
+  const [leftSelectedDate, setLeftSelectedDate] = useState(leftData.imageViewerProps.images[0].date);
+  const [rightSelectedDate, setRightSelectedDate] = useState(rightData.imageViewerProps.images[0].date);
+  const leftSelectedImageIndex = leftData.imageViewerProps.images.findIndex(img => img.date === leftSelectedDate);
+  const rightSelectedImageIndex = rightData.imageViewerProps.images.findIndex(img => img.date === rightSelectedDate);
+
   return (
     <Modal isOpen={isOpen} toggle={toggle} fullscreen className="comparison-modal" fade={false}>
-      <ModalBody className="comparison-modal-body" style={{ background: '#f7fafc', padding: 0, position: 'relative' }}>
+      <ModalBody className="comparison-modal-body">
         {/* Close Button */}
-        <button
-          onClick={toggle}
-          style={{
-            position: 'absolute',
-            top: 18,
-            right: 24,
-            background: 'none',
-            border: 'none',
-            color: '#bfc9d1',
-            fontSize: 32,
-            cursor: 'pointer',
-            zIndex: 10,
-            padding: 0,
-            lineHeight: 1
-          }}
-          aria-label="Close"
-        >
+        <button onClick={toggle} className="comparison-modal-close-btn" aria-label="Close">
           <FontAwesomeIcon icon={faTimes} />
         </button>
+
         {/* Patient Header Row */}
-        <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px 0', minHeight: 48 }}>
-          <span style={{ marginRight: 16, marginLeft: 24, display: 'flex', alignItems: 'center' }}>
-            <FontAwesomeIcon icon={faUserCircle} style={{ fontSize: 32, color: '#bfc9d1' }} />
+        <div className="comparison-modal-header">
+          <span className="header-icon-wrapper">
+            <FontAwesomeIcon icon={faUserCircle} className="header-icon" />
           </span>
-          <span style={{ fontWeight: 600, fontSize: 24, color: '#607181', flex: '0 1 auto', textAlign: 'center' }}>
+          <span className="header-patient-name">
             {leftData.patientName}
           </span>
-          <span style={{ marginLeft: 16, fontSize: 18, color: '#bfc9d1', fontWeight: 400, minWidth: 80, textAlign: 'left' }}>
+          <span className="header-patient-id">
             {leftData.patientId}
           </span>
         </div>
-        <div className="comparison-modal-content" style={{ display: 'flex', height: 'calc(100vh - 48px)', gap: 0 }}>
+
+        <div className="comparison-modal-content">
           {/* Left Side */}
-          <div className="comparison-side" style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #e3eaf3', background: '#fff' }}>
-            <div style={{ padding: '0 32px 0 32px', background: '#f7fafc' }}>
-              <VisTimeline {...leftData.timelineProps} minimal={true} />
+          <div className="comparison-side comparison-side-left">
+            <div className="comparison-timeline-wrapper">
+              <VisTimeline 
+                {...leftData.timelineProps} 
+                minimal={true} 
+                selectedDate={leftSelectedDate}
+                onDateChange={setLeftSelectedDate}
+              />
             </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 32px' }}>
-              <ImageViewer {...leftData.imageViewerProps} />
-              {/* <div style={{ width: '100%', marginTop: 24 }}>
-                <IndicesPanel {...leftData.indicesPanelProps} />
-                <ObservationsGoals {...leftData.observationsGoalsProps} />
-              </div> */}
+            <div className="comparison-viewer-wrapper">
+              <ImageViewer 
+                {...leftData.imageViewerProps} 
+                selectedDate={leftSelectedDate}
+                setSelectedDate={setLeftSelectedDate}
+                selectedImageIndex={leftSelectedImageIndex}
+              />
+              {/* Other components can go here */}
             </div>
           </div>
+
           {/* Right Side */}
-          <div className="comparison-side" style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fff' }}>
-            <div style={{ padding: '0 32px 0 32px', background: '#f7fafc' }}>
-              <VisTimeline {...rightData.timelineProps} minimal={true} />
+          <div className="comparison-side comparison-side-right">
+            <div className="comparison-timeline-wrapper">
+              <VisTimeline 
+                {...rightData.timelineProps} 
+                minimal={true} 
+                selectedDate={rightSelectedDate}
+                onDateChange={setRightSelectedDate}
+              />
             </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 32px' }}>
-              <ImageViewer {...rightData.imageViewerProps} />
-              {/* <div style={{ width: '100%', marginTop: 24 }}>
-                <IndicesPanel {...rightData.indicesPanelProps} />
-                <ObservationsGoals {...rightData.observationsGoalsProps} />
-              </div> */}
+            <div className="comparison-viewer-wrapper">
+              <ImageViewer 
+                {...rightData.imageViewerProps} 
+                selectedDate={rightSelectedDate}
+                setSelectedDate={setRightSelectedDate}
+                selectedImageIndex={rightSelectedImageIndex}
+              />
+              {/* Other components can go here */}
             </div>
           </div>
         </div>
@@ -80,4 +88,4 @@ const FullscreenComparisonModal = ({
   );
 };
 
-export default FullscreenComparisonModal; 
+export default FullscreenComparisonModal;

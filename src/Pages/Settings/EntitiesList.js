@@ -128,7 +128,7 @@ const EntitiesList = () => {
           <Breadcrumbs 
             title="Smileie" 
             breadcrumbItem="Settings" 
-            breadcrumbItem2="Entities List"
+            breadcrumbItem2="Dropdown Settings"
           />
 
           <Row>

@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { headerMenuItems } from "../../config/navigation";
+import { headerMenuItems, headerRightMenuItems } from "../../config/navigation";
 import {
   setActiveHeaderMenu,
   setNavbarMenuItems,
@@ -101,10 +101,9 @@ const Header = (props) => {
   // Find which menu is active based on the current route
   const getMenuIsActive = (menu) => {
     // Check if the menu has a direct URL that matches the current pathname
-    if (menu.url && location.pathname === menu.url) {
+    if (menu.url && (location.pathname === menu.url || location.pathname.startsWith(menu.url + '/'))) {
       return true;
     }
-    
     if (!menu.navbarItems) return false;
     // For patient-list and patient-detail, use robust path matching
     if (menu.id === 'patient-list') {
@@ -114,6 +113,17 @@ const Header = (props) => {
       return /^\/patients\/[\w-]+/.test(location.pathname);
     }
     return menu.navbarItems.some((sub) => isPathActive(location.pathname, sub.url));
+  };
+
+  // Determine if a right-side menu is active
+  const getRightMenuIsActive = (menu) => {
+    if (menu.id === 'logout') return false; // Never active
+    if (menu.id === 'help') return helpPanelOpen; // Active if help panel is open
+    // For others, active if current route matches or starts with menu.url
+    if (menu.url && (location.pathname === menu.url || location.pathname.startsWith(menu.url + '/'))) {
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -165,7 +175,30 @@ const Header = (props) => {
                   style={{ position: 'relative' }}
                 >
                   {menu.label}
-                  {menu.label === 'Notifications' && (
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="d-flex">
+            {/* Right-side header menus from config */}
+            {headerRightMenuItems.map((menu) => (
+              <div className="dropdown d-inline-block ms-3" key={menu.id}>
+                <button
+                  type="button"
+                  className={`btn header-item${getRightMenuIsActive(menu) ? ' active' : ''}`}
+                  id={`page-header-${menu.id}-dropdown`}
+                  onClick={() => {
+                    if (menu.id === 'help') {
+                      setHelpPanelOpen(true);
+                    } else {
+                      navigate(menu.url);
+                    }
+                  }}
+                  style={{ position: 'relative' }}
+                >
+                  {menu.label}
+                  {menu.badge && (
                     <span style={{
                       display: 'inline-block',
                       background: '#ef5350',
@@ -180,74 +213,11 @@ const Header = (props) => {
                       marginLeft: 8,
                       verticalAlign: 'middle',
                       boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
-                    }}>1</span>
+                    }}>{menu.badge}</span>
                   )}
                 </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="d-flex">
-            {/* Academy */}
-            {/* <div className="dropdown d-inline-block ms-auto">
-              <button
-                type="button"
-                className="btn header-item"
-                id="page-header-academy-dropdown"
-                data-bs-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                Academy
-              </button>
-            </div> */}
-
-            {/* Help */}
-            <div className="dropdown d-inline-block ms-3">
-              <button
-                type="button"
-                className="btn header-item"
-                id="page-header-help-dropdown"
-                onClick={() => setHelpPanelOpen(true)}
-              >
-                Help
-              </button>
-            </div>
-
-            {/* Settings */}
-            <div className="dropdown d-inline-block ms-3">
-              <button
-                type="button"
-                className="btn header-item"
-                id="page-header-settings-dropdown"
-                onClick={() => navigate('/settings')}
-              >
-                Settings
-              </button>
-            </div>
-
-            {/* Profile Dropdown */}
-            <div className="dropdown d-inline-block ms-3">
-              <button
-                type="button"
-                className="btn header-item"
-                id="page-header-profile-dropdown"
-                onClick={() => navigate('/my-account')}
-              >
-                My Account
-              </button>
-            </div>
-
-            {/* Logout */}
-            <div className="dropdown d-inline-block ms-3">
-              <button
-                type="button"
-                className="btn header-item"
-                id="page-header-logout"
-              >
-                Logout
-              </button>
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </header>

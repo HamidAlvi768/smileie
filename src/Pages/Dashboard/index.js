@@ -21,7 +21,11 @@ const Dashboard = () => {
     <React.Fragment>
       <div className={`page-content no-navbar`}>
         <Container fluid={true}>
-          <Breadcrumbs title="Smileie" breadcrumbItem="Dashboard" />
+        <Row className="mb-3 align-items-center">
+            <Col md={10} xs={8}>
+              <h4 className="mb-0">Dashboard</h4>
+            </Col>
+          </Row>
           {/* User Panel Charts */}
           <UsePanel />
 

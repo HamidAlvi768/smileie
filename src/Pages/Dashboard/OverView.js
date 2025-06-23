@@ -6,22 +6,22 @@ import { Card, CardBody, Col, Row } from "reactstrap";
 // Updated data for dental practice overview
 const OverViewData = [
   {
-    title: "New Patients",
-    count: "156",
-    percentage: "12.5",
-    color: "primary",
-  },
-  {
-    title: "Follow-ups",
+    title: "Inquiries",
     count: "89",
     percentage: "8.2",
     color: "success",
   },
   {
-    title: "Emergency",
+    title: "Orders",
+    count: "156",
+    percentage: "12.5",
+    color: "light",
+  },
+  {
+    title: "Treatments Completed",
     count: "23",
     percentage: "3.1",
-    color: "warning",
+    color: "info",
   },
 ];
 
@@ -33,7 +33,7 @@ const OverView = () => {
           <CardBody className="h-80">
             <div className="d-flex align-items-center">
               <div className="flex-grow-1">
-                <h5 className="card-title">Appointments Overview</h5>
+                <h5 className="card-title">Overview</h5>
               </div>
               <div className="flex-shrink-0">
                 <div>

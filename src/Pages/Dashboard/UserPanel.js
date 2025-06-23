@@ -9,6 +9,10 @@ const UserPanel = () => {
     navigate("/patients/monitored");
   };
 
+  const handleViewAllDoctors = () => {
+    navigate("/doctors");
+  };
+
   return (
     <React.Fragment>
       <Row>
@@ -66,7 +70,7 @@ const UserPanel = () => {
                     <button
                       type="button"
                       className="btn btn-soft-primary btn-sm text-primary ms-auto"
-                      onClick={handleViewAll}
+                      onClick={handleViewAllDoctors}
                     >
                       View All{" "}
                       <i className="ri-arrow-right-line align-middle ms-1"></i>
@@ -156,7 +160,7 @@ const UserPanel = () => {
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Impression Kits Ordered</p>
+                    <p className="mb-0">Impression Kits</p>
                   </div>
                   <h5 className="mb-0">156</h5>
                 </div>
@@ -178,7 +182,7 @@ const UserPanel = () => {
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Aligners Ordered</p>
+                    <p className="mb-0">Aligners</p>
                   </div>
                   <h5 className="mb-0">32</h5>
                 </div>
@@ -200,7 +204,7 @@ const UserPanel = () => {
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Retainers Ordered</p>
+                    <p className="mb-0">Retainers</p>
                   </div>
                   <h5 className="mb-0">89</h5>
                 </div>
@@ -222,7 +226,7 @@ const UserPanel = () => {
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Teeth Whitening Kit Ordered</p>
+                    <p className="mb-0">Teeth Whitening Kit</p>
                   </div>
                   <h5 className="mb-0">45</h5>
                 </div>

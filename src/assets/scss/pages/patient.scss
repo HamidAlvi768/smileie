@@ -1865,7 +1865,7 @@
 }
 .stat-title-secondary {
   font-size: 13px;
-  color: #607181;
+  color: #008b94;
   // margin: 18px 0 6px 0;
 }
 .tab-content-text {
@@ -2201,4 +2201,146 @@
   max-width: 200px;
 }
 
+
+/* assets/scss/pages/_fullscreen-comparison-modal.scss */
+
+.comparison-modal {
+  .modal-body.comparison-modal-body {
+    background: #f7fafc;
+    padding: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto; // Allow scrolling on small screens if content is tall
+  }
+
+  .comparison-modal-close-btn {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    background: none;
+    border: none;
+    color: #bfc9d1;
+    font-size: 32px;
+    cursor: pointer;
+    z-index: 1051; // Ensure it's above modal content
+    padding: 0;
+    line-height: 1;
+  }
+
+  .comparison-modal-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+    min-height: 48px;
+    background: #fff;
+    border-bottom: 1px solid #e3eaf3;
+    flex-shrink: 0; // Prevent header from shrinking
+
+    .header-icon-wrapper {
+      margin-right: 16px;
+      margin-left: 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-icon {
+      font-size: 32px;
+      color: #bfc9d1;
+    }
+
+    .header-patient-name {
+      font-weight: 600;
+      font-size: 24px;
+      color: #607181;
+      flex: 0 1 auto;
+      text-align: center;
+    }
+
+    .header-patient-id {
+      margin-left: 16px;
+      font-size: 18px;
+      color: #bfc9d1;
+      font-weight: 400;
+      min-width: 80px;
+      text-align: left;
+    }
+  }
+
+  .comparison-modal-content {
+    display: flex;
+    flex-grow: 1; // Allow this container to fill remaining space
+    height: 100%; // Make it take up the rest of the height
+    min-height: 0; // Fixes flexbox overflow issues in some browsers
+  }
+
+  .comparison-side {
+    flex: 1; // Each side takes up 50% of the width
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    min-width: 0; // Crucial for preventing content from overflowing its flex container
+
+    .comparison-timeline-wrapper {
+      padding: 0 32px;
+      background: #f7fafc;
+      flex-shrink: 0;
+    }
+
+    .comparison-viewer-wrapper {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 32px; // Add some vertical padding
+      overflow-y: auto; // Allow individual panel scrolling if needed
+    }
+  }
+
+  .comparison-side-left {
+    border-right: 1px solid #e3eaf3;
+  }
+}
+
+// --- Responsive Breakpoint ---
+// On screens 992px wide or less (e.g., tablets and mobile phones)
+@media (max-width: 992px) {
+  .comparison-modal {
+    .comparison-modal-content {
+      // Stack the columns vertically instead of side-by-side
+      flex-direction: column;
+    }
+
+    .comparison-side {
+      // Remove horizontal border and add a bottom one for stacking
+      &.comparison-side-left {
+        border-right: none;
+        border-bottom: 2px solid #e3eaf3;
+      }
+
+      // Adjust padding for smaller screens
+      .comparison-timeline-wrapper,
+      .comparison-viewer-wrapper {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+    
+    // Optional: Adjust header font sizes on very small screens
+    @media (max-width: 576px) {
+      .comparison-modal-header {
+        .header-patient-name {
+          font-size: 18px;
+        }
+        .header-patient-id {
+          font-size: 14px;
+          min-width: 60px;
+        }
+      }
+    }
+  }
+}
 

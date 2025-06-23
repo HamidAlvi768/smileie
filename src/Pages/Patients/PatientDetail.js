@@ -248,6 +248,11 @@ const PatientDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // Patient ID from URL
 
+  // Scroll to top on mount or when patient ID changes
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
   // Assuming patient data might be fetched or come from a store in a real app
   // For now, using the mock data. 'id' would be used to fetch specific patient data.
   const patient = PATIENT_MOCK_DATA; 

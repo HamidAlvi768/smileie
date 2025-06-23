@@ -5,17 +5,10 @@ import '../../../assets/scss/pages/patient.scss';
 
 // Mock data (reuse from Monitoring.js)
 const mockImages = [
-  require('../../../assets/images/intraoral_1.jpg'),
-  require('../../../assets/images/intraoral_1.jpg'),
-  require('../../../assets/images/intraoral_1.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
+  { src: require('../../../assets/images/intraoral_1.jpg'), date: '2025-05-01' },
+  { src: require('../../../assets/images/intraoral_2.jpg'), date: '2025-05-10' },
+  { src: require('../../../assets/images/intraoral_1.jpg'), date: '2025-05-15' },
+  { src: require('../../../assets/images/intraoral_2.jpg'), date: '2025-05-20' },
 ];
 
 const mockTimelinePoints = [
@@ -26,7 +19,8 @@ const mockTimelinePoints = [
 ];
 
 const FullscreenImageModal = ({ isOpen, toggle, onCompare }) => {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedDate, setSelectedDate] = useState(mockImages[0].date);
+  const selectedImageIndex = mockImages.findIndex(img => img.date === selectedDate);
   const thumbnailsRef = useRef(null);
 
   // Keyboard navigation
@@ -34,9 +28,15 @@ const FullscreenImageModal = ({ isOpen, toggle, onCompare }) => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowUp') {
-        setSelectedImageIndex((idx) => Math.max(0, idx - 1));
+        setSelectedDate((prev) => {
+          const idx = mockImages.findIndex(img => img.date === prev);
+          return mockImages[Math.max(0, idx - 1)].date;
+        });
       } else if (e.key === 'ArrowDown') {
-        setSelectedImageIndex((idx) => Math.min(mockImages.length - 1, idx + 1));
+        setSelectedDate((prev) => {
+          const idx = mockImages.findIndex(img => img.date === prev);
+          return mockImages[Math.min(mockImages.length - 1, idx + 1)].date;
+        });
       }
       // Date navigation (left/right) would be handled by VisTimeline or parent
     };
@@ -67,7 +67,14 @@ const FullscreenImageModal = ({ isOpen, toggle, onCompare }) => {
         {/* Timeline and Compare */}
         <div className="fim-timeline-row">
           <div className="fim-timeline">
-            <VisTimeline timelinePoints={mockTimelinePoints} hygienePoints={[]} height={100} minimal={true} />
+            <VisTimeline 
+              timelinePoints={mockTimelinePoints} 
+              hygienePoints={[]} 
+              height={100} 
+              minimal={true} 
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+            />
           </div>
           {/* <Button color="primary" className="fim-compare-btn" onClick={onCompare}>
             <i className="mdi mdi-compare"></i> Compare
@@ -77,7 +84,7 @@ const FullscreenImageModal = ({ isOpen, toggle, onCompare }) => {
         <div className="fim-content-row">
           <div className="fim-image-center">
             <img
-              src={mockImages[selectedImageIndex]}
+              src={mockImages[selectedImageIndex].src}
               alt={`Intraoral ${selectedImageIndex + 1}`}
               className="fim-main-image"
             />
@@ -86,10 +93,10 @@ const FullscreenImageModal = ({ isOpen, toggle, onCompare }) => {
             {mockImages.map((img, idx) => (
               <img
                 key={`fim-thumb-${idx}`}
-                src={img}
+                src={img.src}
                 alt={`Thumb ${idx + 1}`}
                 className={`fim-thumb ${idx === selectedImageIndex ? 'active' : ''}`}
-                onClick={() => setSelectedImageIndex(idx)}
+                onClick={() => setSelectedDate(img.date)}
               />
             ))}
           </div>

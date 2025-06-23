@@ -118,6 +118,10 @@ import NextStepReminder from "../Pages/Settings/NextStepReminder";
 import Countries from "../Pages/Settings/Countries";
 import PostOffices from "../Pages/Settings/PostOffices";
 import ApplicationSettings from "../Pages/Settings/ApplicationSettings";
+import TreatmentPlans from "../Pages/Settings/TreatmentPlans";
+import DoctorsMonitored from "../Pages/Doctors/Monitored";
+import OrderDetail from "../Pages/Orders/OrderDetail";
+import OrderList from "../Pages/Orders/OrderList";
 
 function RedirectToMainPage() {
   return <Navigate to="/notifications/messages" />;
@@ -146,6 +150,7 @@ const authProtectedRoutes = [
   { path: "/settings/reminders", component: <Reminders /> },
   { path: "/settings/photo-upload-reminder", component: <PhotoUploadReminder /> },
   { path: "/settings/next-step-reminder", component: <NextStepReminder /> },
+  { path: "/settings/treatment-plans", component: <TreatmentPlans /> },
 
   // Calender
   { path: "/calendar", component: <Calender /> },
@@ -252,6 +257,13 @@ const authProtectedRoutes = [
 
   // MyAccount Page
   { path: "/my-account", component: <MyAccount /> },
+
+  // Doctors Pages
+  { path: "/doctors", component: <DoctorsMonitored /> },
+
+  // Orders Pages
+  { path: "/orders", component: <OrderList /> },
+  { path: "/orders/detail", component: <OrderDetail /> },
 
   // this route should be at the end of all other routes
   // eslint-disable-next-line react/display-name

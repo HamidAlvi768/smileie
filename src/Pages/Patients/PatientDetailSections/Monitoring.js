@@ -7,17 +7,10 @@ import DetailedStatsModal from './DetailedStatsModal';
 
 // --- MOCK DATA ---
 const mockImages = [
-  require('../../../assets/images/intraoral_1.jpg'),
-  require('../../../assets/images/intraoral_1.jpg'),
-  require('../../../assets/images/intraoral_1.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
-  require('../../../assets/images/intraoral_2.jpg'),
+  { src: require('../../../assets/images/intraoral_1.jpg'), date: '2025-05-01' },
+  { src: require('../../../assets/images/intraoral_2.jpg'), date: '2025-05-10' },
+  { src: require('../../../assets/images/intraoral_1.jpg'), date: '2025-05-15' },
+  { src: require('../../../assets/images/intraoral_2.jpg'), date: '2025-05-20' },
 ];
 
 const mockObservations = {
@@ -66,16 +59,15 @@ const QUICK_REPLIES = [
 
 // --- PRESENTATIONAL COMPONENTS ---
 
-const ImageViewer = ({ images, onSendPhoto, onSendVideo, onMainImageClick }) => {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+const ImageViewer = ({ images, selectedDate, setSelectedDate, selectedImageIndex, onSendPhoto, onSendVideo, onMainImageClick }) => {
   const thumbnailsRef = useRef(null);
 
   // Get the currently selected image
-  const mainImage = images.length > 0 ? images[selectedImageIndex] : 'placeholder.jpg';
+  const mainImage = images.length > 0 ? images[selectedImageIndex].src : 'placeholder.jpg';
 
   // Handler for thumbnail click
   const handleThumbnailClick = (index) => {
-    setSelectedImageIndex(index);
+    setSelectedDate(images[index].date);
   };
 
   // Scroll the selected thumbnail into view
@@ -132,7 +124,7 @@ const ImageViewer = ({ images, onSendPhoto, onSendVideo, onMainImageClick }) => 
         {images.map((img, idx) => (
           <img
             key={`thumb-${idx}`}
-            src={img}
+            src={img.src}
             alt={`Thumbnail ${idx + 1}`}
             onClick={() => handleThumbnailClick(idx)}
             className={`thumbnail-image ${idx === selectedImageIndex ? 'active' : ''}`}
@@ -238,6 +230,8 @@ const Monitoring = ({ patient }) => {
   const [photoScheduledDate, setPhotoScheduledDate] = useState('2025-05-27'); // Default or set dynamically
   const [photoScheduledTime, setPhotoScheduledTime] = useState('12:00');    // Default or set dynamically
 
+  const [selectedDate, setSelectedDate] = useState(mockImages[0].date);
+
   const toggleSendPhotoModal = () => setSendPhotoModalOpen(!sendPhotoModalOpen);
   const toggleSendVideoModal = () => setSendVideoModalOpen(!sendVideoModalOpen);
 
@@ -272,6 +266,9 @@ const Monitoring = ({ patient }) => {
   const handleOpenStatsModal = () => setStatsModalOpen(true);
   const handleCloseStatsModal = () => setStatsModalOpen(false);
 
+  // Find the image for the selected date
+  const selectedImageIndex = mockImages.findIndex(img => img.date === selectedDate);
+
   // Prepare mock data for both sides
   const leftData = {
     patientName: patient?.name || 'Patient Left',
@@ -283,6 +280,9 @@ const Monitoring = ({ patient }) => {
     },
     imageViewerProps: {
       images: mockImages,
+      selectedDate,
+      setSelectedDate,
+      selectedImageIndex,
       onSendPhoto: toggleSendPhotoModal,
       onSendVideo: toggleSendVideoModal,
       onMainImageClick: () => {},
@@ -300,6 +300,9 @@ const Monitoring = ({ patient }) => {
     },
     imageViewerProps: {
       images: mockImages,
+      selectedDate,
+      setSelectedDate,
+      selectedImageIndex,
       onSendPhoto: toggleSendPhotoModal,
       onSendVideo: toggleSendVideoModal,
       onMainImageClick: () => {},
@@ -357,11 +360,16 @@ const Monitoring = ({ patient }) => {
             timelinePoints={mockTimelinePoints}
             hygienePoints={[]}
             height={120}
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
             onCompare={handleOpenComparisonModal}
             onShowStats={handleOpenStatsModal}
           />
           <ImageViewer
             images={mockImages}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            selectedImageIndex={selectedImageIndex}
             onSendPhoto={toggleSendPhotoModal}
             onSendVideo={toggleSendVideoModal}
             onMainImageClick={handleOpenFullscreenModal}
@@ -393,7 +401,7 @@ const Monitoring = ({ patient }) => {
         <ModalBody className="send-message-modal-body">
           <div className="modal-image-preview-container">
             {mockImages.length > 0 && (
-              <img src={mockImages[0]} alt="Intraoral preview" className="modal-image-preview" />
+              <img src={mockImages[selectedImageIndex].src} alt="Intraoral preview" className="modal-image-preview" />
             )}
             <div>
               {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}

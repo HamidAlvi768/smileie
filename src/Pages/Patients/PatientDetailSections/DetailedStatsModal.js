@@ -38,7 +38,7 @@ const DetailedStatsModal = ({ isOpen, toggle, statsData }) => {
   const { aligners, hygiene, scan, debondedAttachments } = statsData || {};
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} centered size="xl" fade={false} backdrop="static" className="detailed-stats-modal-wide">
+    <Modal isOpen={isOpen} toggle={toggle} centered size="lg" fade={false} backdrop="static" className="detailed-stats-modal-wide">
       <ModalHeader className="detailed-stats-modal-header">
         Detailed statistics
         <Button close onClick={toggle} className="detailed-stats-modal-close-btn" />

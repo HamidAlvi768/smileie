@@ -10,10 +10,17 @@ const settingsData = [
     cards: [
       {
         name: "Application Settings",
-        description: "Configure general application preferences and system settings.",
+        description: "Configure general application settings.",
         icon: "ri-settings-3-line",
         url: "/settings/application-settings",
       },
+      {
+        name: "Dropdown Settings",
+        // count: "3",
+        description: "Define dropdown-specific settings.",
+        icon: "ri-list-settings-line",
+        url: "/settings/entities-list",
+      }
     ],
   },
   {
@@ -40,16 +47,15 @@ const settingsData = [
     ],
   },
   {
-    section: "Entities Settings",
+    section: "Treatment Plans",
     cards: [
-        {
-          name: "Countries",
-          count: "3",
-          description: "Define country-specific settings.",
-          icon: "ri-earth-line",
-          url: "/settings/countries",
-        }
-      ],
+      {
+        name: "Manage Treatment Plans",
+        description: "Create, edit, and organize treatment plans.",
+        icon: "ri-file-list-3-line",
+        url: "/settings/treatment-plans",
+      },
+    ],
   },
 ];
 
@@ -65,11 +71,11 @@ const Settings = () => {
             breadcrumbItem="Settings"
             extraContentRight={(
               <div className="d-flex align-items-center">
-                <Link to="/settings/entities-list" className="btn btn-link btn-label waves-effect waves-light me-2">
+                {/* <Link to="/settings/entities-list" className="btn btn-link btn-label waves-effect waves-light me-2">
                   <i className="ri-list-check label-icon"></i> Entities
-                </Link>
-                <Link to="/settings/reminders" className="btn btn-link btn-label waves-effect waves-light">
-                  <i className="ri-notification-line me-1"></i> Reminders
+                </Link> */}
+                <Link to="/settings/reminders" className="btn btn-primary btn-label waves-effect waves-light">
+                  <i className="ri-add-line me-1"></i> Add Reminders
                 </Link>
               </div>
             )}
