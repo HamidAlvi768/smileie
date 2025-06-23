@@ -19,3 +19,8 @@ export const UPDATE_EVENT = "/update/event";
 export const DELETE_EVENT = "/delete/event";
 export const GET_CATEGORIES = "/categories";
 
+//doctors
+export const GET_DOCTOR_API = "/doctors";
+export const ADD_DOCTOR_API = "/doctors/create";
+
+

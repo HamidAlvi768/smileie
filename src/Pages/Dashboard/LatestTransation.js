@@ -78,7 +78,7 @@ const LatestTransation = () => {
                                                 <td>
                                                     <button 
                                                         type="button" 
-                                                        className="btn btn-soft-primary btn-sm"
+                                                        className="btn btn-outline-primary btn-sm"
                                                         onClick={() => handleViewPatient(item.id)}
                                                     >
                                                         View <i className="ri-eye-line align-middle ms-1"></i>

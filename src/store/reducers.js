@@ -1,4 +1,5 @@
 import { combineReducers } from "redux";
+import doctorReducer from "./doctors/reducer";
 
 // Front
 import Layout from "./layout/reducer";
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   login,
   profile,
   account,
+  doctor: doctorReducer,
 });
 
 export default rootReducer;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -255,6 +255,11 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     "goalStatus",
     "monitoringStatus",
   ];
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Add a handler for row click
   const handleRowClicked = (row) => {

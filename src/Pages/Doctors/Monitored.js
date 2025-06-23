@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { getDoctors, addDoctor } from "../../store/doctors/actions";
 import {
   Card,
   CardBody,
@@ -45,10 +47,10 @@ const filterLabels = {
 const columns = [
   {
     name: "DOCTOR NAME",
-    selector: (row) => row.name,
+    selector: (row) => row.full_name,
     cell: (row) => (
       <div className="cell-content">
-        <div className="fw-bold">{row.name}</div>
+        <div className="fw-bold">{row.full_name}</div>
         <div className="text-muted" style={{ fontSize: "0.85em" }}>{row.specialty}</div>
       </div>
     ),
@@ -78,25 +80,6 @@ const columns = [
     selector: (row) => row.latestActivity,
     sortable: true,
     minWidth: "180px",
-  },
-];
-
-const data = [
-  {
-    name: "Dr Mark Kruchar",
-    specialty: "Orthodontist",
-    email: "mark.kruchar@smileie.com",
-    phone: "+1 (555) 123-4567",
-    practice: "Smileie UK",
-    latestActivity: "Reviewed patient scans",
-  },
-  {
-    name: "Dr Laura Smith",
-    specialty: "General Dentist",
-    email: "laura.smith@smileie.com",
-    phone: "+1 (555) 987-6543",
-    practice: "Smileie US",
-    latestActivity: "Sent message to patient",
   },
 ];
 
@@ -134,16 +117,51 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
   const [createDoctorModal, setCreateDoctorModal] = useState(false);
   const toggleCreateDoctor = () => setCreateDoctorModal(!createDoctorModal);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const doctorsRaw = useSelector((state) => state.doctor.doctors);
+  const doctors = Array.isArray(doctorsRaw) ? doctorsRaw : [];
+  const [form, setForm] = useState({
+    full_name: "",
+    specialty: "",
+    email: "",
+    phone: "",
+    practice: "",
+    status: "Active",
+  });
 
-  // Scroll to top on mount
+  // Debug: log the doctors data
+  console.log('Doctors data for table:', doctors);
+
+  // Fetch doctors on mount
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    dispatch(getDoctors());
+  }, [dispatch]);
 
   // Table row click handler (could navigate to doctor detail page)
   const handleRowClicked = (row) => {
-    const doctorId = row.id || row.name.replace(/\s+/g, '-').toLowerCase();
+    const doctorId = row.id || row.full_name.replace(/\s+/g, '-').toLowerCase();
     navigate(`/doctors/${doctorId}`);
+  };
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setForm((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleCreateDoctor = (e) => {
+    e.preventDefault();
+    dispatch(addDoctor(form));
+    setCreateDoctorModal(false);
+    setForm({
+      full_name: "",
+      specialty: "",
+      email: "",
+      phone: "",
+      practice: "",
+      status: "Active",
+    });
+    console.log("handleCreateDoctor clicked")
   };
 
   return (
@@ -172,18 +190,18 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
             <h4 className="modal-title">Create a new doctor</h4>
           </ModalHeader>
           <ModalBody>
-            <Form>
+            <Form onSubmit={handleCreateDoctor}>
               <Row>
                 <Col md={6}>
                   <FormGroup className="mb-3">
-                    <Label for="doctorName">Doctor Name</Label>
-                    <Input type="text" id="doctorName" placeholder="Enter doctor's name" />
+                    <Label for="full_name">Doctor Name</Label>
+                    <Input type="text" id="full_name" value={form.full_name} onChange={handleInputChange} placeholder="Enter doctor's name" />
                   </FormGroup>
                 </Col>
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="specialty">Specialty</Label>
-                    <Input type="select" id="specialty">
+                    <Input type="select" id="specialty" value={form.specialty} onChange={handleInputChange}>
                       <option value="">Select specialty</option>
                       <option>Orthodontist</option>
                       <option>General Dentist</option>
@@ -197,19 +215,19 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="email">Email</Label>
-                    <Input type="email" id="email" placeholder="Enter email address" />
+                    <Input type="email" id="email" value={form.email} onChange={handleInputChange} placeholder="Enter email address" />
                   </FormGroup>
                 </Col>
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="phone">Phone</Label>
-                    <Input type="tel" id="phone" placeholder="Enter phone number" />
+                    <Input type="tel" id="phone" value={form.phone} onChange={handleInputChange} placeholder="Enter phone number" />
                   </FormGroup>
                 </Col>
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="practice">Practice</Label>
-                    <Input type="select" id="practice">
+                    <Input type="select" id="practice" value={form.practice} onChange={handleInputChange}>
                       <option value="">Select practice</option>
                       <option>Smileie UK</option>
                       <option>Smileie US</option>
@@ -220,20 +238,20 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="status">Status</Label>
-                    <Input type="select" id="status">
+                    <Input type="select" id="status" value={form.status} onChange={handleInputChange}>
                       <option>Active</option>
                       <option>Inactive</option>
                     </Input>
                   </FormGroup>
                 </Col>
               </Row>
+              <div className="text-end mt-4">
+                <Button color="light" className="me-2" onClick={toggleCreateDoctor} type="button">
+                  Cancel
+                </Button>
+                <Button color="primary" type="submit">Create doctor</Button>
+              </div>
             </Form>
-            <div className="text-end mt-4">
-              <Button color="light" className="me-2" onClick={toggleCreateDoctor}>
-                Cancel
-              </Button>
-              <Button color="primary">Create doctor</Button>
-            </div>
           </ModalBody>
         </Modal>
 
@@ -258,7 +276,7 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
             </div>
             <DataTable
               columns={columns}
-              data={data}
+              data={doctors}
               selectableRows
               pagination
               highlightOnHover
