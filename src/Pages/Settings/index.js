@@ -19,7 +19,7 @@ const settingsData = [
         // count: "3",
         description: "Define dropdown-specific settings.",
         icon: "ri-list-settings-line",
-        url: "/settings/entities-list",
+        url: "/settings/dropdown-settings",
       }
     ],
   },

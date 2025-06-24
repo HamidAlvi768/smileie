@@ -1,6 +1,6 @@
 import axios from "axios";
 import config from "../config";
-import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API } from "./url_helper";
+import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API } from "./url_helper";
 
 // default
 axios.defaults.baseURL = config.API_URL;
@@ -88,3 +88,7 @@ const api = new APIClient();
 export const getDoctorsAPI = () => api.get(GET_DOCTOR_API);
 export const addDoctorAPI = (doctor) => api.create(ADD_DOCTOR_API, doctor);
 export const getPlansAPI = () => api.get(GET_PLANS_API);
+export const addPlanAPI = (plan) => api.create(ADD_PLAN_API, plan);
+export const getStatsAPI = () => api.get(GET_STATS_API);
+export const deletePlanAPI = (id) => api.delete(`${DELETE_PLAN_API}?id=${id}`);
+export const updatePlanAPI = (plan) => api.update(`${UPDATE_PLAN_API}?id=${plan.id}`, plan);

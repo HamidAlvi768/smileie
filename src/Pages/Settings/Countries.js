@@ -121,7 +121,9 @@ const Countries = () => {
           <Breadcrumbs
             title="Smileie"
             breadcrumbItem="Settings"
-            breadcrumbItem2="Countries"
+            breadcrumbItem2="Dropdown Settings"
+            breadcrumbItem2Link="/settings/dropdown-settings"
+            breadcrumbItem3="Countries"
           />
 
           <Row>
@@ -141,8 +143,6 @@ const Countries = () => {
                       <thead className="table-light">
                         <tr>
                           <th scope="col">Name</th>
-                          <th scope="col">Code</th>
-                          <th scope="col">Currency</th>
                           <th scope="col">Status</th>
                           <th scope="col">Actions</th>
                         </tr>
@@ -153,8 +153,6 @@ const Countries = () => {
                             <td>
                               <h6 className="mb-0">{country.name}</h6>
                             </td>
-                            <td>{country.code}</td>
-                            <td>{country.currency}</td>
                             <td>{getStatusBadge(country.status)}</td>
                             <td>
                               <div className="d-flex gap-2">
@@ -202,34 +200,6 @@ const Countries = () => {
                     name="name"
                     type="text"
                     value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="code">Country Code</Label>
-                  <Input
-                    id="code"
-                    name="code"
-                    type="text"
-                    value={formData.code}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="currency">Currency</Label>
-                  <Input
-                    id="currency"
-                    name="currency"
-                    type="text"
-                    value={formData.currency}
                     onChange={handleInputChange}
                     required
                   />

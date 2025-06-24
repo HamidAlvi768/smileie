@@ -13,3 +13,6 @@ export * from "./doctors/actions";
 
 // Plans module
 export * from "./plans/actions";
+
+// Stats module
+export * from "./stats/actions";

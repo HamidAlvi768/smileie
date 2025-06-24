@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getPlans } from "../../store/plans/actions";
+import { getPlans, addPlan, deletePlan, updatePlan } from "../../store/plans/actions";
 import { Container, Row, Col, Card, CardBody, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
@@ -34,7 +34,7 @@ const TreatmentPlans = () => {
 
   const handleEdit = (plan) => {
     setEditingPlan(plan);
-    setFormData({ name: plan.name, duration: plan.duration, status: plan.status });
+    setFormData({ name: plan.name, duration: plan.weeks, status: plan.status });
     setModal(true);
   };
 
@@ -45,12 +45,27 @@ const TreatmentPlans = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add/edit logic would go here (not implemented for API yet)
+    if (editingPlan) {
+      dispatch(updatePlan({
+        id: editingPlan.id,
+        name: formData.name,
+        weeks: formData.duration,
+        active: formData.status === "Active",
+      }));
+    } else {
+      dispatch(addPlan({
+        name: formData.name,
+        weeks: formData.duration,
+        active: formData.status === "Active",
+      }));
+    }
     setModal(false);
   };
 
   const confirmDelete = () => {
-    // Delete logic would go here (not implemented for API yet)
+    if (planToDelete) {
+      dispatch(deletePlan(planToDelete.id));
+    }
     setDeleteModal(false);
   };
 

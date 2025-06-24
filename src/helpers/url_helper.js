@@ -25,5 +25,11 @@ export const ADD_DOCTOR_API = "/doctors/create";
 
 //plans
 export const GET_PLANS_API = "/plans";
+export const ADD_PLAN_API = "/plans/create";
+export const DELETE_PLAN_API = "/plans/delete";
+export const UPDATE_PLAN_API = "/plans/update";
+
+//stats
+export const GET_STATS_API = "/dashboard/stats";
 
 

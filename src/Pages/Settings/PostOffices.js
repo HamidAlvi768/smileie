@@ -151,10 +151,6 @@ const PostOffices = () => {
                       <thead className="table-light">
                         <tr>
                           <th scope="col">Name</th>
-                          <th scope="col">Address</th>
-                          <th scope="col">City</th>
-                          <th scope="col">State</th>
-                          <th scope="col">Zip Code</th>
                           <th scope="col">Status</th>
                           <th scope="col">Actions</th>
                         </tr>
@@ -165,10 +161,6 @@ const PostOffices = () => {
                             <td>
                               <h6 className="mb-0">{postOffice.name}</h6>
                             </td>
-                            <td>{postOffice.address}</td>
-                            <td>{postOffice.city}</td>
-                            <td>{postOffice.state}</td>
-                            <td>{postOffice.zipCode}</td>
                             <td>{getStatusBadge(postOffice.status)}</td>
                             <td>
                               <div className="d-flex gap-2">
@@ -210,68 +202,12 @@ const PostOffices = () => {
             <Row>
               <Col md={6}>
                 <FormGroup>
-                  <Label for="name">Name</Label>
+                  <Label for="name">Post Office Name</Label>
                   <Input
                     id="name"
                     name="name"
                     type="text"
                     value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="address">Address</Label>
-                  <Input
-                    id="address"
-                    name="address"
-                    type="text"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="city">City</Label>
-                  <Input
-                    id="city"
-                    name="city"
-                    type="text"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="state">State</Label>
-                  <Input
-                    id="state"
-                    name="state"
-                    type="text"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="zipCode">Zip Code</Label>
-                  <Input
-                    id="zipCode"
-                    name="zipCode"
-                    type="text"
-                    value={formData.zipCode}
                     onChange={handleInputChange}
                     required
                   />
