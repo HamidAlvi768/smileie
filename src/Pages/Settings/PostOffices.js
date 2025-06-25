@@ -131,7 +131,9 @@ const PostOffices = () => {
           <Breadcrumbs
             title="Smileie"
             breadcrumbItem="Settings"
-            breadcrumbItem2="Post Offices"
+            breadcrumbItem2="Dropdown Settings"
+            breadcrumbItem2Link="/settings/dropdown-settings"
+            breadcrumbItem3="Post Offices"
           />
 
           <Row>

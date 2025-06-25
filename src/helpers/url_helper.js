@@ -32,4 +32,7 @@ export const UPDATE_PLAN_API = "/plans/update";
 //stats
 export const GET_STATS_API = "/dashboard/stats";
 
+//chat
+export const SEND_MESSAGE_API = "/chat/messages/send";
+
 

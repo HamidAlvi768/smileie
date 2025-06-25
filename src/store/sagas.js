@@ -9,6 +9,7 @@ import forgetPasswordSaga from "./auth/forgetpwd/saga"
 import doctorSaga from "./doctors/saga";
 import plansSaga from "./plans/saga";
 import statsSaga from "./stats/saga";
+import messagesSaga from "./messages/sagas";
 
 export default function* rootSaga() {
   yield all([
@@ -21,6 +22,7 @@ export default function* rootSaga() {
     fork(forgetPasswordSaga),
     fork(doctorSaga),
     fork(plansSaga),
-    fork(statsSaga)
+    fork(statsSaga),
+    messagesSaga()
   ]);
 }

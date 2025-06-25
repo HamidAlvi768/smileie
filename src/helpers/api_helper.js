@@ -1,6 +1,6 @@
 import axios from "axios";
 import config from "../config";
-import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API } from "./url_helper";
+import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API } from "./url_helper";
 
 // default
 axios.defaults.baseURL = config.API_URL;
@@ -92,3 +92,51 @@ export const addPlanAPI = (plan) => api.create(ADD_PLAN_API, plan);
 export const getStatsAPI = () => api.get(GET_STATS_API);
 export const deletePlanAPI = (id) => api.delete(`${DELETE_PLAN_API}?id=${id}`);
 export const updatePlanAPI = (plan) => api.update(`${UPDATE_PLAN_API}?id=${plan.id}`, plan);
+
+// Chat messages API
+export const getMessagesAPI = async (patientId) => {
+  const response = await fetch(`${config.API_URL}chat/messages?myid=2&otherid=1`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      // Add auth headers if needed
+    },
+  });
+  if (!response.ok) throw new Error("Failed to fetch messages");
+  return response.json();
+};
+
+export const sendMessageAPI = async (patientId, message, file) => {
+  // Get sender_id from localStorage
+  const user = JSON.parse(localStorage.getItem("authUser"));
+  const sender_id = user?.id || user?.uid;
+  if (!sender_id) throw new Error("No sender_id found in authUser");
+
+  if (!file) {
+    // Send as JSON
+    const response = await fetch(`${config.API_URL}chat/messages/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Add auth headers if needed
+      },
+      body: JSON.stringify({ sender_id:2, receiver_id: 1, message }),
+    });
+    if (!response.ok) throw new Error("Failed to send message");
+    return response.json();
+  } else {
+    // Send as FormData if file is present
+    const formData = new FormData();
+    formData.append("sender_id", 2);
+    formData.append("receiver_id", 1);
+    formData.append("message", message);
+    formData.append("file", file);
+    const response = await fetch(`${config.API_URL}chat/messages/send`, {
+      method: "POST",
+      body: formData,
+      // No Content-Type header for FormData
+    });
+    if (!response.ok) throw new Error("Failed to send message");
+    return response.json();
+  }
+};

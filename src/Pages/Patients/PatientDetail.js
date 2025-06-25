@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux"; // Assuming this is used, though not directly in the provided snippet for patient data
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useSelector, useDispatch } from "react-redux"; // Assuming this is used, though not directly in the provided snippet for patient data
 import {
   Container,
   Row,
@@ -41,6 +41,10 @@ import Scans from "./PatientDetailSections/Scans";
 import ScanDetail from "./PatientDetailSections/ScanDetail";
 import History from "./PatientDetailSections/History";
 import threeShapeLogo from "../../assets/images/three_shape_logo.png";
+import {
+  fetchMessages,
+  sendMessage,
+} from "../../store/messages/actions";
 
 // Mock data moved outside the component
 const PATIENT_MOCK_DATA = {
@@ -589,6 +593,36 @@ const PatientDetail = () => {
   // Get the current section from the URL hash
   const currentSection = location.hash.replace("#", "") || "monitoring";
 
+  const dispatch = useDispatch();
+  const { messages, loading, error, sending } = useSelector((state) => state.messages);
+
+  // Fetch messages when communication panel opens or patient id changes
+  useEffect(() => {
+    if (isCommunicationOpen && id) {
+      dispatch(fetchMessages(id));
+    }
+  }, [isCommunicationOpen, id, dispatch]);
+
+  // Send message handler
+  const handleSendMessage = () => {
+    if (communicationPanelMessage.trim()) {
+      dispatch(sendMessage(id, communicationPanelMessage));
+      setCommunicationPanelMessage("");
+    }
+  };
+
+  // Debug: log messages from Redux
+  console.log('Messages from Redux:', messages);
+
+  const messagesEndRef = useRef(null);
+
+  // Scroll to bottom when messages change or panel opens
+  useEffect(() => {
+    if (isCommunicationOpen && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isCommunicationOpen]);
+
   return (
     <div className="page-content">
       <div className="topnav patient-detail-topnav">
@@ -1053,22 +1087,27 @@ const PatientDetail = () => {
             </div>
             <div className="messages-container">
               <div className="messages">
-                <Message
-                  sender="Dr. Smith"
-                  content="Please continue wearing aligners as prescribed. Use chewies for better fit."
-                  date="March 15, 2024"
-                  time="10:30 AM"
-                  index={0}
-                  onSaveQuickReply={openSaveQuickReplyModal}
-                />
-                <Message
-                  sender="Patient"
-                  content="Will do, thank you doctor."
-                  date="March 15, 2024"
-                  time="10:35 AM"
-                  index={1}
-                  onSaveQuickReply={openSaveQuickReplyModal}
-                />
+                {loading ? (
+                  <div className="text-center text-muted py-3">Loading messages...</div>
+                ) : error ? (
+                  <div className="text-center text-danger py-3">{error}</div>
+                ) : messages && messages.length > 0 ? (
+                  messages.map((msg, idx) => (
+                    <Message
+                      key={msg.id || idx}
+                      sender={msg.sender_id || "Unknown"}
+                      content={msg.message || msg.content}
+                      date={msg.created_at || ""}
+                      time={msg.created_at ? msg.created_at.split(' ')[1] : ""}
+                      index={idx}
+                      onSaveQuickReply={openSaveQuickReplyModal}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center text-muted py-3">No messages yet.</div>
+                )}
+                {/* Dummy div for auto-scroll */}
+                <div ref={messagesEndRef} />
               </div>
             </div>
             {/* Input area for sending message - always at the bottom */}
@@ -1093,6 +1132,7 @@ const PatientDetail = () => {
                 placeholder="Type a message..."
                 rows="3"
                 className="mb-2"
+                disabled={sending}
               />
               <div className="d-flex justify-content-between align-items-center">
                 <div className="d-flex gap-2">
@@ -1100,8 +1140,8 @@ const PatientDetail = () => {
                     <i className="mdi mdi-paperclip"></i>
                   </Button>
                 </div>
-                <Button color="primary" size="sm">
-                  <i className="mdi mdi-send"></i>
+                <Button color="primary" size="sm" onClick={handleSendMessage} disabled={sending || !communicationPanelMessage.trim()}>
+                  {sending ? <span className="spinner-border spinner-border-sm"></span> : <i className="mdi mdi-send"></i>}
                 </Button>
               </div>
             </div>
