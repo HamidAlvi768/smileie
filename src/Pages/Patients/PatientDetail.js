@@ -44,7 +44,9 @@ import threeShapeLogo from "../../assets/images/three_shape_logo.png";
 import {
   fetchMessages,
   sendMessage,
+  receiveMessage,
 } from "../../store/messages/actions";
+import config from '../../config.js';
 
 // Mock data moved outside the component
 const PATIENT_MOCK_DATA = {
@@ -200,8 +202,10 @@ const SIDEBAR_SECTIONS_DATA = [
 ];
 
 // Move Message to a separate component and pass openSaveQuickReplyModal as a prop
-function Message({ sender, content, date, time, index, onSaveQuickReply }) {
+function Message({ sender, content, date, time, index, onSaveQuickReply, myId }) {
   const [hovered, setHovered] = React.useState(false);
+  // Determine if this message is sent by the current user
+  const isSent = String(sender) === String(myId);
   return (
     <div 
       className="message mb-4 position-relative"
@@ -212,9 +216,8 @@ function Message({ sender, content, date, time, index, onSaveQuickReply }) {
         <small className="text-muted">{date}</small>
       </div>
       <div
-        className={`p-2 ${
-          sender === "Patient" ? "bg-primary text-white" : "bg-light"
-        } rounded`}
+        className={`p-2 rounded ${isSent ? 'bg-teal text-white' : 'bg-light'}`}
+        style={isSent ? { backgroundColor: '#17c3b2', color: 'white'} : {}}
       >
         {content}
       </div>
@@ -223,25 +226,7 @@ function Message({ sender, content, date, time, index, onSaveQuickReply }) {
         style={{ position: "relative" }}
       >
         <small className="text-muted">{time}</small>
-        {hovered && (
-          <div 
-            className="save-quick-reply"
-            style={{
-              fontSize: "0.7rem",
-              color: "#1da5fe",
-              cursor: "pointer",
-              backgroundColor: "white",
-              padding: "2px 8px",
-              borderRadius: "4px",
-              position: "absolute",
-              top: 0,
-              right: 0,
-            }}
-            onClick={() => onSaveQuickReply(content)}
-          >
-            Save as a new quick reply
-          </div>
-        )}
+        {hovered && (null)}
       </div>
     </div>
   );
@@ -595,6 +580,37 @@ const PatientDetail = () => {
 
   const dispatch = useDispatch();
   const { messages, loading, error, sending } = useSelector((state) => state.messages);
+
+  // Dummy user IDs for SSE (replace with real logic as needed)
+  const myId = 2; // TODO: Replace with actual logged-in user ID
+  const otherId = 1; // patient id from useParams
+
+  useEffect(() => {
+    if (!isCommunicationOpen || !id) return;
+    const eventSource = new window.EventSource(
+      `${config.API_URL.replace(/\/$/, '')}/chat/stream?myid=${myId}&otherid=${otherId}`
+    );
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        // If the backend sends an array, loop; else, single message
+        if (Array.isArray(data)) {
+          data.forEach((msg) => dispatch(receiveMessage(msg)));
+        } else if (data) {
+          dispatch(receiveMessage(data));
+        }
+      } catch (err) {
+        console.error('Failed to parse SSE message', err, event.data);
+      }
+    };
+    eventSource.onerror = (err) => {
+      console.error('SSE error', err);
+      // Optionally: eventSource.close();
+    };
+    return () => {
+      eventSource.close();
+    };
+  }, [isCommunicationOpen, id, dispatch]);
 
   // Fetch messages when communication panel opens or patient id changes
   useEffect(() => {
@@ -1097,10 +1113,11 @@ const PatientDetail = () => {
                       key={msg.id || idx}
                       sender={msg.sender_id || "Unknown"}
                       content={msg.message || msg.content}
-                      date={msg.created_at || ""}
+                      date={msg.created_at ? msg.created_at.split(' ')[0] : ""}
                       time={msg.created_at ? msg.created_at.split(' ')[1] : ""}
                       index={idx}
                       onSaveQuickReply={openSaveQuickReplyModal}
+                      myId={myId}
                     />
                   ))
                 ) : (

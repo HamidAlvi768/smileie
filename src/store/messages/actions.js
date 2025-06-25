@@ -7,6 +7,8 @@ export const SEND_MESSAGE = "SEND_MESSAGE";
 export const SEND_MESSAGE_SUCCESS = "SEND_MESSAGE_SUCCESS";
 export const SEND_MESSAGE_ERROR = "SEND_MESSAGE_ERROR";
 
+export const RECEIVE_MESSAGE = "RECEIVE_MESSAGE";
+
 // Action Creators
 export const fetchMessages = (patientId) => ({
   type: FETCH_MESSAGES,
@@ -36,4 +38,9 @@ export const sendMessageSuccess = (message) => ({
 export const sendMessageError = (error) => ({
   type: SEND_MESSAGE_ERROR,
   payload: error,
+});
+
+export const receiveMessage = (message) => ({
+  type: RECEIVE_MESSAGE,
+  payload: message,
 }); 

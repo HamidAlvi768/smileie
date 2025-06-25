@@ -5,6 +5,7 @@ import {
   SEND_MESSAGE,
   SEND_MESSAGE_SUCCESS,
   SEND_MESSAGE_ERROR,
+  RECEIVE_MESSAGE,
 } from "./actions";
 
 const initialState = {
@@ -33,6 +34,11 @@ const messages = (state = initialState, action) => {
       };
     case SEND_MESSAGE_ERROR:
       return { ...state, sending: false, error: action.payload };
+    case RECEIVE_MESSAGE:
+      return {
+        ...state,
+        messages: [...state.messages, action.payload],
+      };
     default:
       return state;
   }

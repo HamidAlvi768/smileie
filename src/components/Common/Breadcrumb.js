@@ -39,9 +39,9 @@ const Breadcrumbs = (props) => {
                     </BreadcrumbItem>
                   )}
                   {props.breadcrumbItem3 && (
-                    <BreadcrumbItem active>
+                <BreadcrumbItem active>
                       {props.breadcrumbItem3}
-                    </BreadcrumbItem>
+                </BreadcrumbItem>
                   )}
               </Breadcrumb>
               </div>
