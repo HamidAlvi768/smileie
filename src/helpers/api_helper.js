@@ -94,9 +94,12 @@ export const getStatsAPI = () => api.get(GET_STATS_API);
 export const deletePlanAPI = (id) => api.delete(`${DELETE_PLAN_API}?id=${id}`);
 export const updatePlanAPI = (plan) => api.update(`${UPDATE_PLAN_API}?id=${plan.id}`, plan);
 
+const myId=2;
+const otherId=1;
+
 // Chat messages API
 export const getMessagesAPI = async (patientId) => {
-  const response = await fetch(`${config.API_URL}chat/messages?myid=2&otherid=1`, {
+  const response = await fetch(`${config.API_URL}chat/messages?myid=${myId}&otherid=${otherId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -121,15 +124,15 @@ export const sendMessageAPI = async (patientId, message, file) => {
         "Content-Type": "application/json",
         // Add auth headers if needed
       },
-      body: JSON.stringify({ sender_id:2, receiver_id: 1, message }),
+      body: JSON.stringify({ sender_id:myId, receiver_id: otherId, message }),
     });
     if (!response.ok) throw new Error("Failed to send message");
     return response.json();
   } else {
     // Send as FormData if file is present
     const formData = new FormData();
-    formData.append("sender_id", 2);
-    formData.append("receiver_id", 1);
+    formData.append("sender_id", myId);
+    formData.append("receiver_id", otherId);
     formData.append("message", message);
     formData.append("file", file);
     const response = await fetch(`${config.API_URL}chat/messages/send`, {
