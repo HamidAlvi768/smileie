@@ -19,16 +19,29 @@ const Breadcrumbs = (props) => {
                   <Link to="#">{props.title}</Link>
                 </BreadcrumbItem>
                   <BreadcrumbItem>
-                    {props.breadcrumbItem2 ? (
+                    {props.breadcrumbItem2 || props.breadcrumbItem3 ? (
                       <Link to="/settings">{props.breadcrumbItem}</Link>
                     ) : (
                       <span>{props.breadcrumbItem}</span>
                     )}
                   </BreadcrumbItem>
                   {props.breadcrumbItem2 && (
-                <BreadcrumbItem active>
-                      {props.breadcrumbItem2}
-                </BreadcrumbItem>
+                    <BreadcrumbItem>
+                      {props.breadcrumbItem3 ? (
+                        props.breadcrumbItem2Link ? (
+                          <Link to={props.breadcrumbItem2Link}>{props.breadcrumbItem2}</Link>
+                        ) : (
+                          <span>{props.breadcrumbItem2}</span>
+                        )
+                      ) : (
+                        <span>{props.breadcrumbItem2}</span>
+                      )}
+                    </BreadcrumbItem>
+                  )}
+                  {props.breadcrumbItem3 && (
+                    <BreadcrumbItem active>
+                      {props.breadcrumbItem3}
+                    </BreadcrumbItem>
                   )}
               </Breadcrumb>
               </div>

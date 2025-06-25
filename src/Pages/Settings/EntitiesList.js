@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Container, Row, Col, Card, CardBody, Table, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input, Badge } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { useNavigate } from "react-router-dom";
+import './EntitiesList.css';
+import '../../assets/scss/pages/patient.scss'; 
+
 
 const EntitiesList = () => {
   const [entities, setEntities] = useState([
@@ -15,25 +19,7 @@ const EntitiesList = () => {
       name: "Post Offices",
       type: "post_office",
       status: "Active",
-    },
-    {
-      id: 3,
-      name: "States",
-      type: "state",
-      status: "Active",
-    },
-    {
-      id: 4,
-      name: "SMS Templates",
-      type: "sms_template",
-      status: "Active",
-    },
-    {
-      id: 5,
-      name: "Email Templates",
-      type: "email_template",
-      status: "Active",
-    },
+    }
   ]);
 
   const [modal, setModal] = useState(false);
@@ -45,6 +31,8 @@ const EntitiesList = () => {
     type: "",
     status: "Active",
   });
+
+  const navigate = useNavigate();
 
   const toggleModal = () => {
     setModal(!modal);
@@ -119,6 +107,30 @@ const EntitiesList = () => {
     );
   };
 
+  const handleRowClick = (entity) => {
+    let route = "/settings/";
+    switch (entity.type) {
+      case "country":
+        route += "countries";
+        break;
+      case "post_office":
+        route += "post-offices";
+        break;
+      case "state":
+        route += "states";
+        break;
+      case "sms_template":
+        route += "sms-templates";
+        break;
+      case "email_template":
+        route += "email-templates";
+        break;
+      default:
+        route += entity.type;
+    }
+    navigate(route);
+  };
+
   document.title = "Entities List | Smileie";
 
   return (
@@ -159,7 +171,12 @@ const EntitiesList = () => {
                       </thead>
                       <tbody>
                         {entities.map((entity) => (
-                          <tr key={entity.id}>
+                          <tr
+                            key={entity.id}
+                            className="clickable-row"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleRowClick(entity)}
+                          >
                             <td>
                               <h6 className="mb-0">{entity.name}</h6>
                             </td>
@@ -170,14 +187,14 @@ const EntitiesList = () => {
                                 <Button
                                   color="outline-primary"
                                   size="sm"
-                                  onClick={() => handleEdit(entity)}
+                                  onClick={e => { e.stopPropagation(); handleEdit(entity); }}
                                 >
                                   <i className="ri-pencil-line"></i>
                                 </Button>
                                 <Button
                                   color="outline-danger"
                                   size="sm"
-                                  onClick={() => handleDelete(entity)}
+                                  onClick={e => { e.stopPropagation(); handleDelete(entity); }}
                                 >
                                   <i className="ri-delete-bin-line"></i>
                                 </Button>

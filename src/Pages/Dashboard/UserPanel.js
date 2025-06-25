@@ -1,9 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { getStats } from "../../store/stats/actions";
 import { Card, CardBody, Col, Row } from "reactstrap";
 import { useNavigate } from "react-router-dom";
 
 const UserPanel = () => {
+  const dispatch = useDispatch();
+  const stats = useSelector((state) => state.stats.stats);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getStats());
+  }, [dispatch]);
 
   const handleViewAll = () => {
     navigate("/patients/monitored");
@@ -33,7 +41,7 @@ const UserPanel = () => {
                     <p className="mb-0">Total Users</p>
                   </div>
                   <div className="d-flex align-items-center">
-                    <h5 className="mb-0">1.5k</h5>
+                    <h5 className="mb-0">{stats.users ?? "-"}</h5>
                     <button
                       type="button"
                       className="btn btn-soft-primary btn-sm text-primary ms-auto"
@@ -63,10 +71,10 @@ const UserPanel = () => {
 
                 <div className="flex-grow-1 overflow-hidden">
                   <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Active Doctors</p>
+                    <p className="mb-0">Doctors</p>
                   </div>
                   <div className="d-flex align-items-center">
-                    <h5 className="mb-0">24</h5>
+                    <h5 className="mb-0">{stats.doctors ?? "-"}</h5>
                     <button
                       type="button"
                       className="btn btn-soft-primary btn-sm text-primary ms-auto"
@@ -99,7 +107,7 @@ const UserPanel = () => {
                     <p className="mb-0">Total Patients</p>
                   </div>
                   <div className="d-flex align-items-center">
-                    <h5 className="mb-0">1.2k</h5>
+                    <h5 className="mb-0">{stats.patients ?? "-"}</h5>
                     <button
                       type="button"
                       className="btn btn-soft-primary btn-sm text-primary ms-auto"
@@ -131,15 +139,7 @@ const UserPanel = () => {
                     <p className="mb-0">Today's Scans</p>
                   </div>
                   <div className="d-flex align-items-center">
-                    <h5 className="mb-0">28</h5>
-                    {/* <button
-                      type="button"
-                      className="btn btn-soft-primary btn-sm text-primary ms-auto"
-                      onClick={handleViewAll}
-                    >
-                      View All{" "}
-                      <i className="ri-arrow-right-line align-middle ms-1"></i>
-                    </button> */}
+                    <h5 className="mb-0">{stats.scans ?? "-"}</h5>
                   </div>
                 </div>
               </div>
@@ -162,7 +162,7 @@ const UserPanel = () => {
                   <div className="d-flex align-items-center mb-1">
                     <p className="mb-0">Impression Kits</p>
                   </div>
-                  <h5 className="mb-0">156</h5>
+                  <h5 className="mb-0">{stats.impression_kits ?? "-"}</h5>
                 </div>
               </div>
             </CardBody>
@@ -184,7 +184,7 @@ const UserPanel = () => {
                   <div className="d-flex align-items-center mb-1">
                     <p className="mb-0">Aligners</p>
                   </div>
-                  <h5 className="mb-0">32</h5>
+                  <h5 className="mb-0">{stats.aligners ?? "-"}</h5>
                 </div>
               </div>
             </CardBody>
@@ -206,7 +206,7 @@ const UserPanel = () => {
                   <div className="d-flex align-items-center mb-1">
                     <p className="mb-0">Retainers</p>
                   </div>
-                  <h5 className="mb-0">89</h5>
+                  <h5 className="mb-0">{stats.retainers ?? "-"}</h5>
                 </div>
               </div>
             </CardBody>
@@ -220,15 +220,18 @@ const UserPanel = () => {
                 <div className="flex-shrink-0 me-3 align-self-center">
                   <div className="avatar-sm">
                     <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
-                      <i className="ri-sun-line"></i>
+                      <i className="ri-file-list-3-line"></i>{" "}
+                      {/* Changed icon to represent treatment plans */}
                     </div>
                   </div>
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Teeth Whitening Kit</p>
+                    <p className="mb-0">Treatment Plans</p>{" "}
+                    {/* Changed label */}
                   </div>
-                  <h5 className="mb-0">45</h5>
+                  <h5 className="mb-0">{stats.plans ?? "-"}</h5>{" "}
+                  {/* Keep or update number as needed */}
                 </div>
               </div>
             </CardBody>

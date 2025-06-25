@@ -146,7 +146,7 @@ const authProtectedRoutes = [
   { path: "/settings/scan-notification-frequency", component: <ScanNotificationFrequency /> },
   { path: "/settings/sms-templates", component: <Settings /> },
   { path: "/settings/email-templates", component: <Settings /> },
-  { path: "/settings/entities-list", component: <EntitiesList /> },
+  { path: "/settings/dropdown-settings", component: <EntitiesList /> },
   { path: "/settings/reminders", component: <Reminders /> },
   { path: "/settings/photo-upload-reminder", component: <PhotoUploadReminder /> },
   { path: "/settings/next-step-reminder", component: <NextStepReminder /> },

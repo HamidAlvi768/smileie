@@ -29,12 +29,7 @@ const filterOptions = {
     "Periodontist",
     "Prosthodontist",
   ],
-  practice: [
-    "All practices",
-    "Smileie UK",
-    "Smileie US",
-    "Smileie AU",
-  ],
+  practice: ["All practices", "Smileie UK", "Smileie US", "Smileie AU"],
   status: ["All", "Active", "Inactive"],
 };
 
@@ -51,7 +46,9 @@ const columns = [
     cell: (row) => (
       <div className="cell-content">
         <div className="fw-bold">{row.full_name}</div>
-        <div className="text-muted" style={{ fontSize: "0.85em" }}>{row.specialty}</div>
+        <div className="text-muted" style={{ fontSize: "0.85em" }}>
+          {row.specialty}
+        </div>
       </div>
     ),
     sortable: true,
@@ -130,7 +127,7 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
   });
 
   // Debug: log the doctors data
-  console.log('Doctors data for table:', doctors);
+  console.log("Doctors data for table:", doctors);
 
   // Fetch doctors on mount
   useEffect(() => {
@@ -140,7 +137,7 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
 
   // Table row click handler (could navigate to doctor detail page)
   const handleRowClicked = (row) => {
-    const doctorId = row.id || row.full_name.replace(/\s+/g, '-').toLowerCase();
+    const doctorId = row.id || row.full_name.replace(/\s+/g, "-").toLowerCase();
     navigate(`/doctors/${doctorId}`);
   };
 
@@ -161,7 +158,7 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
       practice: "",
       status: "Active",
     });
-    console.log("handleCreateDoctor clicked")
+    console.log("handleCreateDoctor clicked");
   };
 
   return (
@@ -195,13 +192,24 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="full_name">Doctor Name</Label>
-                    <Input type="text" id="full_name" value={form.full_name} onChange={handleInputChange} placeholder="Enter doctor's name" />
+                    <Input
+                      type="text"
+                      id="full_name"
+                      value={form.full_name}
+                      onChange={handleInputChange}
+                      placeholder="Enter doctor's name"
+                    />
                   </FormGroup>
                 </Col>
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="specialty">Specialty</Label>
-                    <Input type="select" id="specialty" value={form.specialty} onChange={handleInputChange}>
+                    <Input
+                      type="select"
+                      id="specialty"
+                      value={form.specialty}
+                      onChange={handleInputChange}
+                    >
                       <option value="">Select specialty</option>
                       <option>Orthodontist</option>
                       <option>General Dentist</option>
@@ -215,19 +223,36 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="email">Email</Label>
-                    <Input type="email" id="email" value={form.email} onChange={handleInputChange} placeholder="Enter email address" />
+                    <Input
+                      type="email"
+                      id="email"
+                      value={form.email}
+                      onChange={handleInputChange}
+                      placeholder="Enter email address"
+                    />
                   </FormGroup>
                 </Col>
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="phone">Phone</Label>
-                    <Input type="tel" id="phone" value={form.phone} onChange={handleInputChange} placeholder="Enter phone number" />
+                    <Input
+                      type="tel"
+                      id="phone"
+                      value={form.phone}
+                      onChange={handleInputChange}
+                      placeholder="Enter phone number"
+                    />
                   </FormGroup>
                 </Col>
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="practice">Practice</Label>
-                    <Input type="select" id="practice" value={form.practice} onChange={handleInputChange}>
+                    <Input
+                      type="select"
+                      id="practice"
+                      value={form.practice}
+                      onChange={handleInputChange}
+                    >
                       <option value="">Select practice</option>
                       <option>Smileie UK</option>
                       <option>Smileie US</option>
@@ -238,7 +263,12 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="status">Status</Label>
-                    <Input type="select" id="status" value={form.status} onChange={handleInputChange}>
+                    <Input
+                      type="select"
+                      id="status"
+                      value={form.status}
+                      onChange={handleInputChange}
+                    >
                       <option>Active</option>
                       <option>Inactive</option>
                     </Input>
@@ -246,10 +276,17 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
                 </Col>
               </Row>
               <div className="text-end mt-4">
-                <Button color="light" className="me-2" onClick={toggleCreateDoctor} type="button">
+                <Button
+                  color="light"
+                  className="me-2"
+                  onClick={toggleCreateDoctor}
+                  type="button"
+                >
                   Cancel
                 </Button>
-                <Button color="primary" type="submit">Create doctor</Button>
+                <Button color="primary" type="submit">
+                  Create doctor
+                </Button>
               </div>
             </Form>
           </ModalBody>
@@ -287,7 +324,7 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
                   ...customStyles.rows,
                   style: {
                     ...customStyles.rows.style,
-                    cursor: 'default',
+                    cursor: "default",
                   },
                 },
               }}
@@ -299,4 +336,4 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
   );
 };
 
-export default DoctorsMonitored; 
+export default DoctorsMonitored;
