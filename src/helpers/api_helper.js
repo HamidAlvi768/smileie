@@ -1,6 +1,6 @@
 import axios from "axios";
 import config from "../config";
-import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API } from "./url_helper";
+import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API, GET_GENERAL_TYPES_API, ADD_GENERAL_TYPE_API, UPDATE_GENERAL_TYPE_API, DELETE_GENERAL_TYPE_API } from "./url_helper";
 
 // default
 axios.defaults.baseURL = config.API_URL;
@@ -144,3 +144,12 @@ export const sendMessageAPI = async (patientId, message, file) => {
     return response.json();
   }
 };
+
+// General Types (Dropdown Settings) API
+export const getGeneralTypesAPI = () => api.get(GET_GENERAL_TYPES_API);
+export const getGenericRecordsAPI = (parent_id) => {
+  return api.get(GET_GENERAL_TYPES_API+"?parent_id="+parent_id)
+};
+export const addGeneralTypeAPI = (type) => api.create(ADD_GENERAL_TYPE_API, type);
+export const updateGeneralTypeAPI = (type) => api.update(`${UPDATE_GENERAL_TYPE_API}?id=${type.id}`, type);
+export const deleteGeneralTypeAPI = (id) => api.delete(`${DELETE_GENERAL_TYPE_API}?id=${id}`);

@@ -44,7 +44,7 @@ const VectorMaps = () => {
                                             <Vector
                                                 value="us_aea"
                                                 width="500"
-                                                color="#0bb197"
+                                                color="#1da5fe"
                                             />
                                         </div>
                                     </CardBody>
@@ -60,7 +60,7 @@ const VectorMaps = () => {
                                             <Vector
                                                 value="in_mill"
                                                 width="500"
-                                                color="#0bb197"
+                                                color="#1da5fe"
                                             />
                                         </div>
                                     </CardBody>
@@ -79,7 +79,7 @@ const VectorMaps = () => {
                                             <Vector
                                                 value="au_mill"
                                                 width="500"
-                                                color="#0bb197"
+                                                color="#1da5fe"
                                             />
                                         </div>
                                     </CardBody>
@@ -97,7 +97,7 @@ const VectorMaps = () => {
                                             <Vector
                                                 value="ca_lcc"
                                                 width="500"
-                                                color="#0bb197"
+                                                color="#1da5fe"
                                             />
                                         </div>
                                     </CardBody>

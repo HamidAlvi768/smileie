@@ -115,7 +115,7 @@ import EntitiesList from "../Pages/Settings/EntitiesList";
 import Reminders from "../Pages/Settings/Reminders";
 import PhotoUploadReminder from "../Pages/Settings/PhotoUploadReminder";
 import NextStepReminder from "../Pages/Settings/NextStepReminder";
-import Countries from "../Pages/Settings/Countries";
+import GenericData from "../Pages/Settings/GenericData.js";
 import PostOffices from "../Pages/Settings/PostOffices";
 import ApplicationSettings from "../Pages/Settings/ApplicationSettings";
 import TreatmentPlans from "../Pages/Settings/TreatmentPlans";
@@ -137,12 +137,7 @@ const authProtectedRoutes = [
   { path: "/settings/users", component: <Settings /> },
   { path: "/settings/doctors", component: <Settings /> },
   { path: "/settings/patients", component: <Settings /> },
-  { path: "/settings/appointments", component: <Settings /> },
-  { path: "/settings/clinics", component: <Settings /> },
-  { path: "/settings/post-offices", component: <PostOffices /> },
-  { path: "/settings/states", component: <Settings /> },
-  { path: "/settings/countries", component: <Countries /> },
-  { path: "/settings/currencies", component: <Settings /> },
+  { path: "/settings/dropdown-settings/:id", component: <GenericData /> },
   { path: "/settings/scan-notification-frequency", component: <ScanNotificationFrequency /> },
   { path: "/settings/sms-templates", component: <Settings /> },
   { path: "/settings/email-templates", component: <Settings /> },

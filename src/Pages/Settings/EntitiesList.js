@@ -1,46 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, CardBody, Table, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input, Badge } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import { useNavigate } from "react-router-dom";
 import './EntitiesList.css';
 import '../../assets/scss/pages/patient.scss'; 
+import { getGeneralTypesAPI, addGeneralTypeAPI, updateGeneralTypeAPI, deleteGeneralTypeAPI } from '../../helpers/api_helper';
 
 
 const EntitiesList = () => {
-  const [entities, setEntities] = useState([
-    {
-      id: 1,
-      name: "Countries",
-      type: "country",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Post Offices",
-      type: "post_office",
-      status: "Active",
-    }
-  ]);
-
+  const [entities, setEntities] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [modal, setModal] = useState(false);
   const [editingEntity, setEditingEntity] = useState(null);
   const [deleteModal, setDeleteModal] = useState(false);
   const [entityToDelete, setEntityToDelete] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    type: "",
+    title: "",
+    description: "",
     status: "Active",
   });
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchEntities = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await getGeneralTypesAPI();
+        setEntities(res.data || []);
+        console.log(entities)
+      } catch (err) {
+        setError('Failed to load entities');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEntities();
+  }, []);
 
   const toggleModal = () => {
     setModal(!modal);
     if (!modal) {
       setEditingEntity(null);
       setFormData({
-        name: "",
-        type: "",
+        title: "",
+        description: "",
         status: "Active",
       });
     }
@@ -61,22 +67,21 @@ const EntitiesList = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingEntity) {
-      setEntities((prev) =>
-        prev.map((entity) =>
-          entity.id === editingEntity.id ? { ...formData, id: entity.id } : entity
-        )
-      );
-    } else {
-      const newEntity = {
-        ...formData,
-        id: Math.max(...entities.map((e) => e.id), 0) + 1,
-      };
-      setEntities((prev) => [...prev, newEntity]);
+    try {
+      if (editingEntity) {
+        await updateGeneralTypeAPI({ ...formData, id: editingEntity.id });
+      } else {
+        await addGeneralTypeAPI(formData);
+      }
+      // Refresh list
+      const res = await getGeneralTypesAPI();
+      setEntities(res.data || []);
+      toggleModal();
+    } catch (err) {
+      setError('Failed to save entity');
     }
-    toggleModal();
   };
 
   const handleEdit = (entity) => {
@@ -90,44 +95,22 @@ const EntitiesList = () => {
     setDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (entityToDelete) {
-      setEntities((prev) =>
-        prev.filter((entity) => entity.id !== entityToDelete.id)
-      );
-      toggleDeleteModal();
+      try {
+        await deleteGeneralTypeAPI(entityToDelete.id);
+        // Refresh list
+        const res = await getGeneralTypesAPI();
+        setEntities(res.data || []);
+        toggleDeleteModal();
+      } catch (err) {
+        setError('Failed to delete entity');
+      }
     }
-  };
-
-  const getStatusBadge = (status) => {
-    return status === "Active" ? (
-      <Badge color="success">{status}</Badge>
-    ) : (
-      <Badge color="secondary">{status}</Badge>
-    );
   };
 
   const handleRowClick = (entity) => {
-    let route = "/settings/";
-    switch (entity.type) {
-      case "country":
-        route += "countries";
-        break;
-      case "post_office":
-        route += "post-offices";
-        break;
-      case "state":
-        route += "states";
-        break;
-      case "sms_template":
-        route += "sms-templates";
-        break;
-      case "email_template":
-        route += "email-templates";
-        break;
-      default:
-        route += entity.type;
-    }
+    let route = "/settings/dropdown-settings/"+entity.id;
     navigate(route);
   };
 
@@ -142,6 +125,8 @@ const EntitiesList = () => {
             breadcrumbItem="Settings" 
             breadcrumbItem2="Dropdown Settings"
           />
+          {loading && <div className="text-center my-3">Loading...</div>}
+          {error && <div className="text-center text-danger my-3">{error}</div>}
 
           <Row>
             <Col>
@@ -164,7 +149,7 @@ const EntitiesList = () => {
                       <thead className="table-light">
                         <tr>
                           <th scope="col">Name</th>
-                          <th scope="col">Type</th>
+                          <th scope="col">Description</th>
                           <th scope="col">Status</th>
                           <th scope="col">Actions</th>
                         </tr>
@@ -178,10 +163,12 @@ const EntitiesList = () => {
                             onClick={() => handleRowClick(entity)}
                           >
                             <td>
-                              <h6 className="mb-0">{entity.name}</h6>
+                              <h6 className="mb-0">{entity.title}</h6>
                             </td>
-                            <td>{entity.type}</td>
-                            <td>{getStatusBadge(entity.status)}</td>
+                            <td>{entity.description}</td>
+                            <td>
+                              <span className={`badge bg-${entity.active === true ? 'success' : 'secondary'}`}>{entity.active?"Active":"InActive"}</span>
+                            </td>
                             <td>
                               <div className="d-flex gap-2">
                                 <Button
@@ -222,12 +209,12 @@ const EntitiesList = () => {
             <Row>
               <Col md={6}>
                 <FormGroup>
-                  <Label for="name">Entity Name</Label>
+                  <Label for="title">Entity Name</Label>
                   <Input
-                    id="name"
-                    name="name"
+                    id="title"
+                    name="title"
                     type="text"
-                    value={formData.name}
+                    value={formData.title}
                     onChange={handleInputChange}
                     required
                   />
@@ -235,12 +222,12 @@ const EntitiesList = () => {
               </Col>
               <Col md={6}>
                 <FormGroup>
-                  <Label for="type">Entity Type</Label>
+                  <Label for="description">Description</Label>
                   <Input
-                    id="type"
-                    name="type"
+                    id="description"
+                    name="description"
                     type="text"
-                    value={formData.type}
+                    value={formData.description}
                     onChange={handleInputChange}
                     required
                   />

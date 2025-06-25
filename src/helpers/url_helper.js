@@ -35,4 +35,10 @@ export const GET_STATS_API = "/dashboard/stats";
 //chat
 export const SEND_MESSAGE_API = "/chat/messages/send";
 
+//generic-records (dropdown settings)
+export const GET_GENERAL_TYPES_API = "/generic-records";
+export const ADD_GENERAL_TYPE_API = "/generic-records/create";
+export const UPDATE_GENERAL_TYPE_API = "/generic-records/update";
+export const DELETE_GENERAL_TYPE_API = "/generic-records/delete";
+
 

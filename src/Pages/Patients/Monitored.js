@@ -25,85 +25,20 @@ const filterOptions = {
     "2-4 weeks late",
     "= 4 weeks late",
   ],
-  monitoring: [
-    "All products",
-    "Photo Monitoring Light",
-    "Photo Monitoring Full",
-    "3D Monitoring Light",
-    "3D Monitoring Full",
-  ],
-  treatmentType: [
-    "All types",
-    "Orthodontic pre-treatment",
-    "Orthodontic treatment",
-    "Orthodontic post-treatment",
-    "General dentistry",
-  ],
-  appliance: [
-    "All",
-    "None",
-    "Aligner",
-    "Auxiliary Appliance",
-    "Customized Buccal",
-    "Fixed appliance",
-    "Lingual",
-    "No appliance",
-    "Removable appliance",
-    "Standard Buccal",
-  ],
-  dynamicAlignerChange: [
-    "All patients",
-    "Only Dynamic Aligner Change patients",
-    "Only not Dynamic Aligner Change patients",
+  alignerType: [
+    "Day Aligner",
+    "Night Aligner",
   ],
   alignerStatus: ["All", "In progress", "Finished", "Aligner number not set"],
   appActivation: ["All", "Activated", "Not activated"],
-  scanBoxModel: [
-    "All patients",
-    "No ScanBox",
-    "ScanBox",
-    "ScanBox PRO",
-    "Any ScanBox",
-  ],
-  goalType: [
-    "All",
-    "Passive archwire and auxiliaries – UPPER",
-    "Passive archwire and auxiliaries – LOWER",
-    "Loss of all deciduous teeth",
-    "Class I canine – RIGHT [-1.0 ; 1.0] mm",
-    "Class I canine – LEFT [-1.0 ; 1.0] mm",
-    "Class I molar – RIGHT [-1.0 ; 1.0] mm",
-    "Class I molar – LEFT [-1.0 ; 1.0] mm",
-    "Closure of all anterior space(s)",
-    "Closure of extraction space(s)",
-    "Normal overjet [1.0 ; 3.0] mm",
-    "Correction of midline deviation [-0.5 ; 0.5] mm",
-    "Correction of crossbite – RIGHT",
-    "Correction of crossbite – LEFT",
-  ],
-  goalStatus: [
-    "Any status",
-    "Started",
-    "In progress",
-    "Achieved",
-    "Overdue",
-    "Not in progress",
-    "Never started",
-  ],
   monitoringStatus: ["All", "In progress", "Paused"],
 };
 
 const filterLabels = {
   compliance: "Compliance",
-  monitoring: "Monitoring",
-  treatmentType: "Treatment type",
-  appliance: "Appliance",
-  dynamicAlignerChange: "Dynamic Aligner Change",
+  alignerType: "Aligner Type",
   alignerStatus: "Aligner status",
   appActivation: "App activation",
-  scanBoxModel: "ScanBox model",
-  goalType: "Goal type",
-  goalStatus: "Goal status",
   monitoringStatus: "Monitoring Status",
 };
 
@@ -238,21 +173,12 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   const [createdLabels, setCreatedLabels] = useState([]);
   const [selectedPatientName, setSelectedPatientName] = useState("");
 
-  const filterKeys = Object.keys(filterOptions);
-  const half = Math.ceil(filterKeys.length / 2);
-  const firstRowKeys = [
+  // Merge filter keys into a single array for one row
+  const filterRowKeys = [
     "compliance",
-    "monitoring",
-    "treatmentType",
-    "appliance",
-    "dynamicAlignerChange",
+    "alignerType",
     "alignerStatus",
-  ];
-  const secondRowKeys = [
     "appActivation",
-    "scanBoxModel",
-    "goalType",
-    "goalStatus",
     "monitoringStatus",
   ];
 
@@ -481,24 +407,9 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                   </div>
                 </Col>
               </Row>
-              {/* Filter Panel - First Row */}
+              {/* Filter Panel - Single Row */}
               <Row className="mb-3 g-2">
-                {firstRowKeys.map((key) => (
-                  <Col md={2} sm={6} xs={12} key={key} className="mb-2">
-                    <label className="form-label" htmlFor={`filter-${key}`}>
-                      {filterLabels[key] || key}
-                    </label>
-                    <Input id={`filter-${key}`} type="select">
-                      {filterOptions[key].map((opt) => (
-                        <option key={opt}>{opt}</option>
-                      ))}
-                    </Input>
-                  </Col>
-                ))}
-              </Row>
-              {/* Filter Panel - Second Row */}
-              <Row className="mb-3 g-2">
-                {secondRowKeys.map((key) => (
+                {filterRowKeys.map((key) => (
                   <Col md={2} sm={6} xs={12} key={key} className="mb-2">
                     <label className="form-label" htmlFor={`filter-${key}`}>
                       {filterLabels[key] || key}

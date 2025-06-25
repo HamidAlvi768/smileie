@@ -1,51 +1,52 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, CardBody, Table, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input, Badge } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { useParams } from "react-router-dom";
+import { getGenericRecordsAPI, addGeneralTypeAPI, updateGeneralTypeAPI, deleteGeneralTypeAPI, getGeneralTypesAPI } from "../../helpers/api_helper";
 
-const Countries = () => {
-  const [countries, setCountries] = useState([
-    {
-      id: 1,
-      name: "United States",
-      code: "US",
-      currency: "USD",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Canada",
-      code: "CA",
-      currency: "CAD",
-      status: "Active",
-    },
-    {
-      id: 3,
-      name: "Mexico",
-      code: "MX",
-      currency: "MXN",
-      status: "Inactive",
-    },
-  ]);
-
+const GenericData = () => {
+  const [entities, setEntities] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [modal, setModal] = useState(false);
-  const [editingCountry, setEditingCountry] = useState(null);
+  const [editingEntity, setEditingEntity] = useState(null);
   const [deleteModal, setDeleteModal] = useState(false);
-  const [countryToDelete, setCountryToDelete] = useState(null);
+  const [entityToDelete, setEntityToDelete] = useState(null);
+
+  const params = useParams();
+  const parentId = params.id;
+
   const [formData, setFormData] = useState({
-    name: "",
-    code: "",
-    currency: "",
+    title: "",
+    description: "",
+    parent_id: parentId,
     status: "Active",
   });
+
+  useEffect(() => {
+    const fetchEntities = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await getGenericRecordsAPI(parentId);
+        setEntities(res.data || []);
+      } catch (err) {
+        setError('Failed to load entities');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEntities();
+  }, [parentId]);
 
   const toggleModal = () => {
     setModal(!modal);
     if (!modal) {
-      setEditingCountry(null);
+      setEditingEntity(null);
       setFormData({
-        name: "",
-        code: "",
-        currency: "",
+        title: "",
+        description: "",
+        parent_id: parentId,
         status: "Active",
       });
     }
@@ -54,7 +55,7 @@ const Countries = () => {
   const toggleDeleteModal = () => {
     setDeleteModal(!deleteModal);
     if (!deleteModal) {
-      setCountryToDelete(null);
+      setEntityToDelete(null);
     }
   };
 
@@ -66,53 +67,62 @@ const Countries = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingCountry) {
-      setCountries((prev) =>
-        prev.map((country) =>
-          country.id === editingCountry.id ? { ...formData, id: country.id } : country
-        )
-      );
-    } else {
-      const newCountry = {
-        ...formData,
-        id: Math.max(...countries.map((c) => c.id), 0) + 1,
-      };
-      setCountries((prev) => [...prev, newCountry]);
+    try {
+      if (editingEntity) {
+        await updateGeneralTypeAPI({ ...formData, id: editingEntity.id });
+      } else {
+        await addGeneralTypeAPI(formData);
+      }
+      // Refresh list
+      const res = await getGenericRecordsAPI(parentId);
+      setEntities(res.data || []);
+      toggleModal();
+    } catch (err) {
+      setError('Failed to save entity');
     }
-    toggleModal();
   };
 
-  const handleEdit = (country) => {
-    setEditingCountry(country);
-    setFormData(country);
+  const handleEdit = (entity) => {
+    setEditingEntity(entity);
+    setFormData({
+      title: entity.title || "",
+      description: entity.description || "",
+      parent_id: parentId,
+      status: entity.status || "Active",
+    });
     setModal(true);
   };
 
-  const handleDelete = (country) => {
-    setCountryToDelete(country);
+  const handleDelete = (entity) => {
+    setEntityToDelete(entity);
     setDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    if (countryToDelete) {
-      setCountries((prev) =>
-        prev.filter((country) => country.id !== countryToDelete.id)
-      );
-      toggleDeleteModal();
+  const confirmDelete = async () => {
+    if (entityToDelete) {
+      try {
+        await deleteGeneralTypeAPI(entityToDelete.id);
+        // Refresh list
+        const res = await getGenericRecordsAPI(parentId);
+        setEntities(res.data || []);
+        toggleDeleteModal();
+      } catch (err) {
+        setError('Failed to delete entity');
+      }
     }
   };
 
   const getStatusBadge = (status) => {
-    return status === "Active" ? (
-      <Badge color="success">{status}</Badge>
+    return status === true || status === "Active" ? (
+      <Badge color="success">Active</Badge>
     ) : (
-      <Badge color="secondary">{status}</Badge>
+      <Badge color="secondary">InActive</Badge>
     );
   };
 
-  document.title = "Countries | Smileie";
+  document.title = "Records | Smileie";
 
   return (
     <React.Fragment>
@@ -123,7 +133,7 @@ const Countries = () => {
             breadcrumbItem="Settings"
             breadcrumbItem2="Dropdown Settings"
             breadcrumbItem2Link="/settings/dropdown-settings"
-            breadcrumbItem3="Countries"
+            breadcrumbItem3="Records"
           />
 
           <Row>
@@ -131,10 +141,10 @@ const Countries = () => {
               <Card>
                 <CardBody>
                   <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h4 className="card-title mb-0">Countries</h4>
+                    <h4 className="card-title mb-0">Records</h4>
                     <Button color="primary" onClick={toggleModal} className="btn-sm">
                       <i className="ri-add-line me-1"></i>
-                      Add New Country
+                      Add New Record
                     </Button>
                   </div>
 
@@ -143,30 +153,32 @@ const Countries = () => {
                       <thead className="table-light">
                         <tr>
                           <th scope="col">Name</th>
+                          <th scope="col">Description</th>
                           <th scope="col">Status</th>
                           <th scope="col">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {countries.map((country) => (
-                          <tr key={country.id}>
+                        {entities.map((entity) => (
+                          <tr key={entity.id}>
                             <td>
-                              <h6 className="mb-0">{country.name}</h6>
+                              <h6 className="mb-0">{entity.title}</h6>
                             </td>
-                            <td>{getStatusBadge(country.status)}</td>
+                            <td>{entity.description}</td>
+                            <td>{getStatusBadge(entity.active ?? entity.status)}</td>
                             <td>
                               <div className="d-flex gap-2">
                                 <Button
                                   color="outline-primary"
                                   size="sm"
-                                  onClick={() => handleEdit(country)}
+                                  onClick={() => handleEdit(entity)}
                                 >
                                   <i className="ri-pencil-line"></i>
                                 </Button>
                                 <Button
                                   color="outline-danger"
                                   size="sm"
-                                  onClick={() => handleDelete(country)}
+                                  onClick={() => handleDelete(entity)}
                                 >
                                   <i className="ri-delete-bin-line"></i>
                                 </Button>
@@ -187,21 +199,33 @@ const Countries = () => {
       {/* Add/Edit Modal */}
       <Modal isOpen={modal} toggle={toggleModal} size="lg" centered>
         <ModalHeader toggle={toggleModal}>
-          {editingCountry ? "Edit Country" : "Add New Country"}
+          {editingEntity ? "Edit Record" : "Add New Record"}
         </ModalHeader>
         <Form onSubmit={handleSubmit}>
           <ModalBody>
             <Row>
               <Col md={6}>
                 <FormGroup>
-                  <Label for="name">Country Name</Label>
+                  <Label for="title">Record Name</Label>
                   <Input
-                    id="name"
-                    name="name"
+                    id="title"
+                    name="title"
                     type="text"
-                    value={formData.name}
+                    value={formData.title}
                     onChange={handleInputChange}
                     required
+                  />
+                </FormGroup>
+              </Col>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="description">Description</Label>
+                  <Input
+                    id="description"
+                    name="description"
+                    type="text"
+                    value={formData.description}
+                    onChange={handleInputChange}
                   />
                 </FormGroup>
               </Col>
@@ -227,7 +251,7 @@ const Countries = () => {
               Cancel
             </Button>
             <Button color="primary" type="submit">
-              {editingCountry ? "Update" : "Create"} Country
+              {editingEntity ? "Update" : "Create"} Record
             </Button>
           </ModalFooter>
         </Form>
@@ -237,7 +261,7 @@ const Countries = () => {
       <Modal isOpen={deleteModal} toggle={toggleDeleteModal} size="sm" centered>
         <ModalHeader toggle={toggleDeleteModal}>Confirm Delete</ModalHeader>
         <ModalBody>
-          Are you sure you want to delete this country?
+          Are you sure you want to delete this record?
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={toggleDeleteModal}>
@@ -252,4 +276,4 @@ const Countries = () => {
   );
 };
 
-export default Countries; 
+export default GenericData; 
