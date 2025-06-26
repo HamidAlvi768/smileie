@@ -18,6 +18,7 @@ import {
   Form,
 } from "reactstrap";
 import DataTable from "react-data-table-component";
+import { useToast } from '../../components/Common/ToastContext';
 
 const filterOptions = {
   specialty: [
@@ -125,6 +126,7 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
     practice: "",
     status: "Active",
   });
+  const showToast = useToast();
 
   // Debug: log the doctors data
   console.log("Doctors data for table:", doctors);
@@ -159,6 +161,7 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
       status: "Active",
     });
     console.log("handleCreateDoctor clicked");
+    showToast({ message: 'Doctor created successfully!', type: 'success', title: 'Success' });
   };
 
   return (
@@ -275,19 +278,19 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
                   </FormGroup>
                 </Col>
               </Row>
-              <div className="text-end mt-4">
+            <div className="text-end mt-4">
                 <Button
                   color="light"
                   className="me-2"
                   onClick={toggleCreateDoctor}
                   type="button"
                 >
-                  Cancel
-                </Button>
+                Cancel
+              </Button>
                 <Button color="primary" type="submit">
                   Create doctor
                 </Button>
-              </div>
+            </div>
             </Form>
           </ModalBody>
         </Modal>
@@ -314,7 +317,6 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
             <DataTable
               columns={columns}
               data={doctors}
-              selectableRows
               pagination
               highlightOnHover
               responsive
@@ -336,4 +338,4 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
   );
 };
 
-export default DoctorsMonitored;
+export default DoctorsMonitored; 

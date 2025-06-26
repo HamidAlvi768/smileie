@@ -7,21 +7,18 @@ const Reminders = () => {
     {
       id: 1,
       name: "Scan Reminder",
-      schedule: "Every Monday at 09:00",
       status: "Active",
       type: "scan",
     },
     {
       id: 2,
       name: "Photo Upload Reminder",
-      schedule: "1st of month at 14:00",
       status: "Active",
       type: "photo_upload",
     },
     {
       id: 3,
       name: "Next Step Reminder",
-      schedule: "1st of month at 8:00",
       status: "Active",
       type: "next_step",
     },
@@ -33,7 +30,6 @@ const Reminders = () => {
   const [reminderToDelete, setReminderToDelete] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    schedule: "",
     status: "Active",
     type: "",
   });
@@ -44,7 +40,6 @@ const Reminders = () => {
       setEditingReminder(null);
       setFormData({
         name: "",
-        schedule: "",
         status: "Active",
         type: "",
       });
@@ -86,7 +81,8 @@ const Reminders = () => {
 
   const handleEdit = (reminder) => {
     setEditingReminder(reminder);
-    setFormData(reminder);
+    const { schedule, ...rest } = reminder;
+    setFormData(rest);
     setModal(true);
   };
 
@@ -146,7 +142,6 @@ const Reminders = () => {
                         <tr>
                           <th scope="col">Name</th>
                           <th scope="col">Type</th>
-                          <th scope="col">Schedule</th>
                           <th scope="col">Status</th>
                           <th scope="col">Actions</th>
                         </tr>
@@ -158,7 +153,6 @@ const Reminders = () => {
                               <h6 className="mb-0">{reminder.name}</h6>
                             </td>
                             <td>{reminder.type}</td>
-                            <td>{reminder.schedule}</td>
                             <td>{getStatusBadge(reminder.status)}</td>
                             <td>
                               <div className="d-flex gap-2">
@@ -226,19 +220,6 @@ const Reminders = () => {
               </Col>
             </Row>
             <Row>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="schedule">Schedule</Label>
-                  <Input
-                    id="schedule"
-                    name="schedule"
-                    type="text"
-                    value={formData.schedule}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </FormGroup>
-              </Col>
               <Col md={6}>
                 <FormGroup>
                   <Label for="status">Status</Label>

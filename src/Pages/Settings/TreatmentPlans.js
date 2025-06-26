@@ -86,13 +86,13 @@ const TreatmentPlans = () => {
               </Button>
             </div>
             <div className="table-responsive">
-              <table className="table table-hover align-middle">
-                <thead>
+              <table className="table table-nowrap mb-0">
+                <thead className="table-light">
                   <tr>
-                    <th>Name</th>
-                    <th>Duration (weeks)</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Duration (weeks)</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -109,12 +109,14 @@ const TreatmentPlans = () => {
                           <span className={`badge bg-${plan.active ? "success" : "secondary"}`}>{plan.active ? "Active" : "Inactive"}</span>
                         </td>
                         <td>
-                          <Button color="link" size="sm" onClick={() => handleEdit(plan)}>
-                            <i className="ri-edit-line"></i>
-                          </Button>
-                          <Button color="link" size="sm" className="text-danger" onClick={() => handleDelete(plan)}>
-                            <i className="ri-delete-bin-line"></i>
-                          </Button>
+                          <div className="d-flex gap-2">
+                            <Button color="outline-primary" size="sm" onClick={() => handleEdit(plan)}>
+                              <i className="ri-pencil-line"></i>
+                            </Button>
+                            <Button color="outline-danger" size="sm" onClick={() => handleDelete(plan)}>
+                              <i className="ri-delete-bin-line"></i>
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -128,8 +130,8 @@ const TreatmentPlans = () => {
         {/* Add/Edit Modal */}
         <Modal isOpen={modal} toggle={toggleModal} centered>
           <ModalHeader toggle={toggleModal}>{editingPlan ? "Edit Treatment Plan" : "Add Treatment Plan"}</ModalHeader>
-          <ModalBody>
-            <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleSubmit}>
+            <ModalBody>
               <Row>
                 <Col md={4}>
                   <FormGroup>
@@ -153,13 +155,14 @@ const TreatmentPlans = () => {
                   </FormGroup>
                 </Col>
               </Row>
-              <div className="text-end">
-                <Button color="primary" type="submit">
-                  {editingPlan ? "Save Changes" : "Add Plan"}
-                </Button>
-              </div>
-            </Form>
-          </ModalBody>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="secondary" onClick={toggleModal} type="button">Cancel</Button>
+              <Button color="primary" type="submit">
+                {editingPlan ? "Save Changes" : "Add Plan"}
+              </Button>
+            </ModalFooter>
+          </Form>
         </Modal>
 
         {/* Delete Confirmation Modal */}

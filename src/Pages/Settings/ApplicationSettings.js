@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import { Container, Row, Col, Card, CardBody, Form, FormGroup, Label, Input, Button } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import logoSm from '../../assets/images/logo-sm-1.png';
+import favicon from '../../assets/images/favicon.png';
 
 const ApplicationSettings = () => {
   const [formData, setFormData] = useState({
@@ -198,14 +200,14 @@ const ApplicationSettings = () => {
                                   src={URL.createObjectURL(logoFile)} 
                                   alt="Logo Preview" 
                                   className="rounded-circle avatar-lg" 
-                                  style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                                  style={{ width: '80px', height: '80px', objectFit: 'none' }}
                                 />
                               ) : (
                                 <img
-                                  src="https://img.heroui.chat/image/avatar?w=200&h=200&u=1" // Dummy avatar icon
+                                  src={logoSm}
                                   alt="Default Logo"
                                   className="rounded-circle avatar-lg"
-                                  style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                                  style={{ width: '80px', height: '80px', objectFit: 'none' }}
                                 />
                               )}
                             </div>
@@ -247,7 +249,7 @@ const ApplicationSettings = () => {
                                 />
                               ) : (
                                 <img
-                                  src="https://img.heroui.chat/image/avatar?w=200&h=200&u=1" // Dummy avatar icon
+                                  src={favicon}
                                   alt="Default Favicon"
                                   className="rounded-circle avatar-lg"
                                   style={{ width: '80px', height: '80px', objectFit: 'cover' }}

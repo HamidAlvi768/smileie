@@ -9,6 +9,8 @@ import {
 } from "../../store/navigation/actions";
 import { isPathActive } from '../../utils/pathMatch';
 import HelpMobilePanel from "./HelpMobilePanel";
+import { logoutUser } from '../../store/auth/login/actions';
+import { useDispatch } from 'react-redux';
 
 //import images
 import logoSm from "../../assets/images/logo-sm.png";
@@ -22,6 +24,7 @@ const Header = (props) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [helpPanelOpen, setHelpPanelOpen] = useState(false);
+  const dispatch = useDispatch();
 
   // Sync navbarMenuItems with current route on load/route change
   useEffect(() => {
@@ -191,6 +194,9 @@ const Header = (props) => {
                   onClick={() => {
                     if (menu.id === 'help') {
                       setHelpPanelOpen(true);
+                    } else if (menu.id === 'logout') {
+                      dispatch(logoutUser());
+                      navigate('/auth-login');
                     } else {
                       navigate(menu.url);
                     }

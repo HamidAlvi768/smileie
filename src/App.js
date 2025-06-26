@@ -1,5 +1,6 @@
 import React from "react";
 import Routes from "./Routes/index";
+import { ToastProvider } from './components/Common/ToastContext';
 
 // Import Scss
 import './assets/scss/theme.scss';
@@ -31,9 +32,9 @@ fakeBackend();
 
 function App() {
   return (
-    <React.Fragment>
+    <ToastProvider>
       <Routes />
-    </React.Fragment>
+    </ToastProvider>
   );
 }
 

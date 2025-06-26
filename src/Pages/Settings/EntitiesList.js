@@ -158,7 +158,7 @@ const EntitiesList = () => {
                         {entities.map((entity) => (
                           <tr
                             key={entity.id}
-                            className="clickable-row"
+                            className="clickable-row row-hover-gray"
                             style={{ cursor: "pointer" }}
                             onClick={() => handleRowClick(entity)}
                           >

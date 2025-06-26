@@ -9,13 +9,13 @@ const PatientSourceData = [
         title: "Referrals",
         count: "425",
         icon: "ri-user-follow-line",
-        bgcolor: "primary"
+        bgcolor: "success"
     },
     {
         title: "Website",
         count: "312",
         icon: "ri-global-line",
-        bgcolor: "success"
+        bgcolor: "primary"
     },
     {
         title: "Direct",

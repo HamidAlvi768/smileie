@@ -11,36 +11,28 @@ import {
   postJwtLogin,
   postSocialLogin,
 } from "../../../helpers/fakebackend_helper";
+import { loginAPI } from '../../../helpers/api_helper';
 
 const fireBaseBackend = getFirebaseBackend();
 
 function* loginUser({ payload: { user, history } }) {
   try {
-    if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
-      const response = yield call(
-        fireBaseBackend.loginUser,
-        user.email,
-        user.password
-      );
-      yield put(loginSuccess(response));
-    } else if (process.env.REACT_APP_DEFAULTAUTH === "jwt") {
-      const response = yield call(postJwtLogin, {
-        email: user.email,
-        password: user.password,
-      });
+    // Use the new loginAPI
+    const response = yield call(loginAPI, user.email, user.password);
+    console.log(response)
+    if (response && (response.status==="success")) {
       localStorage.setItem("authUser", JSON.stringify(response));
       yield put(loginSuccess(response));
-    } else if (process.env.REACT_APP_DEFAULTAUTH === "fake") {
-      const response = yield call(postFakeLogin, {
-        email: user.email,
-        password: user.password,
-      });
-      localStorage.setItem("authUser", JSON.stringify(response));
-      yield put(loginSuccess(response));
+      history("/dashboard");
+    } else {
+      // If response is missing expected fields, treat as error
+      yield put(apiError(response.message));
     }
-    history("/dashboard");
   } catch (error) {
-    yield put(apiError(error));
+    console.log(error)
+    let message = error;
+      message = error.message??"Something went wrong!";
+    yield put(apiError(message));
   }
 }
 

@@ -53,6 +53,7 @@ const PATIENT_MOCK_DATA = {
   name: "Stephen Dyos",
   id: "P-00123",
   plan: "Photo Monitoring Full",
+  alignerType: "Day Aligner",
   status: "Active",
   nextScan: "2025-06-01",
   alignerNumber: 21,
@@ -753,19 +754,9 @@ const PatientDetail = () => {
               <Collapse isOpen={openCollapsibles.monitoring}>
                 <CardBody>
                   <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>Plan:</strong>
+                    <strong>Aligner Type:</strong>
                     <div className="d-flex flex-column">
-                      <span>{patient.plan}</span>
-                      <Button
-                        color="link"
-                        size="sm"
-                        className="p-0 ms-2"
-                        onClick={() =>
-                          toggleModal("changeMonitoringPlan", true)
-                        }
-                      >
-                        Change monitoring plan
-                      </Button>
+                      <span>{patient.alignerType}</span>
                     </div>
                   </div>
                   <div className="mb-2 d-flex align-items-center justify-content-between">

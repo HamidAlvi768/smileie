@@ -7,7 +7,8 @@ import {
 import {
   getDoctorsSuccess,
   addDoctorSuccess,
-  apiFail
+  apiFail,
+  getDoctors
 } from "./actions";
 
 function* fetchDoctors() {
@@ -24,6 +25,7 @@ function* addDoctorSaga({ payload }) {
   try {
     const response = yield call(addDoctorAPI, payload);
     yield put(addDoctorSuccess(response));
+    yield put(getDoctors());
   } catch (error) {
     yield put(apiFail(error));
   }

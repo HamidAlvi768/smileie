@@ -16,6 +16,10 @@ import {
   Form,
 } from "reactstrap";
 import DataTable from "react-data-table-component";
+import { useDispatch, useSelector } from "react-redux";
+import { getPatients, addPatient } from "../../store/patients/actions";
+import { useToast } from "../../components/Common/ToastContext";
+import { getDoctors } from "../../store/doctors/actions";
 
 const filterOptions = {
   compliance: [
@@ -25,10 +29,7 @@ const filterOptions = {
     "2-4 weeks late",
     "= 4 weeks late",
   ],
-  alignerType: [
-    "Day Aligner",
-    "Night Aligner",
-  ],
+  alignerType: ["Day Aligner", "Night Aligner"],
   alignerStatus: ["All", "In progress", "Finished", "Aligner number not set"],
   appActivation: ["All", "Activated", "Not activated"],
   monitoringStatus: ["All", "In progress", "Paused"],
@@ -107,31 +108,6 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    name: "Stephen Dyos",
-    doctor: "Dr Mark Kruchar",
-    latestActivity: "Message sent to patient",
-    latestActivityTime: "2025-05-22 23:11 GMT+5",
-    type: "Photo Monitoring Full",
-    typeDetail: "MX/MD: Orthodontic treatment - Aligner - Other",
-    latestScan: "2025-05-13 00:11 GMT+5",
-    lateInfo: "3 days late",
-    scanInterval: "1 week interval",
-  },
-  {
-    name: "Laura Saez",
-    doctor: "Dr Mark Kruchar",
-    latestActivity: "Message sent to patient",
-    latestActivityTime: "2025-05-22 23:00 GMT+5",
-    type: "Photo Monitoring Full",
-    typeDetail: "MX/MD: Orthodontic treatment - Aligner - Other",
-    latestScan: "2025-05-13 15:44 GMT+5",
-    lateInfo: "3 days late",
-    scanInterval: "2 weeks interval",
-  },
-];
-
 const customStyles = {
   rows: {
     style: {
@@ -166,12 +142,27 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   const [createPatientModal, setCreatePatientModal] = useState(false);
   const toggleCreatePatient = () => setCreatePatientModal(!createPatientModal);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const patients = useSelector((state) => state.patients.patients);
+  const doctors = useSelector((state) => state.doctor.doctors) || [];
+  const showToast = useToast();
 
   // State for Create Label Modal
   const [createLabelModalOpen, setCreateLabelModalOpen] = useState(false);
   const [labelInput, setLabelInput] = useState("");
   const [createdLabels, setCreatedLabels] = useState([]);
   const [selectedPatientName, setSelectedPatientName] = useState("");
+
+  // Form state for create patient
+  const [patientForm, setPatientForm] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    dob: "",
+    practice: "",
+    doctor_id: "",
+  });
 
   // Merge filter keys into a single array for one row
   const filterRowKeys = [
@@ -185,12 +176,14 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    dispatch(getPatients());
+    dispatch(getDoctors());
+  }, [dispatch]);
 
   // Add a handler for row click
   const handleRowClicked = (row) => {
     // Use a unique identifier for the patient, fallback to name if no id
-    const patientId = row.id || row.name.replace(/\s+/g, '-').toLowerCase();
+    const patientId = row.id || row.name.replace(/\s+/g, "-").toLowerCase();
     navigate(`/patients/${patientId}`);
   };
 
@@ -202,7 +195,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   };
 
   // Table columns (override to use handler)
-  const columnsWithAddLabel = columns.map(col => {
+  const columnsWithAddLabel = columns.map((col) => {
     if (col.name === "PATIENT NAME") {
       return {
         ...col,
@@ -212,7 +205,12 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
               {row.doctor}
             </div>
             <div className="fw-bold">{row.name}</div>
-            <Button color="link" size="sm" className="p-0" onClick={e => handleAddLabelClick(e, row)}>
+            <Button
+              color="link"
+              size="sm"
+              className="p-0"
+              onClick={(e) => handleAddLabelClick(e, row)}
+            >
               + Add label
             </Button>
           </div>
@@ -221,6 +219,66 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     }
     return col;
   });
+
+  // Mock data for fallback
+  const mockPatientFields = {
+    latestActivity: "Message sent to patient",
+    latestActivityTime: "2025-05-22 23:11 GMT+5",
+    type: "Photo Monitoring Full",
+    typeDetail: "MX/MD: Orthodontic treatment - Aligner - Other",
+    latestScan: "2025-05-13 00:11 GMT+5",
+    lateInfo: "3 days late",
+    scanInterval: "1 week interval",
+  };
+
+  // Map API patients to table data
+  const data =
+    patients && Array.isArray(patients)
+      ? patients.map((p, idx) => ({
+          name:
+            `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
+            p.username ||
+            "",
+          doctor:p.doctor_name,
+          latestActivity: p.latestActivity || mockPatientFields.latestActivity,
+          latestActivityTime:
+            p.latestActivityTime || mockPatientFields.latestActivityTime,
+          type: p.type || mockPatientFields.type,
+          typeDetail: p.typeDetail || mockPatientFields.typeDetail,
+          latestScan: p.latestScan || mockPatientFields.latestScan,
+          lateInfo: p.lateInfo || mockPatientFields.lateInfo,
+          scanInterval: p.scanInterval || mockPatientFields.scanInterval,
+          id: p.id,
+        }))
+      : [];
+
+  const handlePatientFormChange = (e) => {
+    const { id, value } = e.target;
+    setPatientForm((prev) => ({
+      ...prev,
+      [id === "mobile" ? "phone" : id]: value,
+    }));
+  };
+
+  const handleCreatePatient = (e) => {
+    e.preventDefault();
+    dispatch(addPatient(patientForm));
+    setCreatePatientModal(false);
+    setPatientForm({
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone: "",
+      dob: "",
+      practice: "",
+      doctor_id: "",
+    });
+    showToast({
+      message: "Patient created successfully!",
+      type: "success",
+      title: "Success",
+    });
+  };
 
   return (
     <div className="page-content">
@@ -248,7 +306,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
             <h4 className="modal-title">Create a new patient</h4>
           </ModalHeader>
           <ModalBody>
-            <Form>
+            <Form onSubmit={handleCreatePatient}>
               {/* Upper area: First Name and Photo side by side */}
               <Row>
                 <Col md={9}>
@@ -264,8 +322,10 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                         </Label>
                         <Input
                           type="text"
-                          id="firstName"
+                          id="first_name"
                           placeholder="Enter first name"
+                          value={patientForm.first_name}
+                          onChange={handlePatientFormChange}
                         />
                       </FormGroup>
                     </Col>
@@ -280,8 +340,10 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                         </Label>
                         <Input
                           type="text"
-                          id="lastName"
+                          id="last_name"
                           placeholder="Enter last name"
+                          value={patientForm.last_name}
+                          onChange={handlePatientFormChange}
                         />
                       </FormGroup>
                     </Col>
@@ -294,6 +356,8 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                           type="email"
                           id="email"
                           placeholder="Enter email address"
+                          value={patientForm.email}
+                          onChange={handlePatientFormChange}
                         />
                       </FormGroup>
                     </Col>
@@ -304,6 +368,8 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                           type="tel"
                           id="mobile"
                           placeholder="Enter mobile number"
+                          value={patientForm.phone}
+                          onChange={handlePatientFormChange}
                         />
                       </FormGroup>
                     </Col>
@@ -349,14 +415,24 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                 <Col md={4}>
                   <FormGroup className="mb-3">
                     <Label for="dob">Date of Birth</Label>
-                    <Input type="date" id="dob" />
+                    <Input
+                      type="date"
+                      id="dob"
+                      value={patientForm.dob}
+                      onChange={handlePatientFormChange}
+                    />
                   </FormGroup>
                 </Col>
 
                 <Col md={4}>
                   <FormGroup className="mb-3">
                     <Label for="practice">Practice</Label>
-                    <Input type="select" id="practice">
+                    <Input
+                      type="select"
+                      id="practice"
+                      value={patientForm.practice}
+                      onChange={handlePatientFormChange}
+                    >
                       <option value="">Select practice</option>
                       <option value="smileie-uk">Smileie UK</option>
                     </Input>
@@ -366,26 +442,37 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                 <Col md={4}>
                   <FormGroup className="mb-3">
                     <Label for="doctor">Doctor</Label>
-                    <Input type="select" id="doctor">
+                    <Input
+                      type="select"
+                      id="doctor_id"
+                      value={patientForm.doctor_id}
+                      onChange={handlePatientFormChange}
+                    >
                       <option value="">Select doctor</option>
-                      <option value="kruchar-mark">Kruchar, Mark (Dr)</option>
+                      {doctors.map((doc) => (
+                        <option key={doc.id} value={doc.id}>
+                          {doc.full_name}
+                        </option>
+                      ))}
                     </Input>
                   </FormGroup>
                 </Col>
               </Row>
               {/* Second row: Last Name */}
+              <div className="text-end mt-4">
+                <Button
+                  color="light"
+                  className="me-2"
+                  onClick={toggleCreatePatient}
+                  type="button"
+                >
+                  Cancel
+                </Button>
+                <Button color="primary" type="submit">
+                  Create patient
+                </Button>
+              </div>
             </Form>
-
-            <div className="text-end mt-4">
-              <Button
-                color="light"
-                className="me-2"
-                onClick={toggleCreatePatient}
-              >
-                Cancel
-              </Button>
-              <Button color="primary">Create patient</Button>
-            </div>
           </ModalBody>
         </Modal>
 
@@ -427,7 +514,11 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
             <Row className="mb-2">
               <Col>
                 {/* text/ghost button no border color dull to show disabled */}
-                <button className="btn btn-primary text-primary bg-transparent border-0 opacity-50" style={{ cursor: "pointer" }} disabled>
+                <button
+                  className="btn btn-primary text-primary bg-transparent border-0 opacity-50"
+                  style={{ cursor: "pointer" }}
+                  disabled
+                >
                   ADD LABEL(S)
                 </button>
               </Col>
@@ -436,7 +527,6 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
             <DataTable
               columns={columnsWithAddLabel}
               data={data}
-              selectableRows
               pagination
               highlightOnHover
               responsive
@@ -446,7 +536,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                   ...customStyles.rows,
                   style: {
                     ...customStyles.rows.style,
-                    cursor: 'pointer',
+                    cursor: "pointer",
                   },
                 },
               }}
@@ -456,41 +546,82 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
         </Card>
       </Container>
       {/* Create Label Modal */}
-      <Modal isOpen={createLabelModalOpen} toggle={() => setCreateLabelModalOpen(false)} centered>
+      <Modal
+        isOpen={createLabelModalOpen}
+        toggle={() => setCreateLabelModalOpen(false)}
+        centered
+      >
         <div className="modal-header">
-          <h5 className="modal-title">Add labels to {selectedPatientName || 'patient'}</h5>
-          <button type="button" className="btn-close" onClick={() => setCreateLabelModalOpen(false)} aria-label="Close"></button>
+          <h5 className="modal-title">
+            Add labels to {selectedPatientName || "patient"}
+          </h5>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setCreateLabelModalOpen(false)}
+            aria-label="Close"
+          ></button>
         </div>
         <div className="modal-body">
           <div className="mb-3">
             <label className="form-label fw-bold">Create a new label.</label>
             <div className="d-flex align-items-center gap-2">
-              <Input type="text" maxLength={20} value={labelInput} onChange={e => setLabelInput(e.target.value)} className="label-input" />
-              <Button color="primary" size="sm" disabled={!labelInput.trim() || labelInput.length > 20} onClick={() => {
-                if (labelInput.trim() && labelInput.length <= 20) {
-                  setCreatedLabels(labels => [...labels, labelInput.trim()]);
-                  setLabelInput("");
-                }
-              }}>Create</Button>
+              <Input
+                type="text"
+                maxLength={20}
+                value={labelInput}
+                onChange={(e) => setLabelInput(e.target.value)}
+                className="label-input"
+              />
+              <Button
+                color="primary"
+                size="sm"
+                disabled={!labelInput.trim() || labelInput.length > 20}
+                onClick={() => {
+                  if (labelInput.trim() && labelInput.length <= 20) {
+                    setCreatedLabels((labels) => [
+                      ...labels,
+                      labelInput.trim(),
+                    ]);
+                    setLabelInput("");
+                  }
+                }}
+              >
+                Create
+              </Button>
             </div>
             <div className="small text-muted mt-1">{labelInput.length}/20</div>
           </div>
           <div className="mb-3">
             {createdLabels.length === 0 ? (
-              <div className="text-muted text-center py-3">No labels created yet.</div>
+              <div className="text-muted text-center py-3">
+                No labels created yet.
+              </div>
             ) : (
               <div className="d-flex flex-wrap gap-2">
                 {createdLabels.map((label, idx) => (
-                  <span key={idx} className="badge bg-info text-white px-3 py-2 custom-badge">{label}</span>
+                  <span
+                    key={idx}
+                    className="badge bg-info text-white px-3 py-2 custom-badge"
+                  >
+                    {label}
+                  </span>
                 ))}
               </div>
             )}
           </div>
         </div>
         <div className="modal-footer">
-          <Button color="light" onClick={() => setCreateLabelModalOpen(false)}>Cancel</Button>
-          <Button color="primary" disabled={createdLabels.length === 0} onClick={() => setCreateLabelModalOpen(false)}>
-            Add {createdLabels.length} label{createdLabels.length !== 1 ? 's' : ''}
+          <Button color="light" onClick={() => setCreateLabelModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            color="primary"
+            disabled={createdLabels.length === 0}
+            onClick={() => setCreateLabelModalOpen(false)}
+          >
+            Add {createdLabels.length} label
+            {createdLabels.length !== 1 ? "s" : ""}
           </Button>
         </div>
       </Modal>

@@ -41,4 +41,8 @@ export const ADD_GENERAL_TYPE_API = "/generic-records/create";
 export const UPDATE_GENERAL_TYPE_API = "/generic-records/update";
 export const DELETE_GENERAL_TYPE_API = "/generic-records/delete";
 
+//patients
+export const GET_PATIENTS_API = "/patients";
+export const ADD_PATIENT_API = "/patients/create";
+
 

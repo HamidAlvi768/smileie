@@ -38,7 +38,7 @@ const RadialChart = () => {
       },
     },
     labels: ["Referrals", "Website", "Direct"],
-    colors: ["#099680", "#4aa3ff", "#5664d2"],
+    colors: ["#099680", "#4aa3ff", "#f0ad4e"],
   };
   return (
     <React.Fragment>

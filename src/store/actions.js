@@ -16,3 +16,6 @@ export * from "./plans/actions";
 
 // Stats module
 export * from "./stats/actions";
+
+// Patients module
+export * from "./patients/actions";
