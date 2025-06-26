@@ -1,47 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Row, Col } from 'reactstrap';
 import { useNavigate } from 'react-router-dom';
-
-
-
-// Updated data for recent patients
-const RecentPatientsData = [
-    {
-        id: "john-smith",
-        patientName: "John Smith",
-        age: "32",
-        phone: "+1 (555) 123-4567",
-        latestScan: "2024-03-15",
-        color: "success"
-    },
-    {
-        id: "sarah-johnson",
-        patientName: "Sarah Johnson",
-        age: "28",
-        phone: "+1 (555) 234-5678",
-        latestScan: "2024-03-10",
-        color: "primary"
-    },
-    {
-        id: "michael-brown",
-        patientName: "Michael Brown",
-        age: "45",
-        phone: "+1 (555) 345-6789",
-        latestScan: "2024-03-05",
-        color: "info"
-    },
-    {
-        id: "emily-davis",
-        patientName: "Emily Davis",
-        age: "35",
-        phone: "+1 (555) 456-7890",
-        latestScan: "2024-02-28",
-        color: "warning"
-    }
-];
+import { useDispatch, useSelector } from 'react-redux';
+import { getRecentPatients } from '../../store/patients/actions';
 
 const LatestTransation = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const recentPatients = useSelector(state => state.patients.recentPatients) || [];
+
+    useEffect(() => {
+        dispatch(getRecentPatients());
+    }, [dispatch]);
 
     const handleViewPatient = (patientId) => {
         navigate(`/patients/${patientId}`);
@@ -67,14 +37,14 @@ const LatestTransation = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {RecentPatientsData.map((item, key) => (
-                                            <tr key={key}>
+                                        {recentPatients.map((item, key) => (
+                                            <tr key={item.id || key}>
                                                 <td>
-                                                    <h5 className="font-size-15 mb-0">{item.patientName}</h5>
+                                                    <h5 className="font-size-15 mb-0">{`${item.first_name || ''} ${item.last_name || item.username || ''}`}</h5>
                                                 </td>
                                                 <td>{item.age}</td>
                                                 <td>{item.phone}</td>
-                                                <td>{item.latestScan}</td>
+                                                <td>{item.latest_scan}</td>
                                                 <td>
                                                     <button 
                                                         type="button" 
