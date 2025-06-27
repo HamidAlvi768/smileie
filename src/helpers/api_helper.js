@@ -9,6 +9,12 @@ axios.defaults.baseURL = config.API_URL;
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.headers.get["Content-Type"] = "application/json";
 
+// 💥 Add no-cache headers
+axios.defaults.headers.get['Cache-Control'] = 'no-cache';
+axios.defaults.headers.get['Pragma'] = 'no-cache';
+axios.defaults.headers.get['Expires'] = '0';
+
+
 // intercepting to capture errors
 axios.interceptors.response.use(
   function (response) {
@@ -47,7 +53,7 @@ class APIClient {
    * Fetches data from given url
    */
   get = (url, params) => {
-    return axios.get(url, params);
+    return axios.get(`${url}?_=${Date.now()}`, params);
   };
 
   /**
@@ -94,8 +100,8 @@ export const getStatsAPI = () => api.get(GET_STATS_API);
 export const deletePlanAPI = (id) => api.delete(`${DELETE_PLAN_API}?id=${id}`);
 export const updatePlanAPI = (plan) => api.update(`${UPDATE_PLAN_API}?id=${plan.id}`, plan);
 
-const myId=2;
-const otherId=1;
+const myId = 2;
+const otherId = 1;
 
 // Chat messages API
 export const getMessagesAPI = async (patientId) => {
@@ -124,7 +130,7 @@ export const sendMessageAPI = async (patientId, message, file) => {
         "Content-Type": "application/json",
         // Add auth headers if needed
       },
-      body: JSON.stringify({ sender_id:myId, receiver_id: otherId, message }),
+      body: JSON.stringify({ sender_id: myId, receiver_id: otherId, message }),
     });
     if (!response.ok) throw new Error("Failed to send message");
     return response.json();
@@ -148,7 +154,7 @@ export const sendMessageAPI = async (patientId, message, file) => {
 // General Types (Dropdown Settings) API
 export const getGeneralTypesAPI = () => api.get(GET_GENERAL_TYPES_API);
 export const getGenericRecordsAPI = (parent_id) => {
-  return api.get(GET_GENERAL_TYPES_API+"?parent_id="+parent_id)
+  return api.get(GET_GENERAL_TYPES_API + "?parent_id=" + parent_id)
 };
 export const addGeneralTypeAPI = (type) => api.create(ADD_GENERAL_TYPE_API, type);
 export const updateGeneralTypeAPI = (type) => api.update(`${UPDATE_GENERAL_TYPE_API}?id=${type.id}`, type);

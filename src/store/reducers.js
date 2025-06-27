@@ -19,8 +19,8 @@ import account from "./auth/register/reducer";
 
 import messages from "./messages/reducer";
 
-const rootReducer = combineReducers({
-  // public
+// Combine all reducers
+const appReducer = combineReducers({
   Layout,
   Navigation,
   calendar,
@@ -34,5 +34,13 @@ const rootReducer = combineReducers({
   messages,
   patients: patientsReducer,
 });
+
+// Wrap it in a root reducer that can handle full reset
+const rootReducer = (state, action) => {
+  if (action.type === "RESET_STORE") {
+    state = undefined; // Reset entire state
+  }
+  return appReducer(state, action);
+};
 
 export default rootReducer;

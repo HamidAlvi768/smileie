@@ -13,3 +13,6 @@ export const addDoctor = (doctor) => ({ type: ADD_DOCTOR, payload: doctor });
 export const addDoctorSuccess = (doctor) => ({ type: ADD_DOCTOR_SUCCESS, payload: doctor });
 
 export const apiFail = (error) => ({ type: API_FAIL, payload: error });
+export const clearDoctorError = () => ({
+  type: 'CLEAR_DOCTOR_ERROR'
+});

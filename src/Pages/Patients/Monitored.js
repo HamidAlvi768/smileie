@@ -140,12 +140,17 @@ const customStyles = {
 
 const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   const [createPatientModal, setCreatePatientModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const toggleCreatePatient = () => setCreatePatientModal(!createPatientModal);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const patients = useSelector((state) => state.patients.patients);
   const doctors = useSelector((state) => state.doctor.doctors) || [];
   const showToast = useToast();
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
 
   // State for Create Label Modal
   const [createLabelModalOpen, setCreateLabelModalOpen] = useState(false);
@@ -164,6 +169,18 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     doctor_id: "",
   });
 
+  // Search state
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filter state
+  const [filters, setFilters] = useState({
+    compliance: "All patients",
+    alignerType: "Day Aligner",
+    alignerStatus: "All",
+    appActivation: "All",
+    monitoringStatus: "All",
+  });
+
   // Merge filter keys into a single array for one row
   const filterRowKeys = [
     "compliance",
@@ -173,12 +190,23 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     "monitoringStatus",
   ];
 
-  // Scroll to top on mount
+  // Scroll to top on mount and fetch data
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getPatients());
-    dispatch(getDoctors());
+    fetchData();
   }, [dispatch]);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      await dispatch(getPatients());
+      await dispatch(getDoctors());
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Add a handler for row click
   const handleRowClicked = (row) => {
@@ -232,14 +260,14 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   };
 
   // Map API patients to table data
-  const data =
+  const rawData =
     patients && Array.isArray(patients)
       ? patients.map((p, idx) => ({
           name:
             `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
             p.username ||
             "",
-          doctor:p.doctor_name,
+          doctor: p.doctor_name,
           latestActivity: p.latestActivity || mockPatientFields.latestActivity,
           latestActivityTime:
             p.latestActivityTime || mockPatientFields.latestActivityTime,
@@ -249,8 +277,23 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
           lateInfo: p.lateInfo || mockPatientFields.lateInfo,
           scanInterval: p.scanInterval || mockPatientFields.scanInterval,
           id: p.id,
+          email: p.email || "",
         }))
       : [];
+
+  // Filter and search data
+  const filteredData = rawData.filter((item) => {
+    // Search filter
+    const searchMatch = searchTerm
+      ? item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.id && item.id.toString().includes(searchTerm))
+      : true;
+
+    // Apply other filters here if needed
+    // For now, just return search match
+    return searchMatch;
+  });
 
   const handlePatientFormChange = (e) => {
     const { id, value } = e.target;
@@ -260,24 +303,69 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     }));
   };
 
-  const handleCreatePatient = (e) => {
+  const handleCreatePatient = async (e) => {
     e.preventDefault();
-    dispatch(addPatient(patientForm));
-    setCreatePatientModal(false);
-    setPatientForm({
-      first_name: "",
-      last_name: "",
-      email: "",
-      phone: "",
-      dob: "",
-      practice: "",
-      doctor_id: "",
-    });
-    showToast({
-      message: "Patient created successfully!",
-      type: "success",
-      title: "Success",
-    });
+    setIsLoading(true);
+    
+    try {
+      // Add patient
+      await dispatch(addPatient(patientForm));
+      
+      // Close modal and reset form
+      setCreatePatientModal(false);
+      setPatientForm({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        dob: "",
+        practice: "",
+        doctor_id: "",
+      });
+      
+      // Show success message
+      showToast({
+        message: "Patient created successfully!",
+        type: "success",
+        title: "Success",
+      });
+      
+    } catch (error) {
+      console.error("Error creating patient:", error);
+      showToast({
+        message: "Failed to create patient. Please try again.",
+        type: "error",
+        title: "Error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle pagination change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Handle per page change
+  const handlePerRowsChange = (newPerPage, page) => {
+    setPerPage(newPerPage);
+    setCurrentPage(page);
+  };
+
+  // Handle search change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  // Handle filter change
+  const handleFilterChange = (filterKey, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterKey]: value
+    }));
+    setCurrentPage(1); // Reset to first page when filtering
   };
 
   return (
@@ -289,7 +377,11 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
             <h4 className="mb-0">{pageTitle}</h4>
           </Col>
           <Col md={2} xs={4} className="text-end">
-            <Button color="primary" onClick={toggleCreatePatient}>
+            <Button 
+              color="primary" 
+              onClick={toggleCreatePatient}
+              disabled={isLoading}
+            >
               + New patient
             </Button>
           </Col>
@@ -318,7 +410,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                           className="fw-semibold text-uppercase"
                           style={{ letterSpacing: "0.03em" }}
                         >
-                          First Name
+                          First Name *
                         </Label>
                         <Input
                           type="text"
@@ -326,6 +418,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                           placeholder="Enter first name"
                           value={patientForm.first_name}
                           onChange={handlePatientFormChange}
+                          required
                         />
                       </FormGroup>
                     </Col>
@@ -336,7 +429,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                           className="fw-semibold text-uppercase"
                           style={{ letterSpacing: "0.03em" }}
                         >
-                          Last Name
+                          Last Name *
                         </Label>
                         <Input
                           type="text"
@@ -344,6 +437,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                           placeholder="Enter last name"
                           value={patientForm.last_name}
                           onChange={handlePatientFormChange}
+                          required
                         />
                       </FormGroup>
                     </Col>
@@ -363,13 +457,14 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                     </Col>
                     <Col md={6}>
                       <FormGroup className="mb-3">
-                        <Label for="mobile">Mobile Phone</Label>
+                        <Label for="mobile">Mobile Phone *</Label>
                         <Input
                           type="tel"
                           id="mobile"
                           placeholder="Enter mobile number"
                           value={patientForm.phone}
                           onChange={handlePatientFormChange}
+                          required
                         />
                       </FormGroup>
                     </Col>
@@ -465,11 +560,16 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                   className="me-2"
                   onClick={toggleCreatePatient}
                   type="button"
+                  disabled={isLoading}
                 >
                   Cancel
                 </Button>
-                <Button color="primary" type="submit">
-                  Create patient
+                <Button 
+                  color="primary" 
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating..." : "Create patient"}
                 </Button>
               </div>
             </Form>
@@ -490,6 +590,8 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                       id="search-input"
                       type="search"
                       placeholder="Search in name/email/profile ID/external ID"
+                      value={searchTerm}
+                      onChange={handleSearchChange}
                     />
                   </div>
                 </Col>
@@ -501,9 +603,14 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                     <label className="form-label" htmlFor={`filter-${key}`}>
                       {filterLabels[key] || key}
                     </label>
-                    <Input id={`filter-${key}`} type="select">
+                    <Input 
+                      id={`filter-${key}`} 
+                      type="select"
+                      value={filters[key]}
+                      onChange={(e) => handleFilterChange(key, e.target.value)}
+                    >
                       {filterOptions[key].map((opt) => (
-                        <option key={opt}>{opt}</option>
+                        <option key={opt} value={opt}>{opt}</option>
                       ))}
                     </Input>
                   </Col>
@@ -516,7 +623,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                 {/* text/ghost button no border color dull to show disabled */}
                 <button
                   className="btn btn-primary text-primary bg-transparent border-0 opacity-50"
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "not-allowed" }}
                   disabled
                 >
                   ADD LABEL(S)
@@ -526,10 +633,19 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
             {/* Patient List Table */}
             <DataTable
               columns={columnsWithAddLabel}
-              data={data}
+              data={filteredData}
               pagination
+              paginationServer={false}
+              paginationTotalRows={filteredData.length}
+              paginationDefaultPage={currentPage}
+              paginationPerPage={perPage}
+              paginationRowsPerPageOptions={[2, 5, 10, 15, 20, 25, 30]}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
               highlightOnHover
               responsive
+              progressPending={isLoading}
+              progressComponent={<div className="text-center p-4">Loading...</div>}
               customStyles={{
                 ...customStyles,
                 rows: {
@@ -541,6 +657,11 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                 },
               }}
               onRowClicked={handleRowClicked}
+              noDataComponent={
+                <div className="text-center p-4">
+                  {searchTerm ? "No patients found matching your search." : "No patients found."}
+                </div>
+              }
             />
           </CardBody>
         </Card>
@@ -618,7 +739,11 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
           <Button
             color="primary"
             disabled={createdLabels.length === 0}
-            onClick={() => setCreateLabelModalOpen(false)}
+            onClick={() => {
+              // Handle label addition here
+              setCreateLabelModalOpen(false);
+              setCreatedLabels([]);
+            }}
           >
             Add {createdLabels.length} label
             {createdLabels.length !== 1 ? "s" : ""}

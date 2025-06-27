@@ -116,10 +116,10 @@ import Reminders from "../Pages/Settings/Reminders";
 import PhotoUploadReminder from "../Pages/Settings/PhotoUploadReminder";
 import NextStepReminder from "../Pages/Settings/NextStepReminder";
 import GenericData from "../Pages/Settings/GenericData.js";
-import PostOffices from "../Pages/Settings/PostOffices";
 import ApplicationSettings from "../Pages/Settings/ApplicationSettings";
 import TreatmentPlans from "../Pages/Settings/TreatmentPlans";
-import DoctorsMonitored from "../Pages/Doctors/Monitored";
+// import VideoTtutorials  from "../Pages/Settings/VideoTtutorials ";
+import DoctorsList from "../Pages/Doctors/DoctorsList";
 import OrderDetail from "../Pages/Orders/OrderDetail";
 import OrderList from "../Pages/Orders/OrderList";
 
@@ -146,6 +146,7 @@ const authProtectedRoutes = [
   { path: "/settings/photo-upload-reminder", component: <PhotoUploadReminder /> },
   { path: "/settings/next-step-reminder", component: <NextStepReminder /> },
   { path: "/settings/treatment-plans", component: <TreatmentPlans /> },
+  // { path: "/settings/video-tutorials", component: <VideoTtutorials /> },/
 
   // Calender
   { path: "/calendar", component: <Calender /> },
@@ -254,7 +255,7 @@ const authProtectedRoutes = [
   { path: "/my-account", component: <MyAccount /> },
 
   // Doctors Pages
-  { path: "/doctors", component: <DoctorsMonitored /> },
+  { path: "/doctors", component: <DoctorsList /> },
 
   // Orders Pages
   { path: "/orders", component: <OrderList /> },
@@ -272,7 +273,7 @@ const authProtectedRoutes = [
 const publicRoutes = [
   // Authentication Page
   { path: "/logout", component: <Logout /> },
-  { path: "/login", component: <Login /> },
+  { path: "/login", component: <Login1 /> },
   { path: "/forgot-password", component: <ForgetPasswordPage /> },
   { path: "/register", component: <Register /> },
 

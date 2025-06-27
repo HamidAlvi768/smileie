@@ -20,30 +20,35 @@ const settingsData = [
         description: "Define dropdown-specific settings.",
         icon: "ri-list-settings-line",
         url: "/settings/dropdown-settings",
-      }
+      }, {
+        name: "Manage Video Tutorials",
+        description: "Create, edit, and organize video tutorials.",
+        icon: "ri-video-line",
+        url: "/settings/video-tutorials",
+      },
     ],
   },
   {
     section: "Static Settings",
     cards: [
-        {
-          name: "Scan Reminder",
-          description: "Set the frequency for patient scan notifications.",
-          icon: "ri-notification-line",
-          url: "/settings/scan-notification-frequency",
-        },
-        {
-          name: "Photo Upload Reminder",
-          description: "Manage reminders for patient photo uploads.",
-          icon: "ri-image-line",
-          url: "/settings/photo-upload-reminder",
-        },
-        {
-          name: "Next Step Reminder",
-          description: "Configure reminders for upcoming patient actions.",
-          icon: "ri-arrow-right-circle-line",
-          url: "/settings/next-step-reminder",
-        },
+      {
+        name: "Scan Reminder",
+        description: "Set the frequency for patient scan notifications.",
+        icon: "ri-notification-line",
+        url: "/settings/scan-notification-frequency",
+      },
+      {
+        name: "Photo Upload Reminder",
+        description: "Manage reminders for patient photo uploads.",
+        icon: "ri-image-line",
+        url: "/settings/photo-upload-reminder",
+      },
+      {
+        name: "Next Step Reminder",
+        description: "Configure reminders for upcoming patient actions.",
+        icon: "ri-arrow-right-circle-line",
+        url: "/settings/next-step-reminder",
+      },
     ],
   },
   {
@@ -66,8 +71,8 @@ const Settings = () => {
     <React.Fragment>
       <div className="page-content no-navbar">
         <Container fluid={true}>
-          <Breadcrumbs 
-            title="Smileie" 
+          <Breadcrumbs
+            title="Smileie"
             breadcrumbItem="Settings"
             extraContentRight={(
               <div className="d-flex align-items-center">

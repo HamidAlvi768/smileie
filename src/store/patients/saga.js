@@ -14,13 +14,13 @@ function* fetchPatients() {
 
 function* addPatientSaga({ payload }) {
   try {
-    const response = yield call(addPatientAPI, payload);
-    yield put(addPatientSuccess(response));
-    yield put(getPatients());
+    yield call(addPatientAPI, payload); // just call, no need to store response
+    yield put(getPatients()); // 🔁 always fetch fresh data from DB
   } catch (error) {
     yield put(patientsApiFail(error));
   }
 }
+
 
 function* fetchRecentPatients() {
   try {

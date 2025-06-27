@@ -2,4 +2,4 @@ export const GET_DOCTORS = "GET_DOCTORS";
 export const GET_DOCTORS_SUCCESS = "GET_DOCTORS_SUCCESS";
 export const ADD_DOCTOR = "ADD_DOCTOR";
 export const ADD_DOCTOR_SUCCESS = "ADD_DOCTOR_SUCCESS";
-export const API_FAIL = "API_FAIL";
+export const API_FAIL = "API_FAIL";// Add this action creator
