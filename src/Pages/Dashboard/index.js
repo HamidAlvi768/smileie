@@ -5,7 +5,7 @@ import SocialSource from "./SocialSource";
 import OverView from "./OverView";
 import RevenueByLocation from "./RevenueByLocation";
 import LatestTransation from "./LatestTransation";
-import cities from 'cities.json';
+// import cities from 'cities.json';
 
 
 
