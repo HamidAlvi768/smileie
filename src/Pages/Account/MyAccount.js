@@ -274,49 +274,6 @@ function MyAccount() {
               </div>
             </CardBody>
           </Card>
-
-          {/* Regulatory Information Card */}
-          <Card>
-            <CardHeader>
-              <h4 className="mb-0">Regulatory Information</h4>
-            </CardHeader>
-            <CardBody>
-              <Row className="mb-3">
-                <Col md={6}>
-                  <div className="text-muted">
-                    Software version: <strong>{softwareVersion}</strong>
-                  </div>
-                </Col>
-                <Col md={6}>
-                  <div className="text-muted">
-                    UDI code: <strong>{udiCode}</strong>
-                  </div>
-                </Col>
-              </Row>
-
-              <Row className="mb-3">
-                <Col>
-                  <div className="text-muted small">
-                    This software is a medical device. The UDI code applies to the
-                    software only.
-                  </div>
-                </Col>
-              </Row>
-
-              <Row>
-                <Col md={6} className="mb-2">
-                  <Button color="link" className="p-0 text-decoration-none">
-                    View regulatory label
-                  </Button>
-                </Col>
-                <Col md={6}>
-                  <Button color="link" className="p-0 text-decoration-none">
-                    Legal representative information
-                  </Button>
-                </Col>
-              </Row>
-            </CardBody>
-          </Card>
         </Col>
       </Row>
     </Container>

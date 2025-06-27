@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, CardBody, Table, Button, Modal, ModalHeader,
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import { useParams } from "react-router-dom";
 import { getGenericRecordsAPI, addGeneralTypeAPI, updateGeneralTypeAPI, deleteGeneralTypeAPI, getGeneralTypesAPI } from "../../helpers/api_helper";
+import { useToast } from '../../components/Common/ToastContext';
 
 const GenericData = () => {
   const [entities, setEntities] = useState([]);
@@ -23,6 +24,8 @@ const GenericData = () => {
     status: "Active",
   });
 
+  const showToast = useToast();
+
   useEffect(() => {
     const fetchEntities = async () => {
       setLoading(true);
@@ -32,12 +35,13 @@ const GenericData = () => {
         setEntities(res.data || []);
       } catch (err) {
         setError('Failed to load entities');
+        showToast({ message: 'Failed to load records', type: 'error', title: 'Error' });
       } finally {
         setLoading(false);
       }
     };
     fetchEntities();
-  }, [parentId]);
+  }, [parentId, showToast]);
 
   const toggleModal = () => {
     setModal(!modal);
@@ -72,8 +76,10 @@ const GenericData = () => {
     try {
       if (editingEntity) {
         await updateGeneralTypeAPI({ ...formData, id: editingEntity.id });
+        showToast({ message: 'Record updated successfully!', type: 'success', title: 'Success' });
       } else {
         await addGeneralTypeAPI(formData);
+        showToast({ message: 'Record added successfully!', type: 'success', title: 'Success' });
       }
       // Refresh list
       const res = await getGenericRecordsAPI(parentId);
@@ -81,6 +87,7 @@ const GenericData = () => {
       toggleModal();
     } catch (err) {
       setError('Failed to save entity');
+      showToast({ message: 'Failed to save record', type: 'error', title: 'Error' });
     }
   };
 
@@ -104,12 +111,14 @@ const GenericData = () => {
     if (entityToDelete) {
       try {
         await deleteGeneralTypeAPI(entityToDelete.id);
+        showToast({ message: 'Record deleted successfully!', type: 'success', title: 'Success' });
         // Refresh list
         const res = await getGenericRecordsAPI(parentId);
         setEntities(res.data || []);
         toggleDeleteModal();
       } catch (err) {
         setError('Failed to delete entity');
+        showToast({ message: 'Failed to delete record', type: 'error', title: 'Error' });
       }
     }
   };
@@ -204,7 +213,7 @@ const GenericData = () => {
         <Form onSubmit={handleSubmit}>
           <ModalBody>
             <Row>
-              <Col md={6}>
+              <Col md={4}>
                 <FormGroup>
                   <Label for="title">Record Name</Label>
                   <Input
@@ -217,7 +226,7 @@ const GenericData = () => {
                   />
                 </FormGroup>
               </Col>
-              <Col md={6}>
+              <Col md={4}>
                 <FormGroup>
                   <Label for="description">Description</Label>
                   <Input
@@ -229,7 +238,7 @@ const GenericData = () => {
                   />
                 </FormGroup>
               </Col>
-              <Col md={6}>
+              <Col md={4}>
                 <FormGroup>
                   <Label for="status">Status</Label>
                   <Input

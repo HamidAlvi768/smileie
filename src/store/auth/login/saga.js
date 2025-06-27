@@ -21,7 +21,7 @@ function* loginUser({ payload: { user, history } }) {
     const response = yield call(loginAPI, user.email, user.password);
     console.log(response)
     if (response && (response.status==="success")) {
-      localStorage.setItem("authUser", JSON.stringify(response));
+      localStorage.setItem("authUser", JSON.stringify(response.user));
       yield put(loginSuccess(response));
       history("/dashboard");
     } else {

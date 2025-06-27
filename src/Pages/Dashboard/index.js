@@ -1,10 +1,13 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useLocation } from "react-router-dom";
 import UsePanel from "./UserPanel";
 import SocialSource from "./SocialSource";
 import OverView from "./OverView";
 import RevenueByLocation from "./RevenueByLocation";
 import LatestTransation from "./LatestTransation";
+import cities from 'cities.json';
+
+
 
 import { Row, Container, Col } from "reactstrap";
 
@@ -17,6 +20,10 @@ const Dashboard = () => {
   const location = useLocation();
   const hasNavbar = shouldHaveNavbar(location.pathname);
   
+  useEffect(() => {
+    console.log('cities:', cities);
+  }, []);
+
   return (
     <React.Fragment>
       <div className={`page-content no-navbar`}>

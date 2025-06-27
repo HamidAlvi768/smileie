@@ -3,6 +3,7 @@ import doctorReducer from "./doctors/reducer";
 import plansReducer from "./plans/reducer";
 import statsReducer from "./stats/reducer";
 import patientsReducer from "./patients/reducer";
+import tutorialsReducer from "./tutorials/reducer";
 
 // Front
 import Layout from "./layout/reducer";
@@ -33,6 +34,7 @@ const appReducer = combineReducers({
   stats: statsReducer,
   messages,
   patients: patientsReducer,
+  tutorials: tutorialsReducer,
 });
 
 // Wrap it in a root reducer that can handle full reset

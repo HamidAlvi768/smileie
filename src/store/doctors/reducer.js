@@ -21,6 +21,8 @@ const doctorReducer = (state = INIT_STATE, action) => {
       return { ...state, successMessage: action.payload, error: null };
     case API_FAIL:
       return { ...state, error: action.payload, successMessage: null };
+    case "CLEAR_DOCTOR_ERROR":
+      return { ...state, error: null, successMessage: null };
     default:
       return state;
   }

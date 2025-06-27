@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import './EntitiesList.css';
 import '../../assets/scss/pages/patient.scss'; 
 import { getGeneralTypesAPI, addGeneralTypeAPI, updateGeneralTypeAPI, deleteGeneralTypeAPI } from '../../helpers/api_helper';
+import { useToast } from '../../components/Common/ToastContext';
 
 
 const EntitiesList = () => {
@@ -22,6 +23,7 @@ const EntitiesList = () => {
   });
 
   const navigate = useNavigate();
+  const showToast = useToast();
 
   useEffect(() => {
     const fetchEntities = async () => {
@@ -72,8 +74,10 @@ const EntitiesList = () => {
     try {
       if (editingEntity) {
         await updateGeneralTypeAPI({ ...formData, id: editingEntity.id });
+        showToast({ message: 'Entity updated successfully!', type: 'success', title: 'Success' });
       } else {
         await addGeneralTypeAPI(formData);
+        showToast({ message: 'Entity added successfully!', type: 'success', title: 'Success' });
       }
       // Refresh list
       const res = await getGeneralTypesAPI();
@@ -81,6 +85,7 @@ const EntitiesList = () => {
       toggleModal();
     } catch (err) {
       setError('Failed to save entity');
+      showToast({ message: 'Failed to save entity', type: 'error', title: 'Error' });
     }
   };
 
@@ -99,12 +104,14 @@ const EntitiesList = () => {
     if (entityToDelete) {
       try {
         await deleteGeneralTypeAPI(entityToDelete.id);
+        showToast({ message: 'Entity deleted successfully!', type: 'success', title: 'Success' });
         // Refresh list
         const res = await getGeneralTypesAPI();
         setEntities(res.data || []);
         toggleDeleteModal();
       } catch (err) {
         setError('Failed to delete entity');
+        showToast({ message: 'Failed to delete entity', type: 'error', title: 'Error' });
       }
     }
   };
@@ -134,6 +141,7 @@ const EntitiesList = () => {
                 <CardBody>
                   <div className="d-flex justify-content-between align-items-center mb-4">
                     <h4 className="card-title mb-0">Entities List</h4>
+                    {/*
                     <Button 
                       color="primary" 
                       onClick={toggleModal}
@@ -142,6 +150,7 @@ const EntitiesList = () => {
                       <i className="ri-add-line me-1"></i>
                       Add New Entity
                     </Button>
+                    */}
                   </div>
 
                   <div className="table-responsive">
@@ -151,7 +160,7 @@ const EntitiesList = () => {
                           <th scope="col">Name</th>
                           <th scope="col">Description</th>
                           <th scope="col">Status</th>
-                          <th scope="col">Actions</th>
+                          {/* <th scope="col">Actions</th> */}
                         </tr>
                       </thead>
                       <tbody>
@@ -169,6 +178,7 @@ const EntitiesList = () => {
                             <td>
                               <span className={`badge bg-${entity.active === true ? 'success' : 'secondary'}`}>{entity.active?"Active":"InActive"}</span>
                             </td>
+                            {/*
                             <td>
                               <div className="d-flex gap-2">
                                 <Button
@@ -187,6 +197,7 @@ const EntitiesList = () => {
                                 </Button>
                               </div>
                             </td>
+                            */}
                           </tr>
                         ))}
                       </tbody>

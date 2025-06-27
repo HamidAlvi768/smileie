@@ -118,7 +118,7 @@ import NextStepReminder from "../Pages/Settings/NextStepReminder";
 import GenericData from "../Pages/Settings/GenericData.js";
 import ApplicationSettings from "../Pages/Settings/ApplicationSettings";
 import TreatmentPlans from "../Pages/Settings/TreatmentPlans";
-// import VideoTtutorials  from "../Pages/Settings/VideoTtutorials ";
+import VideoTtutorials from "../Pages/Settings/VideoTtutorials";
 import DoctorsList from "../Pages/Doctors/DoctorsList";
 import OrderDetail from "../Pages/Orders/OrderDetail";
 import OrderList from "../Pages/Orders/OrderList";
@@ -146,7 +146,7 @@ const authProtectedRoutes = [
   { path: "/settings/photo-upload-reminder", component: <PhotoUploadReminder /> },
   { path: "/settings/next-step-reminder", component: <NextStepReminder /> },
   { path: "/settings/treatment-plans", component: <TreatmentPlans /> },
-  // { path: "/settings/video-tutorials", component: <VideoTtutorials /> },/
+  { path: "/settings/video-tutorials", component: <VideoTtutorials /> },
 
   // Calender
   { path: "/calendar", component: <Calender /> },

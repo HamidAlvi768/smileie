@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getPlans, addPlan, deletePlan, updatePlan } from "../../store/plans/actions";
 import { Container, Row, Col, Card, CardBody, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { useToast } from '../../components/Common/ToastContext';
 
 const TreatmentPlans = () => {
   const dispatch = useDispatch();
@@ -13,6 +14,7 @@ const TreatmentPlans = () => {
   const [editingPlan, setEditingPlan] = useState(null);
   const [planToDelete, setPlanToDelete] = useState(null);
   const [formData, setFormData] = useState({ name: "", duration: "", status: "Active" });
+  const showToast = useToast();
 
   useEffect(() => {
     dispatch(getPlans());
@@ -45,28 +47,39 @@ const TreatmentPlans = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (editingPlan) {
-      dispatch(updatePlan({
-        id: editingPlan.id,
-        name: formData.name,
-        weeks: formData.duration,
-        active: formData.status === "Active",
-      }));
-    } else {
-      dispatch(addPlan({
-        name: formData.name,
-        weeks: formData.duration,
-        active: formData.status === "Active",
-      }));
+    try {
+      if (editingPlan) {
+        dispatch(updatePlan({
+          id: editingPlan.id,
+          name: formData.name,
+          weeks: formData.duration,
+          active: formData.status === "Active",
+        }));
+        showToast({ message: 'Plan updated successfully!', type: 'success', title: 'Success' });
+      } else {
+        dispatch(addPlan({
+          name: formData.name,
+          weeks: formData.duration,
+          active: formData.status === "Active",
+        }));
+        showToast({ message: 'Plan added successfully!', type: 'success', title: 'Success' });
+      }
+      setModal(false);
+    } catch (err) {
+      showToast({ message: 'Failed to save plan', type: 'error', title: 'Error' });
     }
-    setModal(false);
   };
 
   const confirmDelete = () => {
-    if (planToDelete) {
-      dispatch(deletePlan(planToDelete.id));
+    try {
+      if (planToDelete) {
+        dispatch(deletePlan(planToDelete.id));
+        showToast({ message: 'Plan deleted successfully!', type: 'success', title: 'Success' });
+      }
+      setDeleteModal(false);
+    } catch (err) {
+      showToast({ message: 'Failed to delete plan', type: 'error', title: 'Error' });
     }
-    setDeleteModal(false);
   };
 
   return (

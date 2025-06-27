@@ -1,6 +1,6 @@
 import axios from "axios";
 import config from "../config";
-import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API, GET_GENERAL_TYPES_API, ADD_GENERAL_TYPE_API, UPDATE_GENERAL_TYPE_API, DELETE_GENERAL_TYPE_API, GET_PATIENTS_API, ADD_PATIENT_API, GET_RECENT_PATIENTS_API } from "./url_helper";
+import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API, GET_GENERAL_TYPES_API, ADD_GENERAL_TYPE_API, UPDATE_GENERAL_TYPE_API, DELETE_GENERAL_TYPE_API, GET_PATIENTS_API, ADD_PATIENT_API, GET_RECENT_PATIENTS_API, GET_TUTORIALS_API, ADD_TUTORIAL_API, UPDATE_TUTORIAL_API, DELETE_TUTORIAL_API } from "./url_helper";
 
 // default
 axios.defaults.baseURL = config.API_URL;
@@ -110,13 +110,12 @@ export const addPlanAPI = (plan) => api.create(ADD_PLAN_API, plan);
 export const getStatsAPI = () => api.get(GET_STATS_API);
 export const deletePlanAPI = (id) => api.delete(`${DELETE_PLAN_API}?id=${id}`);
 export const updatePlanAPI = (plan) => api.update(`${UPDATE_PLAN_API}?id=${plan.id}`, plan);
-
-const myId = 2;
-const otherId = 1;
+const user = JSON.parse(localStorage.getItem("authUser"));
+const myId =user?.id ;
 
 // Chat messages API
 export const getMessagesAPI = async (patientId) => {
-  const response = await fetch(`${config.API_URL}chat/messages?myid=${myId}&otherid=${otherId}`, {
+  const response = await fetch(`${config.API_URL}chat/messages?myid=${myId}&otherid=${patientId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -141,7 +140,7 @@ export const sendMessageAPI = async (patientId, message, file) => {
         "Content-Type": "application/json",
         // Add auth headers if needed
       },
-      body: JSON.stringify({ sender_id: myId, receiver_id: otherId, message }),
+      body: JSON.stringify({ sender_id: myId, receiver_id: patientId, message }),
     });
     if (!response.ok) throw new Error("Failed to send message");
     return response.json();
@@ -149,7 +148,7 @@ export const sendMessageAPI = async (patientId, message, file) => {
     // Send as FormData if file is present
     const formData = new FormData();
     formData.append("sender_id", myId);
-    formData.append("receiver_id", otherId);
+    formData.append("receiver_id", patientId);
     formData.append("message", message);
     formData.append("file", file);
     const response = await fetch(`${config.API_URL}chat/messages/send`, {
@@ -187,3 +186,9 @@ export const loginAPI = async (email, password) => {
 export const getPatientsAPI = () => api.get(GET_PATIENTS_API);
 export const addPatientAPI = (patient) => api.create(ADD_PATIENT_API, patient);
 export const getRecentPatientsAPI = () => api.get(GET_RECENT_PATIENTS_API);
+
+// Tutorials API
+export const getTutorialsAPI = () => api.get(GET_TUTORIALS_API);
+export const addTutorialAPI = (tutorial) => api.create(ADD_TUTORIAL_API, tutorial);
+export const updateTutorialAPI = (tutorial) => api.update(`${UPDATE_TUTORIAL_API}?id=${tutorial.id}`, tutorial);
+export const deleteTutorialAPI = (id) => api.delete(`${DELETE_TUTORIAL_API}?id=${id}`);

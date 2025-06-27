@@ -46,4 +46,10 @@ export const GET_PATIENTS_API = `/patients?_=${Date.now()}`;
 export const ADD_PATIENT_API = "/patients/create";
 export const GET_RECENT_PATIENTS_API = "/patients/recent";
 
+//tutorials
+export const GET_TUTORIALS_API = "/tutorials";
+export const ADD_TUTORIAL_API = "/tutorials/create";
+export const UPDATE_TUTORIAL_API = "/tutorials/update";
+export const DELETE_TUTORIAL_API = "/tutorials/delete";
+
 

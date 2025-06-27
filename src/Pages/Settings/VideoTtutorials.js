@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getPlans, addPlan, deletePlan, updatePlan } from "../../store/plans/actions";
+import { getTutorials, addTutorial, updateTutorial, deleteTutorial } from "../../store/tutorials/actions";
 import { Container, Row, Col, Card, CardBody, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { useToast } from '../../components/Common/ToastContext';
 
 const VideoTtutorials = () => {
   const dispatch = useDispatch();
-  const plansRaw = useSelector((state) => state.plans.plans);
-  const plans = Array.isArray(plansRaw) ? plansRaw : [];
+  const tutorials = useSelector((state) => state.tutorials.tutorials) || [];
+  const error = useSelector((state) => state.tutorials.error);
   const [modal, setModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
-  const [editingPlan, setEditingPlan] = useState(null);
-  const [planToDelete, setPlanToDelete] = useState(null);
-  const [formData, setFormData] = useState({ name: "", duration: "", status: "Active" });
+  const [editingTutorial, setEditingTutorial] = useState(null);
+  const [tutorialToDelete, setTutorialToDelete] = useState(null);
+  const [formData, setFormData] = useState({ title: "", url: "", description: "" });
+  const showToast = useToast();
 
   useEffect(() => {
-    dispatch(getPlans());
+    dispatch(getTutorials());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      showToast({ message: error, type: 'error', title: 'Error' });
+    }
+  }, [error, showToast]);
 
   const toggleModal = () => setModal(!modal);
   const toggleDeleteModal = () => setDeleteModal(!deleteModal);
@@ -27,44 +35,43 @@ const VideoTtutorials = () => {
   };
 
   const handleAdd = () => {
-    setEditingPlan(null);
-    setFormData({ name: "", duration: "", status: "Active" });
+    setEditingTutorial(null);
+    setFormData({ title: "", url: "", description: "" });
     setModal(true);
   };
 
-  const handleEdit = (plan) => {
-    setEditingPlan(plan);
-    setFormData({ name: plan.name, duration: plan.weeks, status: plan.status });
+  const handleEdit = (tutorial) => {
+    setEditingTutorial(tutorial);
+    setFormData({ title: tutorial.title, url: tutorial.link, description: tutorial.description });
     setModal(true);
   };
 
-  const handleDelete = (plan) => {
-    setPlanToDelete(plan);
+  const handleDelete = (tutorial) => {
+    setTutorialToDelete(tutorial);
     setDeleteModal(true);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (editingPlan) {
-      dispatch(updatePlan({
-        id: editingPlan.id,
-        name: formData.name,
-        weeks: formData.duration,
-        active: formData.status === "Active",
-      }));
+    const payload = {
+      title: formData.title,
+      description: formData.description,
+      link: formData.url,
+    };
+    if (editingTutorial) {
+      dispatch(updateTutorial({ ...payload, id: editingTutorial.id }));
+      showToast({ message: 'Tutorial updated successfully!', type: 'success', title: 'Success' });
     } else {
-      dispatch(addPlan({
-        name: formData.name,
-        weeks: formData.duration,
-        active: formData.status === "Active",
-      }));
+      dispatch(addTutorial(payload));
+      showToast({ message: 'Tutorial added successfully!', type: 'success', title: 'Success' });
     }
     setModal(false);
   };
 
   const confirmDelete = () => {
-    if (planToDelete) {
-      dispatch(deletePlan(planToDelete.id));
+    if (tutorialToDelete) {
+      dispatch(deleteTutorial(tutorialToDelete.id));
+      showToast({ message: 'Tutorial deleted successfully!', type: 'success', title: 'Success' });
     }
     setDeleteModal(false);
   };
@@ -75,45 +82,44 @@ const VideoTtutorials = () => {
         <Breadcrumbs
           title="Smileie"
           breadcrumbItem="Settings"
-          breadcrumbItem2="Treatment Plans"
+          breadcrumbItem2="Video Tutorials"
         />
         <Card>
           <CardBody>
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="card-title mb-0">Treatment Plans</h4>
+              <h4 className="card-title mb-0">Video Tutorials</h4>
               <Button color="primary" onClick={handleAdd} className="btn-sm">
-                <i className="ri-add-line me-1"></i> Add Treatment Plan
+                <i className="ri-add-line me-1"></i> Add Video Tutorial
               </Button>
             </div>
+            {error && <div className="text-danger mb-3">{error}</div>}
             <div className="table-responsive">
               <table className="table table-nowrap mb-0">
                 <thead className="table-light">
                   <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Duration (weeks)</th>
-                    <th scope="col">Status</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">URL</th>
+                    <th scope="col">Description</th>
                     <th scope="col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {plans.length === 0 ? (
+                  {tutorials.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="text-center text-muted py-4">No treatment plans found.</td>
+                      <td colSpan={4} className="text-center text-muted py-4">No video tutorials found.</td>
                     </tr>
                   ) : (
-                    plans.map((plan) => (
-                      <tr key={plan.id}>
-                        <td>{plan.name}</td>
-                        <td>{plan.weeks}</td>
-                        <td>
-                          <span className={`badge bg-${plan.active ? "success" : "secondary"}`}>{plan.active ? "Active" : "Inactive"}</span>
-                        </td>
+                    tutorials.map((tutorial) => (
+                      <tr key={tutorial.id}>
+                        <td>{tutorial.title}</td>
+                        <td><a href={tutorial.link} target="_blank" rel="noopener noreferrer">{tutorial.link}</a></td>
+                        <td>{tutorial.description}</td>
                         <td>
                           <div className="d-flex gap-2">
-                            <Button color="outline-primary" size="sm" onClick={() => handleEdit(plan)}>
+                            <Button color="outline-primary" size="sm" onClick={() => handleEdit(tutorial)}>
                               <i className="ri-pencil-line"></i>
                             </Button>
-                            <Button color="outline-danger" size="sm" onClick={() => handleDelete(plan)}>
+                            <Button color="outline-danger" size="sm" onClick={() => handleDelete(tutorial)}>
                               <i className="ri-delete-bin-line"></i>
                             </Button>
                           </div>
@@ -129,29 +135,26 @@ const VideoTtutorials = () => {
 
         {/* Add/Edit Modal */}
         <Modal isOpen={modal} toggle={toggleModal} centered>
-          <ModalHeader toggle={toggleModal}>{editingPlan ? "Edit Treatment Plan" : "Add Treatment Plan"}</ModalHeader>
+          <ModalHeader toggle={toggleModal}>{editingTutorial ? "Edit Video Tutorial" : "Add Video Tutorial"}</ModalHeader>
           <Form onSubmit={handleSubmit}>
             <ModalBody>
               <Row>
-                <Col md={4}>
+                <Col md={6}>
                   <FormGroup>
-                    <Label for="name">Name</Label>
-                    <Input id="name" name="name" value={formData.name} onChange={handleInputChange} required />
+                    <Label for="title">Title</Label>
+                    <Input id="title" name="title" value={formData.title} onChange={handleInputChange} required />
                   </FormGroup>
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                   <FormGroup>
-                    <Label for="duration">Duration (weeks)</Label>
-                    <Input id="duration" name="duration" type="number" min="1" value={formData.duration} onChange={handleInputChange} required />
+                    <Label for="url">URL</Label>
+                    <Input id="url" name="url" value={formData.url} onChange={handleInputChange} required />
                   </FormGroup>
                 </Col>
-                <Col md={4}>
+                <Col md={12}>
                   <FormGroup>
-                    <Label for="status">Status</Label>
-                    <Input id="statuss" name="status" type="select" value={formData.status} onChange={handleInputChange}>
-                      <option>Active</option>
-                      <option>Inactive</option>
-                    </Input>
+                    <Label for="description">Description</Label>
+                    <Input id="description" name="description" value={formData.description} onChange={handleInputChange} required />
                   </FormGroup>
                 </Col>
               </Row>
@@ -159,7 +162,7 @@ const VideoTtutorials = () => {
             <ModalFooter>
               <Button color="secondary" onClick={toggleModal} type="button">Cancel</Button>
               <Button color="primary" type="submit">
-                {editingPlan ? "Save Changes" : "Add Plan"}
+                {editingTutorial ? "Save Changes" : "Add Video Tutorial"}
               </Button>
             </ModalFooter>
           </Form>
@@ -167,9 +170,9 @@ const VideoTtutorials = () => {
 
         {/* Delete Confirmation Modal */}
         <Modal isOpen={deleteModal} toggle={toggleDeleteModal} centered>
-          <ModalHeader toggle={toggleDeleteModal}>Delete Treatment Plan</ModalHeader>
+          <ModalHeader toggle={toggleDeleteModal}>Delete Video Tutorial</ModalHeader>
           <ModalBody>
-            Are you sure you want to delete the treatment plan "{planToDelete?.name}"?
+            Are you sure you want to delete the video tutorial "{tutorialToDelete?.title}"?
           </ModalBody>
           <ModalFooter>
             <Button color="light" onClick={toggleDeleteModal}>Cancel</Button>

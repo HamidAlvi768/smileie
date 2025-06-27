@@ -583,8 +583,9 @@ const PatientDetail = () => {
   const { messages, loading, error, sending } = useSelector((state) => state.messages);
 
   // Dummy user IDs for SSE (replace with real logic as needed)
-  const myId = 2; // TODO: Replace with actual logged-in user ID
-  const otherId = 1; // patient id from useParams
+  const user = JSON.parse(localStorage.getItem("authUser"));
+  const myId = user?.id; // TODO: Replace with actual logged-in user ID
+  const otherId = id; // patient id from useParams
 
   useEffect(() => {
     if (!isCommunicationOpen || !id) return;

@@ -124,6 +124,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     loading = false,
     error = null,
     success = false,
+    successMessage = null,
   } = doctorsData;
 
   // Local state for pagination and filters
@@ -277,22 +278,22 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
 
   // Handle success/error states from Redux
   useEffect(() => {
-    if (success) {
+    if (successMessage) {
       showToast({
-        message: "Operation completed successfully!",
+        message: successMessage || "Doctor created successfully!",
         type: "success",
         title: "Success",
       });
       dispatch(clearDoctorError());
     }
-  }, [success, showToast, dispatch]);
+  }, [successMessage, showToast, dispatch]);
 
   useEffect(() => {
     if (error) {
       showToast({
-        message: error,
-        type: "error",
-        title: "Error",
+        message: typeof error === 'string' ? error : 'Failed to create doctor',
+        type: 'error',
+        title: 'Error',
       });
       dispatch(clearDoctorError());
     }
@@ -338,11 +339,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
       try {
         await dispatch(addDoctor(form));
         toggleCreateDoctor();
-        showToast({
-          message: "Doctor created successfully!",
-          type: "success",
-          title: "Success",
-        });
         fetchDoctors();
         setCurrentPage(1); // Reset to first page
       } catch (error) {
@@ -356,7 +352,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
         setIsSubmitting(false);
       }
     },
-    [dispatch, form, validateForm, toggleCreateDoctor, showToast, fetchDoctors]
+    [dispatch, form, validateForm, toggleCreateDoctor, fetchDoctors]
   );
 
   const handleRowClicked = useCallback(
@@ -641,7 +637,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
               paginationRowsPerPageOptions={[2, 5, 10, 15, 20, 25, 30]}
               onChangeRowsPerPage={handlePerRowsChange}
               onChangePage={handlePageChange}
-              onRowClicked={handleRowClicked}
               highlightOnHover
               responsive
               customStyles={customStyles}

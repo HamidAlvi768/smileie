@@ -98,6 +98,18 @@ export const headerRightMenuItems = [
     id: "settings",
     label: "Settings",
     url: "/settings",
+    navbarItems: [
+      {
+        id: "treatment-plans",
+        label: "Treatment Plans",
+        url: "/settings/treatment-plans",
+      },
+      {
+        id: "video-tutorials",
+        label: "Video Tutorials",
+        url: "/settings/video-tutorials",
+      },
+    ],
   },
   {
     id: "my-account",

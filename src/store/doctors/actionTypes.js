@@ -4,3 +4,4 @@ export const ADD_DOCTOR = "ADD_DOCTOR";
 export const ADD_DOCTOR_SUCCESS = "ADD_DOCTOR_SUCCESS";
 export const ADD_DOCTOR_MESSAGE = "ADD_DOCTOR_MESSAGE";
 export const API_FAIL = "API_FAIL";
+export const CLEAR_DOCTOR_ERROR = "CLEAR_DOCTOR_ERROR";

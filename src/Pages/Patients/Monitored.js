@@ -53,9 +53,6 @@ const columns = [
           {row.doctor}
         </div>
         <div className="fw-bold">{row.name}</div>
-        <Button color="link" size="sm" className="p-0">
-          + Add label
-        </Button>
       </div>
     ),
     sortable: true,
@@ -251,14 +248,6 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
             >
               {row.name}
             </div>
-            <Button
-              color="link"
-              size="sm"
-              className="p-0"
-              onClick={(e) => handleAddLabelClick(e, row)}
-            >
-              + Add label
-            </Button>
           </div>
         ),
       };
@@ -659,23 +648,20 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
             <div className="control-panel">
               {/* Search Bar */}
               <Row className="mb-3 align-items-center">
-                <Col>
+                <Col md={2} sm={6} xs={12} className="mb-2">
                   <div>
                     <label className="form-label" htmlFor="search-input">
-                      Search in name/email/profile ID/external ID
+                      Search Patients
                     </label>
                     <Input
                       id="search-input"
                       type="search"
-                      placeholder="Search in name/email/profile ID/external ID"
+                      placeholder="Search Patients"
                       value={searchTerm}
                       onChange={handleSearchChange}
                     />
                   </div>
                 </Col>
-              </Row>
-              {/* Filter Panel - Single Row */}
-              <Row className="mb-3 g-2">
                 {filterRowKeys.map((key) => (
                   <Col md={2} sm={6} xs={12} key={key} className="mb-2">
                     <label className="form-label" htmlFor={`filter-${key}`}>
@@ -695,19 +681,6 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                 ))}
               </Row>
             </div>
-            {/* Bulk Actions */}
-            <Row className="mb-2">
-              <Col>
-                {/* text/ghost button no border color dull to show disabled */}
-                <button
-                  className="btn btn-primary text-primary bg-transparent border-0 opacity-50"
-                  style={{ cursor: "not-allowed" }}
-                  disabled
-                >
-                  ADD LABEL(S)
-                </button>
-              </Col>
-            </Row>
             {/* Patient List Table */}
             <DataTable
               columns={columnsWithAddLabel}
