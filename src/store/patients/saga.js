@@ -28,6 +28,7 @@ function* addPatientSaga({ payload }) {
   }
 }
 
+
 function* fetchRecentPatients() {
   try {
     const response = yield call(getRecentPatientsAPI);

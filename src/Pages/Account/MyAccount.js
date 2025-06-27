@@ -60,7 +60,7 @@ function MyAccount() {
       <Row>
         <Col lg={8} md={10} className="mx-auto">
           <h2 className="mb-4 text-center">My Account</h2>
-          
+
           {/* Personal Information Card */}
           <Card className="mb-4">
             <CardHeader>
@@ -84,7 +84,7 @@ function MyAccount() {
               <div>
                 {/* Name and Email Row */}
                 <Row>
-                  <Col md={4}>
+                  <Col md={6}>
                     <FormGroup>
                       <Label for="email">Email</Label>
                       <Input
@@ -96,32 +96,6 @@ function MyAccount() {
                       />
                     </FormGroup>
                   </Col>
-                  <Col md={4}>
-                    <FormGroup>
-                      <Label for="firstName">First Name</Label>
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        value={form.firstName}
-                        onChange={handleChange}
-                      />
-                    </FormGroup>
-                  </Col>
-                  <Col md={4}>
-                    <FormGroup>
-                      <Label for="lastName">Last Name</Label>
-                      <Input
-                        id="lastName"
-                        name="lastName"
-                        value={form.lastName}
-                        onChange={handleChange}
-                      />
-                    </FormGroup>
-                  </Col>
-                </Row>
-
-                {/* Mobile Phone and Settings Row */}
-                <Row>
                   <Col md={6}>
                     <FormGroup>
                       <Label for="mobile">Mobile Phone</Label>
@@ -151,6 +125,32 @@ function MyAccount() {
                   </Col>
                   <Col md={6}>
                     <FormGroup>
+                      <Label for="firstName">First Name</Label>
+                      <Input
+                        id="firstName"
+                        name="firstName"
+                        value={form.firstName}
+                        onChange={handleChange}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col md={6}>
+                    <FormGroup>
+                      <Label for="lastName">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        name="lastName"
+                        value={form.lastName}
+                        onChange={handleChange}
+                      />
+                    </FormGroup>
+                  </Col>
+                </Row>
+
+                {/* Mobile Phone and Settings Row */}
+                <Row>
+                  {/* <Col md={6}>
+                    <FormGroup>
                       <Label for="language">Language</Label>
                       <Input
                         id="language"
@@ -166,12 +166,12 @@ function MyAccount() {
                         ))}
                       </Input>
                     </FormGroup>
-                  </Col>
+                  </Col> */}
                 </Row>
 
                 {/* Checkboxes Row */}
                 <Row className="mb-3">
-                  <Col md={6}>
+                  {/* <Col md={6}>
                     <FormGroup check>
                       <Input
                         type="checkbox"
@@ -184,8 +184,8 @@ function MyAccount() {
                         Two-factor authentication
                       </Label>
                     </FormGroup>
-                  </Col>
-                  <Col md={6}>
+                  </Col> */}
+                  {/* <Col md={6}>
                     <FormGroup check>
                       <Input
                         type="checkbox"
@@ -198,7 +198,7 @@ function MyAccount() {
                         Redacted mode
                       </Label>
                     </FormGroup>
-                  </Col>
+                  </Col> */}
                 </Row>
 
                 {/* Password Fields Row */}
@@ -242,7 +242,7 @@ function MyAccount() {
                 </Row>
 
                 {/* Dental Notation Row */}
-                <Row>
+                {/* <Row>
                   <Col md={6}>
                     <FormGroup>
                       <Label for="dentalNotation">Dental Notation</Label>
@@ -261,7 +261,7 @@ function MyAccount() {
                       </Input>
                     </FormGroup>
                   </Col>
-                </Row>
+                </Row> */}
 
                 {/* Update Button */}
                 <Row>
@@ -293,7 +293,7 @@ function MyAccount() {
                   </div>
                 </Col>
               </Row>
-              
+
               <Row className="mb-3">
                 <Col>
                   <div className="text-muted small">
@@ -302,7 +302,7 @@ function MyAccount() {
                   </div>
                 </Col>
               </Row>
-              
+
               <Row>
                 <Col md={6} className="mb-2">
                   <Button color="link" className="p-0 text-decoration-none">

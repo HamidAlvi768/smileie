@@ -263,22 +263,22 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
   const rawData =
     patients && Array.isArray(patients)
       ? patients.map((p, idx) => ({
-        name:
-          `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
-          p.username ||
-          "",
-        doctor: p.doctor_name,
-        latestActivity: p.latestActivity || mockPatientFields.latestActivity,
-        latestActivityTime:
-          p.latestActivityTime || mockPatientFields.latestActivityTime,
-        type: p.type || mockPatientFields.type,
-        typeDetail: p.typeDetail || mockPatientFields.typeDetail,
-        latestScan: p.latestScan || mockPatientFields.latestScan,
-        lateInfo: p.lateInfo || mockPatientFields.lateInfo,
-        scanInterval: p.scanInterval || mockPatientFields.scanInterval,
-        id: p.id,
-        email: p.email || "",
-      }))
+          name:
+            `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
+            p.username ||
+            "",
+          doctor: p.doctor_name,
+          latestActivity: p.latestActivity || mockPatientFields.latestActivity,
+          latestActivityTime:
+            p.latestActivityTime || mockPatientFields.latestActivityTime,
+          type: p.type || mockPatientFields.type,
+          typeDetail: p.typeDetail || mockPatientFields.typeDetail,
+          latestScan: p.latestScan || mockPatientFields.latestScan,
+          lateInfo: p.lateInfo || mockPatientFields.lateInfo,
+          scanInterval: p.scanInterval || mockPatientFields.scanInterval,
+          id: p.id,
+          email: p.email || "",
+        }))
       : [];
 
   // Filter and search data
@@ -286,8 +286,8 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     // Search filter
     const searchMatch = searchTerm
       ? item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.id && item.id.toString().includes(searchTerm))
+        item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.id && item.id.toString().includes(searchTerm))
       : true;
 
     // Apply other filters here if needed
@@ -306,11 +306,11 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
   const handleCreatePatient = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+    
     try {
       // Add patient
       await dispatch(addPatient(patientForm));
-
+      
       // Close modal and reset form
       setCreatePatientModal(false);
       setPatientForm({
@@ -322,14 +322,17 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
         practice: "",
         doctor_id: "",
       });
-
+      
       // Show success message
       showToast({
         message: "Patient created successfully!",
         type: "success",
         title: "Success",
       });
-
+      
+      // Refresh data
+      await fetchData();
+      
     } catch (error) {
       console.error("Error creating patient:", error);
       showToast({
@@ -377,8 +380,8 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
             <h4 className="mb-0">{pageTitle}</h4>
           </Col>
           <Col md={2} xs={4} className="text-end">
-            <Button
-              color="primary"
+            <Button 
+              color="primary" 
               onClick={toggleCreatePatient}
               disabled={isLoading}
             >
@@ -564,8 +567,8 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                 >
                   Cancel
                 </Button>
-                <Button
-                  color="primary"
+                <Button 
+                  color="primary" 
                   type="submit"
                   disabled={isLoading}
                 >
@@ -603,8 +606,8 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                     <label className="form-label" htmlFor={`filter-${key}`}>
                       {filterLabels[key] || key}
                     </label>
-                    <Input
-                      id={`filter-${key}`}
+                    <Input 
+                      id={`filter-${key}`} 
                       type="select"
                       value={filters[key]}
                       onChange={(e) => handleFilterChange(key, e.target.value)}

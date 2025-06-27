@@ -31,31 +31,31 @@ const Login = () => {
       <div className="bg-overlay"></div>
       <div className="account-pages my-5 pt-5">
         <Container>
-          <Row className="justify-content-center">
-            <Col lg={6} md={8} xl={4}>
-              <Card>
+          <Row className="justify-content-center align-items-center min-vh-100">
+            <Col xs={12} sm={10} md={8} lg={6} xl={4}>
+              <Card className="shadow border-0 rounded-4">
                 <CardBody className="p-4">
                   <div>
-                    <div className="text-center">
+                    <div className="text-center mb-4">
                       <Link to="/">
                         <img
                           src={logodark}
                           alt=""
-                          height="24"
-                          className="auth-logo logo-dark mx-auto"
+                          height="32"
+                          className="auth-logo logo-dark mx-auto d-block mb-2"
                         />
                         <img
                           src={logolight}
                           alt=""
-                          height="24"
-                          className="auth-logo logo-light mx-auto"
+                          height="32"
+                          className="auth-logo logo-light mx-auto d-block"
                         />
                       </Link>
                     </div>
-                    <h4 className="font-size-18 text-muted mt-2 text-center">
-                      Welcome Back !
+                    <h4 className="font-size-20 text-muted mt-2 text-center fw-semibold">
+                      Welcome Back!
                     </h4>
-                    <p className="mb-5 text-center">
+                    <p className="mb-4 text-center text-secondary">
                       Sign in to continue to Smileie.
                     </p>
                     {error && (
@@ -65,14 +65,14 @@ const Login = () => {
                     )}
                     <Form className="form-horizontal" onSubmit={handleSubmit}>
                       <Row>
-                        <Col md={12}>
-                          <div className="mb-4">
+                        <Col xs={12}>
+                          <div className="mb-3">
                             <label className="form-label" htmlFor="email">
                               Email
                             </label>
                             <input
                               type="email"
-                              className="form-control"
+                              className="form-control form-control-lg"
                               id="email"
                               placeholder="Enter email"
                               value={email}
@@ -80,7 +80,7 @@ const Login = () => {
                               required
                             />
                           </div>
-                          <div className="mb-4">
+                          <div className="mb-3">
                             <label
                               className="form-label"
                               htmlFor="userpassword"
@@ -89,7 +89,7 @@ const Login = () => {
                             </label>
                             <input
                               type="password"
-                              className="form-control"
+                              className="form-control form-control-lg"
                               id="userpassword"
                               placeholder="Enter password"
                               value={password}
@@ -98,8 +98,8 @@ const Login = () => {
                             />
                           </div>
 
-                          <Row>
-                            <Col>
+                          <Row className="align-items-center mb-3">
+                            <Col xs={6}>
                               <div className="form-check">
                                 <input
                                   type="checkbox"
@@ -114,21 +114,18 @@ const Login = () => {
                                 </label>
                               </div>
                             </Col>
-                            <Col className="col-7">
-                              <div className="text-md-end mt-3 mt-md-0">
-                                <Link
-                                  to="/auth-recoverpw"
-                                  className="text-muted"
-                                >
-                                  <i className="mdi mdi-lock"></i> Forgot your
-                                  password?
-                                </Link>
-                              </div>
+                            <Col xs={6} className="text-end">
+                              <Link
+                                to="/auth-recoverpw"
+                                className="text-muted small"
+                              >
+                                <i className="mdi mdi-lock"></i> Forgot your password?
+                              </Link>
                             </Col>
                           </Row>
-                          <div className="d-grid mt-4">
+                          <div className="d-grid mt-3">
                             <button
-                              className="btn btn-primary waves-effect waves-light"
+                              className="btn btn-primary btn-lg waves-effect waves-light"
                               type="submit"
                               disabled={loading}
                             >
@@ -141,17 +138,9 @@ const Login = () => {
                   </div>
                 </CardBody>
               </Card>
-              <div className="mt-5 text-center">
-                {/* <p className="text-white-50">
-                  Don't have an account ?{" "}
-                  <Link to="/auth-register" className="fw-medium text-primary">
-                    {" "}
-                    Register{" "}
-                  </Link>{" "}
-                </p> */}
-                <p className="text-white-50">
-                  © {new Date().getFullYear()} Developed {" "}
-                   by Jantrah Tech
+              <div className="mt-4 text-center">
+                <p className="text-white-50 mb-0">
+                  © {new Date().getFullYear()} Developed by Jantrah Tech
                 </p>
               </div>
             </Col>
