@@ -69,20 +69,33 @@ const OrderDetail = () => {
               <CardBody>
                 <h5 className="mb-3">Order Timeline</h5>
                 <ul className="timeline list-unstyled mb-0">
-                  {order.timeline.map((step, idx) => (
-                    <li key={idx} className="mb-3 d-flex align-items-center">
-                      <span
-                        className={`d-inline-block rounded-circle me-3 ${step.completed ? 'bg-success' : 'bg-light'}`}
-                        style={{ width: 18, height: 18, border: '2px solid #198754' }}
-                      >
-                        {step.completed && <i className="ri-check-line text-white" style={{ fontSize: 12, marginLeft: 2 }}></i>}
-                      </span>
-                      <div>
-                        <div className="fw-semibold">{step.label}</div>
-                        <div className="small text-muted">{step.date}</div>
-                      </div>
-                    </li>
-                  ))}
+                  {order.timeline.map((step, idx) => {
+                    const isLast = idx === order.timeline.length - 1;
+                    const completed = step.completed;
+                    return (
+                      <li key={idx} className="mb-3 d-flex align-items-center">
+                        <span
+                          className={`d-inline-block rounded-circle me-3 ${completed ? 'bg-success' : 'bg-light'}`}
+                          style={{
+                            width: 18,
+                            height: 18,
+                            border: completed ? '2px solid #198754' : '2px solid #adb5bd',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {completed && (
+                            <i className="ri-check-line text-white" style={{ fontSize: 12, marginLeft: 2 }}></i>
+                          )}
+                        </span>
+                        <div>
+                          <div className={`fw-semibold${isLast && !completed ? ' text-muted' : ''}`}>{step.label}</div>
+                          <div className={`small${isLast && !completed ? ' text-muted' : ' text-muted'}`}>{step.date}</div>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </CardBody>
             </Card>
