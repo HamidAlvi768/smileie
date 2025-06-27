@@ -20,75 +20,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { getPatients, addPatient } from "../../store/patients/actions";
 import { useToast } from '../../components/Common/ToastContext';
 
-const columns = [
-  {
-    name: "PATIENT NAME",
-    selector: (row) => row.name,
-    sortable: true,
-    minWidth: "200px",
-  },
-  {
-    name: "DOCTOR",
-    selector: (row) => row.doctor,
-    sortable: true,
-    minWidth: "180px",
-  },
-  {
-    name: "CREATED",
-    selector: (row) => row.created,
-    sortable: true,
-    minWidth: "180px",
-  },
-  {
-    name: "STARTED",
-    selector: (row) => row.started,
-    sortable: true,
-    minWidth: "180px",
-  },
-  {
-    name: "STOPPED",
-    selector: (row) => row.stopped,
-    sortable: true,
-    minWidth: "180px",
-  },
-];
-
-const customStyles = {
-  rows: {
-    style: {
-      minHeight: "56px",
-      paddingTop: "8px",
-      paddingBottom: "8px",
-    },
-  },
-  headCells: {
-    style: {
-      paddingLeft: "16px",
-      paddingRight: "16px",
-      fontWeight: "bold",
-      fontSize: "0.9rem",
-      backgroundColor: "#f8f9fa",
-      color: "#495057",
-      borderBottom: "2px solid #e9ecef",
-    },
-  },
-  cells: {
-    style: {
-      paddingLeft: "16px",
-      paddingRight: "16px",
-      fontSize: "0.85rem",
-      verticalAlign: "middle",
-      margin: "4px 0",
-    },
-  },
-};
-
 const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
   const [createPatientModal, setCreatePatientModal] = useState(false);
   const toggleCreatePatient = () => setCreatePatientModal(!createPatientModal);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const patients = useSelector(state => state.patients.patients);
+  const patientsError = useSelector(state => state.patients.error);
+  const successMessage = useSelector(state => state.patients.successMessage);
   const showToast = useToast();
 
   // Form state for create patient
@@ -106,6 +45,158 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     window.scrollTo(0, 0);
     dispatch(getPatients());
   }, [dispatch]);
+
+  // Listen to error changes and show error toast
+  useEffect(() => {
+    if (patientsError) {
+      showToast({ 
+        message: patientsError, 
+        type: 'error', 
+        title: 'Error' 
+      });
+    }
+  }, [patientsError, showToast]);
+
+  // Listen to success message changes and show success toast
+  useEffect(() => {
+    if (successMessage) {
+      showToast({ 
+        message: successMessage, 
+        type: 'success', 
+        title: 'Success' 
+      });
+    }
+  }, [successMessage, showToast]);
+
+  // Add a handler for row click
+  const handleRowClicked = (row) => {
+    // Use a unique identifier for the patient, fallback to name if no id
+    const patientId = row.id || row.name.replace(/\s+/g, '-').toLowerCase();
+    navigate(`/patients/${patientId}`);
+  };
+
+  const columns = [
+    {
+      name: "PATIENT NAME",
+      selector: (row) => row.name,
+      cell: (row) => (
+        <div 
+          className="cell-content"
+          style={{ cursor: "pointer" }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRowClicked(row);
+          }}
+        >
+          {row.name}
+        </div>
+      ),
+      sortable: true,
+      minWidth: "200px",
+    },
+    {
+      name: "DOCTOR",
+      selector: (row) => row.doctor,
+      cell: (row) => (
+        <div 
+          className="cell-content"
+          style={{ cursor: "pointer" }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRowClicked(row);
+          }}
+        >
+          {row.doctor}
+        </div>
+      ),
+      sortable: true,
+      minWidth: "180px",
+    },
+    {
+      name: "CREATED",
+      selector: (row) => row.created,
+      cell: (row) => (
+        <div 
+          className="cell-content"
+          style={{ cursor: "pointer" }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRowClicked(row);
+          }}
+        >
+          {row.created}
+        </div>
+      ),
+      sortable: true,
+      minWidth: "180px",
+    },
+    {
+      name: "STARTED",
+      selector: (row) => row.started,
+      cell: (row) => (
+        <div 
+          className="cell-content"
+          style={{ cursor: "pointer" }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRowClicked(row);
+          }}
+        >
+          {row.started}
+        </div>
+      ),
+      sortable: true,
+      minWidth: "180px",
+    },
+    {
+      name: "STOPPED",
+      selector: (row) => row.stopped,
+      cell: (row) => (
+        <div 
+          className="cell-content"
+          style={{ cursor: "pointer" }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRowClicked(row);
+          }}
+        >
+          {row.stopped}
+        </div>
+      ),
+      sortable: true,
+      minWidth: "180px",
+    },
+  ];
+
+  const customStyles = {
+    rows: {
+      style: {
+        minHeight: "56px",
+        paddingTop: "8px",
+        paddingBottom: "8px",
+      },
+    },
+    headCells: {
+      style: {
+        paddingLeft: "16px",
+        paddingRight: "16px",
+        fontWeight: "bold",
+        fontSize: "0.9rem",
+        backgroundColor: "#f8f9fa",
+        color: "#495057",
+        borderBottom: "2px solid #e9ecef",
+      },
+    },
+    cells: {
+      style: {
+        paddingLeft: "16px",
+        paddingRight: "16px",
+        fontSize: "0.85rem",
+        verticalAlign: "middle",
+        margin: "4px 0",
+      },
+    },
+  };
 
   // Map API patients to table data
   const data = patients && Array.isArray(patients) ? patients.map((p) => ({
@@ -135,13 +226,6 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
       practice: "",
       doctor_name: "",
     });
-    showToast({ message: 'Patient created successfully!', type: 'success', title: 'Success' });
-  };
-
-  // Table row click handler (optional: navigate to patient detail)
-  const handleRowClicked = (row) => {
-    const patientId = row.id || row.name.replace(/\s+/g, '-').toLowerCase();
-    navigate(`/patients/${patientId}`);
   };
 
   return (

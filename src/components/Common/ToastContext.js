@@ -20,6 +20,32 @@ export const ToastProvider = ({ children }) => {
     }, duration);
   }, []);
 
+  const getToastIcon = (type) => {
+    switch (type) {
+      case 'success':
+        return '✓';
+      case 'error':
+        return '✗';
+      case 'warning':
+        return '⚠';
+      default:
+        return 'ℹ';
+    }
+  };
+
+  const getToastColor = (type) => {
+    switch (type) {
+      case 'success':
+        return 'success';
+      case 'error':
+        return 'danger';
+      case 'warning':
+        return 'warning';
+      default:
+        return 'info';
+    }
+  };
+
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
@@ -27,7 +53,11 @@ export const ToastProvider = ({ children }) => {
       <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 2000 }}>
         {toasts.map((toast) => (
           <Toast key={toast.id} isOpen>
-            <ToastHeader icon={toast.type} toggle={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}>
+            <ToastHeader 
+              icon={getToastIcon(toast.type)} 
+              toggle={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
+              className={`bg-${getToastColor(toast.type)} text-white`}
+            >
               <img src={logo} alt="" className="me-2" height="18" />
               {toast.title}
             </ToastHeader>

@@ -7,6 +7,7 @@ import {
 import {
   getDoctorsSuccess,
   addDoctorSuccess,
+  addDoctorMessage,
   apiFail,
   getDoctors
 } from "./actions";
@@ -24,9 +25,20 @@ function* fetchDoctors() {
 function* addDoctorSaga({ payload }) {
   try {
     const response = yield call(addDoctorAPI, payload);
-    yield put(addDoctorSuccess(response));
-    yield put(getDoctors());
+    console.log('Add doctor API response:', response);
+    
+    // Check if the response indicates success
+    if (response.status === "success" || response.id) {
+      yield put(addDoctorSuccess(response));
+      yield put(addDoctorMessage(response.message || "Doctor created successfully!"));
+      yield put(getDoctors()); // Refresh the doctors list
+    } else {
+      // Handle case where API returns success: false or error status
+      const errorMessage = response.message || "Failed to create doctor";
+      yield put(apiFail(errorMessage));
+    }
   } catch (error) {
+    console.error('Add doctor error:', error);
     yield put(apiFail(error));
   }
 }

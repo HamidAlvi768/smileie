@@ -20,11 +20,11 @@ export const headerMenuItems = [
         label: "Not Monitored",
         url: "/patients/not-monitored",
       },
-      {
-        id: "guardians",
-        label: "Guardians",
-        url: "/patients/guardians",
-      },
+      // {
+      //   id: "guardians",
+      //   label: "Guardians",
+      //   url: "/patients/guardians",
+      // },
     ],
   },
   {

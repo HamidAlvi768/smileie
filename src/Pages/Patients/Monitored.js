@@ -144,6 +144,8 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const patients = useSelector((state) => state.patients.patients);
+  const patientsError = useSelector((state) => state.patients.error);
+  const successMessage = useSelector((state) => state.patients.successMessage);
   const doctors = useSelector((state) => state.doctor.doctors) || [];
   const showToast = useToast();
 
@@ -180,6 +182,28 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     dispatch(getDoctors());
   }, [dispatch]);
 
+  // Listen to error changes and show error toast
+  useEffect(() => {
+    if (patientsError) {
+      showToast({ 
+        message: patientsError, 
+        type: 'error', 
+        title: 'Error' 
+      });
+    }
+  }, [patientsError, showToast]);
+
+  // Listen to success message changes and show success toast
+  useEffect(() => {
+    if (successMessage) {
+      showToast({ 
+        message: successMessage, 
+        type: 'success', 
+        title: 'Success' 
+      });
+    }
+  }, [successMessage, showToast]);
+
   // Add a handler for row click
   const handleRowClicked = (row) => {
     // Use a unique identifier for the patient, fallback to name if no id
@@ -201,10 +225,26 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
         ...col,
         cell: (row) => (
           <div className="cell-content">
-            <div className="text-muted" style={{ fontSize: "0.85em" }}>
+            <div 
+              className="text-muted" 
+              style={{ fontSize: "0.85em", cursor: "pointer" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRowClicked(row);
+              }}
+            >
               {row.doctor}
             </div>
-            <div className="fw-bold">{row.name}</div>
+            <div 
+              className="fw-bold"
+              style={{ cursor: "pointer" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRowClicked(row);
+              }}
+            >
+              {row.name}
+            </div>
             <Button
               color="link"
               size="sm"
@@ -213,6 +253,66 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
             >
               + Add label
             </Button>
+          </div>
+        ),
+      };
+    } else if (col.name === "LATEST ACTIVITY") {
+      return {
+        ...col,
+        cell: (row) => (
+          <div 
+            className="cell-content"
+            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRowClicked(row);
+            }}
+          >
+            <div className="text-muted" style={{ fontSize: "0.85em" }}>
+              {row.latestActivityTime}
+            </div>
+            <div>{row.latestActivity}</div>
+          </div>
+        ),
+      };
+    } else if (col.name === "TYPE (MX/MD)") {
+      return {
+        ...col,
+        cell: (row) => (
+          <div 
+            className="cell-content"
+            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRowClicked(row);
+            }}
+          >
+            <div>{row.type}</div>
+            <div className="text-muted" style={{ fontSize: "0.85em" }}>
+              {row.typeDetail}
+            </div>
+          </div>
+        ),
+      };
+    } else if (col.name === "LATEST SCAN") {
+      return {
+        ...col,
+        cell: (row) => (
+          <div 
+            className="cell-content"
+            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRowClicked(row);
+            }}
+          >
+            <div className="fw-bold">{row.latestScan}</div>
+            <div className="text-danger" style={{ fontSize: "0.85em" }}>
+              {row.lateInfo}
+            </div>
+            <div className="text-muted" style={{ fontSize: "0.85em" }}>
+              {row.scanInterval}
+            </div>
           </div>
         ),
       };
@@ -272,11 +372,6 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
       dob: "",
       practice: "",
       doctor_id: "",
-    });
-    showToast({
-      message: "Patient created successfully!",
-      type: "success",
-      title: "Success",
     });
   };
 

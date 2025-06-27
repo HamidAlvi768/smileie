@@ -40,7 +40,7 @@ const LatestTransation = () => {
                                         {recentPatients.map((item, key) => (
                                             <tr key={item.id || key}>
                                                 <td>
-                                                    <h5 className="font-size-15 mb-0">{`${item.first_name || ''} ${item.last_name || item.username || ''}`}</h5>
+                                                    <h5 className="font-size-15 mb-0">{`${item.first_name || ''} ${item.last_name || ''}`}</h5>
                                                 </td>
                                                 <td>{item.age}</td>
                                                 <td>{item.phone}</td>

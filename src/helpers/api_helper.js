@@ -15,22 +15,33 @@ axios.interceptors.response.use(
     return response.data ? response.data : response;
   },
   function (error) {
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    let message;
-    switch (error.status) {
-      case 500:
-        message = "Internal Server Error";
-        break;
-      case 401:
-        message = "Invalid credentials";
-        break;
-      case 404:
-        message = "Sorry! the data you are looking for could not be found";
-        break;
-      default:
-        message = error.message || error;
+    // Controlled API error (validation, etc.)
+    if (
+      error.response &&
+      error.response.data &&
+      error.response.data.status === "error" &&
+      error.response.data.message
+    ) {
+      return Promise.reject(error.response.data.message);
     }
-    return Promise.reject(message);
+    // Unhandled server error (exception, etc.)
+    // Optionally, you can check the request URL or method to customize the message
+    if (
+      error.config &&
+      error.config.url &&
+      error.config.url.includes("/doctors/create")
+    ) {
+      return Promise.reject("Failed to create doctor");
+    }
+    if (
+      error.config &&
+      error.config.url &&
+      error.config.url.includes("/patients/create")
+    ) {
+      return Promise.reject("Failed to create patient");
+    }
+    // Fallback generic message
+    return Promise.reject("An error occurred");
   }
 );
 

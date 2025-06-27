@@ -117,6 +117,8 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const doctorsRaw = useSelector((state) => state.doctor.doctors);
+  const doctorError = useSelector((state) => state.doctor.error);
+  const successMessage = useSelector((state) => state.doctor.successMessage);
   const doctors = Array.isArray(doctorsRaw) ? doctorsRaw : [];
   const [form, setForm] = useState({
     full_name: "",
@@ -136,6 +138,28 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
     window.scrollTo(0, 0);
     dispatch(getDoctors());
   }, [dispatch]);
+
+  // Listen to error changes and show error toast
+  useEffect(() => {
+    if (doctorError) {
+      showToast({ 
+        message: doctorError, 
+        type: 'error', 
+        title: 'Error' 
+      });
+    }
+  }, [doctorError, showToast]);
+
+  // Listen to success message changes and show success toast
+  useEffect(() => {
+    if (successMessage) {
+      showToast({ 
+        message: successMessage, 
+        type: 'success', 
+        title: 'Success' 
+      });
+    }
+  }, [successMessage, showToast]);
 
   // Table row click handler (could navigate to doctor detail page)
   const handleRowClicked = (row) => {
@@ -161,7 +185,6 @@ const DoctorsMonitored = ({ pageTitle = "Doctors" }) => {
       status: "Active",
     });
     console.log("handleCreateDoctor clicked");
-    showToast({ message: 'Doctor created successfully!', type: 'success', title: 'Success' });
   };
 
   return (
