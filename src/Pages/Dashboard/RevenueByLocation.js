@@ -9,11 +9,12 @@ import {
 
 import { Link } from 'react-router-dom';
 
-const markers = [
-  { latLng: [40.7128, -74.0060], name: 'New York (553)' },
-  { latLng: [34.0522, -118.2437], name: 'Los Angeles (387)' },
-  { latLng: [51.5074, -0.1278], name: 'London (520)' }
-];
+// Data aggregated by country using ISO 3166-1 alpha-2 codes
+const countryData = {
+  'US': 940,  // New York (553) + Los Angeles (387)
+  'GB': 520,  // London
+  // Add other countries here e.g., 'CA': 300
+};
 
 const RevenueByLocation = () => {
     return (
@@ -21,35 +22,50 @@ const RevenueByLocation = () => {
             <Col lg={4}>
                 <Card>
                     <CardBody>
-                        <h5 className="card-title mb-3">Patient Distribution</h5>
+                        <h5 className="card-title mb-3">Patient Distribution by Country</h5>
 
                         <div style={{ height: "226px" }}>
                             <VectorMap
-                              map={worldMill}
-                              markers={markers}
-                              markerStyle={{
-                                initial: { fill: '#F8E23B', stroke: '#383f47' }
-                              }}
-                              regionStyle={{
-                                initial: {
-                                  fill: "#a0d8f1", // light blue for land
-                                  "fill-opacity": 1,
-                                  stroke: "#ffffff",
-                                  "stroke-width": 0.5,
-                                  "stroke-opacity": 0.8
-                                },
-                                hover: {
-                                  fill: "#4fc3f7", // darker blue on hover
-                                  "fill-opacity": 1
-                                },
-                                selected: {
-                                  fill: "#0288d1" // even darker blue when selected
-                                }
-                              }}
-                              containerStyle={{
-                                width: '100%',
-                                height: '226px'
-                              }}
+                                map={worldMill}
+                                backgroundColor="transparent" // To match the card's background
+                                series={{
+                                    regions: [
+                                        {
+                                            values: countryData,
+                                            scale: ["#E2F4F4", "#56B3B4"], // Light to dark teal color scale
+                                            normalizeFunction: "polynomial",
+                                            legend: {
+                                                vertical: true,
+                                                title: "Patients"
+                                            },
+                                        },
+                                    ],
+                                }}
+                                onRegionTipShow={(event, label, code) => {
+                                    // Check if the country has data
+                                    if (countryData[code]) {
+                                        label.html(
+                                            `${label.html()}: ${countryData[code]} Patients`
+                                        );
+                                    } else {
+                                         label.html(
+                                            `${label.html()}: No Data`
+                                        );
+                                    }
+                                }}
+                                regionStyle={{
+                                    initial: {
+                                        fill: "#d1d5db", // A neutral grey for countries with no data
+                                    },
+                                    hover: {
+                                        "fill-opacity": 0.8,
+                                        cursor: 'pointer'
+                                    },
+                                }}
+                                containerStyle={{
+                                    width: '100%',
+                                    height: '100%'
+                                }}
                             />
                         </div>
 
@@ -57,16 +73,14 @@ const RevenueByLocation = () => {
                             <div className="d-flex justify-content-between mb-3">
                                 <div>
                                     <p className="text-muted mb-1">Total Patients</p>
-                                    <h5 className="mb-0">1,284</h5>
+                                    {/* Updated total from countryData */}
+                                    <h5 className="mb-0">1,460</h5>
                                 </div>
                                 <div>
                                     <p className="text-muted mb-1">New This Month</p>
                                     <h5 className="mb-0">156</h5>
                                 </div>
                             </div>
-                            {/* <div className="progress" style={{ height: "6px" }}>
-                                <div className="progress-bar bg-primary" role="progressbar" style={{ width: "75%" }}></div>
-                            </div> */}
                         </div>
 
                         <div className="text-center mt-4">

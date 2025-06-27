@@ -656,7 +656,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                     <Input
                       id="search-input"
                       type="search"
-                      placeholder="Search Patients"
+                      placeholder="Patient name"
                       value={searchTerm}
                       onChange={handleSearchChange}
                     />

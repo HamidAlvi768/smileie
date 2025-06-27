@@ -31,39 +31,6 @@ const UserPanel = () => {
                 <div className="flex-shrink-0 me-3 align-self-center">
                   <div className="avatar-sm">
                     <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
-                      <i className="ri-user-line"></i>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex-grow-1 overflow-hidden">
-                  <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Total Users</p>
-                  </div>
-                  <div className="d-flex align-items-center">
-                    <h5 className="mb-0">{stats.users ?? "-"}</h5>
-                    <button
-                      type="button"
-                      className="btn btn-soft-primary btn-sm text-primary ms-auto"
-                      onClick={handleViewAll}
-                    >
-                      View All{" "}
-                      <i className="ri-arrow-right-line align-middle ms-1"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-
-        <Col xl={3} sm={6}>
-          <Card>
-            <CardBody>
-              <div className="d-flex text-muted">
-                <div className="flex-shrink-0 me-3 align-self-center">
-                  <div className="avatar-sm">
-                    <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
                       <i className="ri-user-settings-line"></i>
                     </div>
                   </div>
@@ -164,72 +131,6 @@ const UserPanel = () => {
                     <p className="mb-0">Aligners</p>
                   </div>
                   <h5 className="mb-0">{stats.aligners ?? "-"}</h5>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-        <Col xl={3} sm={6}>
-          <Card>
-            <CardBody>
-              <div className="d-flex text-muted">
-                <div className="flex-shrink-0 me-3 align-self-center">
-                  <div className="avatar-sm">
-                    <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
-                      <i className="ri-file-list-3-line"></i>{" "}
-                      {/* Changed icon to represent treatment plans */}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-grow-1 overflow-hidden">
-                  <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Treatment Plans</p>{" "}
-                    {/* Changed label */}
-                  </div>
-                  <h5 className="mb-0">{stats.plans ?? "-"}</h5>{" "}
-                  {/* Keep or update number as needed */}
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-        <Col xl={3} sm={6}>
-          <Card>
-            <CardBody>
-              <div className="d-flex text-muted">
-                <div className="flex-shrink-0 me-3 align-self-center">
-                  <div className="avatar-sm">
-                    <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
-                      <i className="ri-inbox-archive-line"></i>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-grow-1 overflow-hidden">
-                  <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Impression Kits</p>
-                  </div>
-                  <h5 className="mb-0">{stats.impression_kits ?? "-"}</h5>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-        <Col xl={3} sm={6}>
-          <Card>
-            <CardBody>
-              <div className="d-flex text-muted">
-                <div className="flex-shrink-0 me-3 align-self-center">
-                  <div className="avatar-sm">
-                    <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
-                      <i className="ri-shield-user-line"></i>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-grow-1 overflow-hidden">
-                  <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Retainers</p>
-                  </div>
-                  <h5 className="mb-0">{stats.retainers ?? "-"}</h5>
                 </div>
               </div>
             </CardBody>

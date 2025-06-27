@@ -47,6 +47,7 @@ import {
   receiveMessage,
 } from "../../store/messages/actions";
 import config from '../../config.js';
+import OrderDetail from "./PatientDetailSections/OrderDetail";
 
 // Mock data moved outside the component
 const PATIENT_MOCK_DATA = {
@@ -120,6 +121,7 @@ const NAVBAR_ITEMS_TEMPLATE = [
     },
     */
     { id: "scans", label: "Scans", url: "/patients/:id/scans" },
+    { id: "order", label: "Orders", url: "/patients/:id/order" },
     { id: "history", label: "History", url: "/patients/:id/history" },
   ];
 
@@ -641,6 +643,35 @@ const PatientDetail = () => {
     }
   }, [messages, isCommunicationOpen]);
 
+  // Add a sample order for demonstration
+  const SAMPLE_ORDER = {
+    id: "ORD-20240528-001",
+    type: "Impression Kit",
+    patient: "Stephen Dyos",
+    doctor: "Dr Mark Kruchar",
+    orderDate: "2025-05-28",
+    status: "Shipped",
+    items: [
+      { name: "Impression Kit", qty: 1, price: 99 },
+      { name: "Shipping", qty: 1, price: 10 },
+    ],
+    timeline: [
+      { label: "Ordered", date: "2025-05-28", completed: true },
+      { label: "In Production", date: "2025-05-29", completed: true },
+      { label: "Shipped", date: "2025-05-30", completed: true },
+      { label: "Delivered", date: "2025-06-02", completed: false },
+    ],
+    payment: {
+      status: "Paid",
+      amount: 109,
+      method: "Credit Card",
+      plan: "Installments",
+      receipts: [
+        { id: "RCPT-001", date: "2025-05-28", amount: 109, url: "#" },
+      ],
+    },
+  };
+
   return (
     <div className="page-content">
       <div className="topnav patient-detail-topnav">
@@ -1069,6 +1100,7 @@ const PatientDetail = () => {
                 element={<Scans patient={PATIENT_MOCK_DATA} />}
               />
               <Route path="scans/:scanId" element={<ScanDetail />} />
+              <Route path="order" element={<OrderDetail order={SAMPLE_ORDER} />} />
               <Route path="history" element={<History patient={patient} />} />
               <Route
                 path="*"

@@ -23,6 +23,7 @@ const order = {
     status: "Paid",
     amount: 109,
     method: "Credit Card",
+    plan: "Installments",
     receipts: [
       { id: "RCPT-001", date: "2025-05-28", amount: 109, url: "#" },
     ],
@@ -95,6 +96,7 @@ const OrderDetail = () => {
                 <div className="mb-2"><b>Status:</b> <Badge color={order.payment.status === 'Paid' ? 'success' : 'warning'}>{order.payment.status}</Badge></div>
                 <div className="mb-2"><b>Amount:</b> ${order.payment.amount}</div>
                 <div className="mb-2"><b>Method:</b> {order.payment.method}</div>
+                <div className="mb-2"><b>Payment Plan:</b> {order.payment.plan}</div>
                 <hr />
                 <h6>Receipts</h6>
                 <Table size="sm" borderless className="mb-0">
