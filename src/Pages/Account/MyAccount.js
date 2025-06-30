@@ -14,6 +14,7 @@ import {
   InputGroup,
   InputGroupText
 } from "reactstrap";
+import { API_URL } from "../../config";
 
 const countryCodes = [
   { code: "+1", label: "US/Canada" },
@@ -26,25 +27,51 @@ const languages = ["English", "French", "German", "Spanish"];
 const dentalNotations = ["FDI", "Universal", "Palmer"];
 
 function MyAccount() {
+
   const [form, setForm] = useState({
-    email: "abid@example.com",
-    firstName: "Abid",
-    lastName: "Hussain",
-    mobile: "",
-    countryCode: "+1",
-    twoFA: false,
-    language: "English",
-    redacted: false,
+    email: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-    currentPassword: "",
     dentalNotation: "FDI",
   });
+
+  function getProfile() {
+    console.log("Fetching profile data...");
+    fetch(API_URL + "users/view?id=68")
+      .then(response => response.json())
+      .then(data => {
+        console.log("Profile data fetched:", data);
+        const profile = data.data || {};
+        setForm({
+          ...form,
+          email: profile.email || form.email,
+          firstName: profile.first_name || form.firstName,
+          lastName: profile.last_name || form.lastName,
+          phone: profile.phone || form.phone,
+          language: profile.language || form.language,
+          redacted: profile.redacted || form.redacted,
+          currentPassword: profile.currentPassword || form.currentPassword,
+          newPassword: profile.newPassword || form.newPassword,
+          confirmPassword: profile.confirmPassword || form.confirmPassword,
+          dentalNotation: profile.dentalNotation || form.dentalNotation,
+        });
+      });
+  }
+
+  useState(() => {
+    document.title = "My Account - Smileie";
+
+    getProfile();
+  }, []);
+
 
   // Dummy values
   const practice = "Smileie UK";
   const accountId = "A78B-58F2-W";
-  const softwareVersion = "v2.3.1";
   const udiCode = "UDI-1234567890";
 
   const handleChange = (e) => {
@@ -98,25 +125,12 @@ function MyAccount() {
                   </Col>
                   <Col md={6}>
                     <FormGroup>
-                      <Label for="mobile">Mobile Phone</Label>
+                      <Label for="phone">phone Phone</Label>
                       <InputGroup>
                         <Input
-                          type="select"
-                          name="countryCode"
-                          value={form.countryCode}
-                          onChange={handleChange}
-                          style={{ maxWidth: '140px' }}
-                        >
-                          {countryCodes.map((c) => (
-                            <option key={c.code} value={c.code}>
-                              {c.code} ({c.label})
-                            </option>
-                          ))}
-                        </Input>
-                        <Input
-                          id="mobile"
-                          name="mobile"
-                          value={form.mobile}
+                          id="phone"
+                          name="phone"
+                          value={form.phone}
                           onChange={handleChange}
                           placeholder="1234567890"
                         />
@@ -147,7 +161,7 @@ function MyAccount() {
                   </Col>
                 </Row>
 
-                {/* Mobile Phone and Settings Row */}
+                {/* phone Phone and Settings Row */}
                 <Row>
                   {/* <Col md={6}>
                     <FormGroup>
@@ -205,6 +219,18 @@ function MyAccount() {
                 <Row>
                   <Col md={4}>
                     <FormGroup>
+                      <Label for="currentPassword">Current Password</Label>
+                      <Input
+                        id="currentPassword"
+                        name="currentPassword"
+                        type="password"
+                        value={form.currentPassword}
+                        onChange={handleChange}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col md={4}>
+                    <FormGroup>
                       <Label for="newPassword">New Password</Label>
                       <Input
                         id="newPassword"
@@ -223,18 +249,6 @@ function MyAccount() {
                         name="confirmPassword"
                         type="password"
                         value={form.confirmPassword}
-                        onChange={handleChange}
-                      />
-                    </FormGroup>
-                  </Col>
-                  <Col md={4}>
-                    <FormGroup>
-                      <Label for="currentPassword">Current Password</Label>
-                      <Input
-                        id="currentPassword"
-                        name="currentPassword"
-                        type="password"
-                        value={form.currentPassword}
                         onChange={handleChange}
                       />
                     </FormGroup>

@@ -48,6 +48,7 @@ import {
 } from "../../store/messages/actions";
 import config from '../../config.js';
 import OrderDetail from "./PatientDetailSections/OrderDetail";
+import { API_URL } from "../../config";
 
 // Mock data moved outside the component
 const PATIENT_MOCK_DATA = {
@@ -103,27 +104,27 @@ const OBSERVATION_SUB_OBSERVATIONS_DATA = {
 };
 
 const NAVBAR_ITEMS_TEMPLATE = [
-    { id: "monitoring", label: "Monitoring", url: "/patients/:id/monitoring" },
-    /* Temporarily commented out Protocol
-    { id: "protocol", label: "Protocol", url: "/patients/:id/protocol" },
-    */
-    { id: "info", label: "Info", url: "/patients/:id/info" },
-    /* Temporarily commented out Notes
-    { id: "notes", label: "Notes", url: "/patients/:id/notes" },
-    */
-    { id: "files", label: "Files", url: "/patients/:id/files" },
-    { id: "guardians", label: "Guardians", url: "/patients/:id/guardians" },
-    /* Temporarily commented out Scheduled Actions
-    {
-      id: "scheduled-actions",
-      label: "Scheduled Actions",
-      url: "/patients/:id/scheduled-actions",
-    },
-    */
-    { id: "scans", label: "Scans", url: "/patients/:id/scans" },
-    { id: "order", label: "Orders", url: "/patients/:id/order" },
-    { id: "history", label: "History", url: "/patients/:id/history" },
-  ];
+  { id: "monitoring", label: "Monitoring", url: "/patients/:id/monitoring" },
+  /* Temporarily commented out Protocol
+  { id: "protocol", label: "Protocol", url: "/patients/:id/protocol" },
+  */
+  { id: "info", label: "Info", url: "/patients/:id/info" },
+  /* Temporarily commented out Notes
+  { id: "notes", label: "Notes", url: "/patients/:id/notes" },
+  */
+  { id: "files", label: "Files", url: "/patients/:id/files" },
+  { id: "guardians", label: "Guardians", url: "/patients/:id/guardians" },
+  /* Temporarily commented out Scheduled Actions
+  {
+    id: "scheduled-actions",
+    label: "Scheduled Actions",
+    url: "/patients/:id/scheduled-actions",
+  },
+  */
+  { id: "scans", label: "Scans", url: "/patients/:id/scans" },
+  { id: "order", label: "Orders", url: "/patients/:id/order" },
+  { id: "history", label: "History", url: "/patients/:id/history" },
+];
 
 const QUICK_REPLY_OPTIONS_DATA = [
   {
@@ -210,7 +211,7 @@ function Message({ sender, content, date, time, index, onSaveQuickReply, myId })
   // Determine if this message is sent by the current user
   const isSent = String(sender) === String(myId);
   return (
-    <div 
+    <div
       className="message mb-4 position-relative"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -220,7 +221,7 @@ function Message({ sender, content, date, time, index, onSaveQuickReply, myId })
       </div>
       <div
         className={`p-2 rounded ${isSent ? 'bg-teal text-white' : 'bg-light'}`}
-        style={isSent ? { backgroundColor: '#17c3b2', color: 'white'} : {}}
+        style={isSent ? { backgroundColor: '#17c3b2', color: 'white' } : {}}
       >
         {content}
       </div>
@@ -240,14 +241,94 @@ const PatientDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // Patient ID from URL
 
+  const [patient, setPatient] = useState({
+    name: "Loading...",
+    id: "P-00123",
+    plan: "Photo Monitoring Full",
+    alignerType: "Day Aligner",
+    status: "Active",
+    nextScan: "2025-06-01",
+    alignerNumber: 21,
+    excludedTeeth: "Not Set",
+    started: "2024-01-01",
+    patientApp: "Activated",
+    scanBox: "Assigned",
+    frequency: "Every week (3 day(s) NO-GO)",
+    upperLower: "Both",
+    notificationsPanel: {
+      date: "2024-03-15",
+      title: "New scan received",
+      patientInstruction: "Please continue wearing aligners as prescribed",
+      teamInstruction: "Review scan for proper aligner fit",
+      todo: "Review new scan",
+      instruction: "Remind patient to use chewies daily.",
+      forceGo: "Enabled",
+    },
+    goals: {
+      "General Goals": ["Closure of all anterior space(s)", "Retention phase"],
+      Anteroposterior: ["Class I canine – RIGHT", "Class I canine – LEFT"],
+      Vertical: ["Normal overjet [1.0 ; 3.0] mm", "Correction of open bite"],
+      Transverse: [
+        "Correction of crossbite – RIGHT",
+        "Correction of crossbite – LEFT",
+      ],
+    },
+  });
+
+  function getProfile() {
+    console.log("Fetching profile data...");
+    fetch(API_URL + "users/view?id=68")
+      .then(response => response.json())
+      .then(data => {
+        const _patient = data.data;
+        const newPatient = {
+          name: "Patient Name",
+          id: "P-00123",
+          plan: "Photo Monitoring Full",
+          alignerType: "Day Aligner",
+          status: "Active",
+          nextScan: "2025-06-01",
+          alignerNumber: 21,
+          excludedTeeth: "Not Set",
+          started: "2024-01-01",
+          patientApp: "Activated",
+          scanBox: "Assigned",
+          frequency: "Every week (3 day(s) NO-GO)",
+          upperLower: "Both",
+          notificationsPanel: {
+            date: "2024-03-15",
+            title: "New scan received",
+            patientInstruction: "Please continue wearing aligners as prescribed",
+            teamInstruction: "Review scan for proper aligner fit",
+            todo: "Review new scan",
+            instruction: "Remind patient to use chewies daily.",
+            forceGo: "Enabled",
+          },
+          goals: {
+            "General Goals": ["Closure of all anterior space(s)", "Retention phase"],
+            Anteroposterior: ["Class I canine – RIGHT", "Class I canine – LEFT"],
+            Vertical: ["Normal overjet [1.0 ; 3.0] mm", "Correction of open bite"],
+            Transverse: [
+              "Correction of crossbite – RIGHT",
+              "Correction of crossbite – LEFT",
+            ],
+          },
+        }
+        setPatient(newPatient);
+      }
+      )
+  }
+
+
   // Scroll to top on mount or when patient ID changes
   React.useEffect(() => {
+    getProfile();
     window.scrollTo(0, 0);
   }, [id]);
 
   // Assuming patient data might be fetched or come from a store in a real app
   // For now, using the mock data. 'id' would be used to fetch specific patient data.
-  const patient = PATIENT_MOCK_DATA; 
+  // const patient = patientData //PATIENT_MOCK_DATA;
   const observationSubObservations = OBSERVATION_SUB_OBSERVATIONS_DATA;
   const quickReplyOptions = QUICK_REPLY_OPTIONS_DATA;
   const sidebarSections = SIDEBAR_SECTIONS_DATA;
@@ -338,11 +419,11 @@ const PatientDetail = () => {
     date: "2025-05-26", // Example date, might need to be dynamic
     message: "",
   });
-  
+
   const [scanBoxModalData, setScanBoxModalData] = useState({
     selectedBox: null,
   });
-  
+
   const [frequencyModalData, setFrequencyModalData] = useState({
     scanFrequency: "7",
     followUpFrequency: "3",
@@ -384,7 +465,7 @@ const PatientDetail = () => {
       oralHealth: false,
       intraoral: false,
       retention: false,
-  });
+    });
   const [selectedExcludedTeethSection, setSelectedExcludedTeethSection] =
     useState("overall");
   const [
@@ -401,7 +482,7 @@ const PatientDetail = () => {
       [section]: !prev[section],
     }));
   };
-  
+
   const [addVisitModalData, setAddVisitModalData] = useState({
     date: "2025-05-27",
   });
@@ -464,7 +545,7 @@ const PatientDetail = () => {
     });
     toggleModal("instruction", true);
   };
-  
+
   const openPauseModal = () => {
     setPauseModalData({ date: "2025-05-26", message: "" }); // Reset or fetch default
     toggleModal("pause", true);
@@ -572,8 +653,8 @@ const PatientDetail = () => {
 
   const filteredReplies = quickReplyOptions.filter(
     (reply) =>
-    reply.title.toLowerCase().includes(quickReplySearchQuery.toLowerCase()) ||
-    reply.message.toLowerCase().includes(quickReplySearchQuery.toLowerCase())
+      reply.title.toLowerCase().includes(quickReplySearchQuery.toLowerCase()) ||
+      reply.message.toLowerCase().includes(quickReplySearchQuery.toLowerCase())
   );
   const getSelectedQuickReply = () =>
     quickReplyOptions.find((reply) => reply.id === selectedQuickReplyId);
@@ -724,7 +805,7 @@ const PatientDetail = () => {
             <div className="info-row">
               <span className="patient-name">{patient.name}</span>
               <span className="patient-id">(A78B-58F2-W)</span>{" "}
-              {/* This ID seems different from patient.id */}
+              {/* This ID seems different from patient.id 
               <Button
                 color="link"
                 className="add-label-btn"
@@ -732,7 +813,7 @@ const PatientDetail = () => {
               >
                 <i className="mdi mdi-plus-circle-outline"></i>
                 Add label
-              </Button>
+              </Button>*/}
             </div>
             <a
               href="#"
@@ -743,9 +824,9 @@ const PatientDetail = () => {
               }}
             >
               <i className="mdi mdi-play-circle-outline"></i>
-                BEFORE/AFTER VIDEO
-              </a>
-            </div>
+              BEFORE/AFTER VIDEO
+            </a>
+          </div>
           {/* <div className="action-buttons">
             <Button
               color="link"
@@ -821,10 +902,11 @@ const PatientDetail = () => {
                     <strong>Patient app:</strong>
                     <span>{patient.patientApp || "Activated"}</span>
                   </div>
+                  {/*
                   <div className="mb-2 d-flex align-items-center justify-content-between">
                     <strong>ScanBox:</strong>
                     <div className="d-flex flex-column align-items-end">
-                    <span>{patient.scanBox || "Assigned"}</span>
+                      <span>{patient.scanBox || "Assigned"}</span>
                       <Button
                         color="link"
                         size="sm"
@@ -834,7 +916,7 @@ const PatientDetail = () => {
                         Change
                       </Button>
                     </div>
-                  </div>
+                  </div>*/}
                   <div className="mb-2 d-flex align-items-center justify-content-between">
                     <strong>Next scan:</strong>
                     <span>{patient.nextScan}</span>
@@ -860,7 +942,7 @@ const PatientDetail = () => {
                         <span>Adaptive:</span>
                         <span className="fw-bold ms-1">
                           {adaptiveIntervalSettings.go.enabled ||
-                          adaptiveIntervalSettings.noGo.enabled
+                            adaptiveIntervalSettings.noGo.enabled
                             ? "On"
                             : "Off"}
                         </span>
@@ -1155,7 +1237,7 @@ const PatientDetail = () => {
             <div className="input-area border-top">
               {/* Use a quick reply button */}
               <div className="mb-2">
-                <Button 
+                <Button
                   outline
                   color="primary"
                   size="sm"
@@ -1230,11 +1312,10 @@ const PatientDetail = () => {
             {filteredReplies.map((reply) => (
               <div
                 key={reply.id}
-                className={`p-3 mb-2 rounded quick-reply-item ${
-                  selectedQuickReplyId === reply.id
-                    ? "bg-light border border-primary"
-                    : "border hover:border-primary"
-                }`}
+                className={`p-3 mb-2 rounded quick-reply-item ${selectedQuickReplyId === reply.id
+                  ? "bg-light border border-primary"
+                  : "border hover:border-primary"
+                  }`}
                 onClick={() => setSelectedQuickReplyId(reply.id)}
               >
                 <div className="d-flex justify-content-between align-items-center">
@@ -1253,10 +1334,10 @@ const PatientDetail = () => {
           <Button
             color="primary"
             onClick={() => {
-            const selected = getSelectedQuickReply();
+              const selected = getSelectedQuickReply();
               if (selected) {
-              setCommunicationPanelMessage(selected.message); // Set the main message input
-              toggleModal("quickReply", false);
+                setCommunicationPanelMessage(selected.message); // Set the main message input
+                toggleModal("quickReply", false);
               }
             }}
           >
@@ -1629,22 +1710,20 @@ const PatientDetail = () => {
         <div className="modal-body">
           <div className="d-flex gap-3">
             <div
-              className={`flex-grow-1 p-4 border rounded text-center cursor-pointer ${
-                scanBoxModalData.selectedBox === "scanbox"
-                  ? "border-primary"
-                  : ""
-              }`}
+              className={`flex-grow-1 p-4 border rounded text-center cursor-pointer ${scanBoxModalData.selectedBox === "scanbox"
+                ? "border-primary"
+                : ""
+                }`}
               onClick={() => setScanBoxModalData({ selectedBox: "scanbox" })}
             >
               <i className="mdi mdi-cube-outline mb-3 large-icon"></i>
               <h6>ScanBox</h6>
             </div>
             <div
-              className={`flex-grow-1 p-4 border rounded text-center cursor-pointer ${
-                scanBoxModalData.selectedBox === "scanbox-pro"
-                  ? "border-primary"
-                  : ""
-              }`}
+              className={`flex-grow-1 p-4 border rounded text-center cursor-pointer ${scanBoxModalData.selectedBox === "scanbox-pro"
+                ? "border-primary"
+                : ""
+                }`}
               onClick={() =>
                 setScanBoxModalData({ selectedBox: "scanbox-pro" })
               }
@@ -2034,7 +2113,7 @@ const PatientDetail = () => {
             <div className="row">
               <div className="col-md-6">
                 <FormGroup>
-              <Label for="currentAligner">Current Aligner #</Label>
+                  <Label for="currentAligner">Current Aligner #</Label>
                   <Input
                     type="number"
                     id="currentAligner"
@@ -2049,8 +2128,8 @@ const PatientDetail = () => {
                 </FormGroup>
               </div>
               <div className="col-md-6">
-            <FormGroup>
-              <Label for="totalAligners">Total Aligners</Label>
+                <FormGroup>
+                  <Label for="totalAligners">Total Aligners</Label>
                   <Input
                     type="number"
                     id="totalAligners"
@@ -2108,11 +2187,10 @@ const PatientDetail = () => {
                   {/* Navigation or Search section */}
                   {section.type === "nav" && (
                     <div
-                      className={`nav-item ${
-                        selectedExcludedTeethSection === section.id
-                          ? "selected"
-                          : ""
-                      }`}
+                      className={`nav-item ${selectedExcludedTeethSection === section.id
+                        ? "selected"
+                        : ""
+                        }`}
                       onClick={() =>
                         setSelectedExcludedTeethSection(section.id)
                       }
@@ -2125,11 +2203,10 @@ const PatientDetail = () => {
                   )}
                   {section.type === "search" && (
                     <div
-                      className={`search-section ${
-                        selectedExcludedTeethSection === section.id
-                          ? "selected"
-                          : ""
-                      }`}
+                      className={`search-section ${selectedExcludedTeethSection === section.id
+                        ? "selected"
+                        : ""
+                        }`}
                       onClick={() =>
                         setSelectedExcludedTeethSection(section.id)
                       }
@@ -2152,11 +2229,10 @@ const PatientDetail = () => {
                   {section.type === "expandable" && (
                     <div className="expandable-section">
                       <div
-                        className={`header ${
-                          expandedExcludedTeethSidebarSection === section.id
-                            ? "expanded"
-                            : ""
-                        }`}
+                        className={`header ${expandedExcludedTeethSidebarSection === section.id
+                          ? "expanded"
+                          : ""
+                          }`}
                         onClick={() =>
                           setExpandedExcludedTeethSidebarSection(
                             expandedExcludedTeethSidebarSection === section.id
@@ -2167,11 +2243,10 @@ const PatientDetail = () => {
                       >
                         {section.label}
                         <i
-                          className={`mdi ms-1 ${
-                            expandedExcludedTeethSidebarSection === section.id
-                              ? "mdi-chevron-up"
-                              : "mdi-chevron-down"
-                          }`}
+                          className={`mdi ms-1 ${expandedExcludedTeethSidebarSection === section.id
+                            ? "mdi-chevron-up"
+                            : "mdi-chevron-down"
+                            }`}
                           style={{ float: "right" }}
                         ></i>
                       </div>
@@ -2180,11 +2255,10 @@ const PatientDetail = () => {
                           {section.observations.map((obs) => (
                             <div
                               key={obs}
-                              className={`observation-item ${
-                                selectedExcludedTeethObservation === obs
-                                  ? "selected"
-                                  : ""
-                              }`}
+                              className={`observation-item ${selectedExcludedTeethObservation === obs
+                                ? "selected"
+                                : ""
+                                }`}
                               onClick={() =>
                                 setSelectedExcludedTeethObservation(obs)
                               }
@@ -2208,8 +2282,8 @@ const PatientDetail = () => {
                   {observationSubObservations[
                     selectedExcludedTeethObservation
                   ] &&
-                  observationSubObservations[selectedExcludedTeethObservation]
-                    .length > 0 ? (
+                    observationSubObservations[selectedExcludedTeethObservation]
+                      .length > 0 ? (
                     observationSubObservations[
                       selectedExcludedTeethObservation
                     ].map((sub) => (
@@ -2294,7 +2368,7 @@ const PatientDetail = () => {
             color="light"
             onClick={() => toggleModal("excludedTeeth", false)}
           >
-             Cancel
+            Cancel
           </Button>
           <Button
             color="primary"
@@ -3253,7 +3327,7 @@ const PatientDetail = () => {
           </div>
           <div
             className={`upload-zone`}
-            // Add drag/drop handlers if needed
+          // Add drag/drop handlers if needed
           >
             <input
               type="file"
