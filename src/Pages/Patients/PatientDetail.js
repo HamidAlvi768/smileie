@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux"; // Assuming this is used, though not directly in the provided snippet for patient data
+import { useSelector, useDispatch } from "react-redux";
 import {
   Container,
   Row,
@@ -28,8 +28,9 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import NavBar from "../../Layout/HorizontalLayout/NavBar"; // Assuming this path is correct
-import { setNavbarMenuItems } from "../../store/navigation/actions"; // Assuming this path is correct
+import NavBar from "../../Layout/HorizontalLayout/NavBar";
+import { setNavbarMenuItems } from "../../store/navigation/actions";
+import { getPatientDetail } from "../../store/patients/actions";
 import Monitoring from "./PatientDetailSections/Monitoring";
 import Protocol from "./PatientDetailSections/Protocol";
 import Info from "./PatientDetailSections/Info";
@@ -48,7 +49,6 @@ import {
 } from "../../store/messages/actions";
 import config from '../../config.js';
 import OrderDetail from "./PatientDetailSections/OrderDetail";
-import { API_URL } from "../../config";
 
 // Mock data moved outside the component
 const PATIENT_MOCK_DATA = {
@@ -113,7 +113,7 @@ const NAVBAR_ITEMS_TEMPLATE = [
   { id: "notes", label: "Notes", url: "/patients/:id/notes" },
   */
   { id: "files", label: "Files", url: "/patients/:id/files" },
-  { id: "guardians", label: "Guardians", url: "/patients/:id/guardians" },
+  // { id: "guardians", label: "Guardians", url: "/patients/:id/guardians" },
   /* Temporarily commented out Scheduled Actions
   {
     id: "scheduled-actions",
@@ -240,9 +240,13 @@ const PatientDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams(); // Patient ID from URL
+  const dispatch = useDispatch();
 
-  const [patient, setPatient] = useState({
-    name: "Loading...",
+  // Redux state selectors
+  const { patientDetail, loadingDetail, error } = useSelector((state) => state.patients);
+
+  // Static patient data (all fields except name)
+  const staticPatientData = {
     id: "P-00123",
     plan: "Photo Monitoring Full",
     alignerType: "Day Aligner",
@@ -273,58 +277,26 @@ const PatientDetail = () => {
         "Correction of crossbite – LEFT",
       ],
     },
-  });
+  };
 
-  function getProfile() {
-    console.log("Fetching profile data...");
-    fetch(API_URL + "users/view?id=68")
-      .then(response => response.json())
-      .then(data => {
-        const _patient = data.data;
-        const newPatient = {
-          name: "Patient Name",
-          id: "P-00123",
-          plan: "Photo Monitoring Full",
-          alignerType: "Day Aligner",
-          status: "Active",
-          nextScan: "2025-06-01",
-          alignerNumber: 21,
-          excludedTeeth: "Not Set",
-          started: "2024-01-01",
-          patientApp: "Activated",
-          scanBox: "Assigned",
-          frequency: "Every week (3 day(s) NO-GO)",
-          upperLower: "Both",
-          notificationsPanel: {
-            date: "2024-03-15",
-            title: "New scan received",
-            patientInstruction: "Please continue wearing aligners as prescribed",
-            teamInstruction: "Review scan for proper aligner fit",
-            todo: "Review new scan",
-            instruction: "Remind patient to use chewies daily.",
-            forceGo: "Enabled",
-          },
-          goals: {
-            "General Goals": ["Closure of all anterior space(s)", "Retention phase"],
-            Anteroposterior: ["Class I canine – RIGHT", "Class I canine – LEFT"],
-            Vertical: ["Normal overjet [1.0 ; 3.0] mm", "Correction of open bite"],
-            Transverse: [
-              "Correction of crossbite – RIGHT",
-              "Correction of crossbite – LEFT",
-            ],
-          },
-        }
-        setPatient(newPatient);
-      }
-      )
-  }
-
+  // Combine static data with dynamic name from API
+  const patient = {
+    ...staticPatientData,
+    name: patientDetail?.full_name || "Loading...",
+  };
 
   // Scroll to top on mount or when patient ID changes
   React.useEffect(() => {
-    getProfile();
     window.scrollTo(0, 0);
   }, [id]);
+  
+  // Fetch patient details when component mounts or ID changes
+  useEffect(() => {
+    if (id) {
+      dispatch(getPatientDetail(id));
+      console.log(patient)
+    }
+  }, [id, dispatch]);
 
   // Assuming patient data might be fetched or come from a store in a real app
   // For now, using the mock data. 'id' would be used to fetch specific patient data.
@@ -662,8 +634,7 @@ const PatientDetail = () => {
   // Get the current section from the URL hash
   const currentSection = location.hash.replace("#", "") || "monitoring";
 
-  const dispatch = useDispatch();
-  const { messages, loading, error, sending } = useSelector((state) => state.messages);
+  const { messages, loading, sending } = useSelector((state) => state.messages);
 
   // Dummy user IDs for SSE (replace with real logic as needed)
   const user = JSON.parse(localStorage.getItem("authUser"));
@@ -803,17 +774,10 @@ const PatientDetail = () => {
           </div>
           <div className="patient-info">
             <div className="info-row">
-              <span className="patient-name">{patient.name}</span>
-              <span className="patient-id">(A78B-58F2-W)</span>{" "}
-              {/* This ID seems different from patient.id 
-              <Button
-                color="link"
-                className="add-label-btn"
-                onClick={openCreateLabelModal}
-              >
-                <i className="mdi mdi-plus-circle-outline"></i>
-                Add label
-              </Button>*/}
+              <span className="patient-name">
+                {loadingDetail ? "Loading..." : patient.name}
+              </span>
+              <span className="patient-id">(A78B-58F2-W)</span>
             </div>
             <a
               href="#"
@@ -827,26 +791,6 @@ const PatientDetail = () => {
               BEFORE/AFTER VIDEO
             </a>
           </div>
-          {/* <div className="action-buttons">
-            <Button
-              color="link"
-              className="add-visit-btn"
-              onClick={() => {
-                toggleModal("newAction", false);
-                openAddVisitModal();
-              }}
-            >
-              Add a visit
-            </Button>
-            <Button
-              color="primary"
-              className="new-action-btn"
-              onClick={() => toggleModal("newAction", true)}
-            >
-              <i className="mdi mdi-plus-circle-outline"></i>
-              New action
-            </Button>
-          </div> */}
         </div>
       </Container>
       <Container fluid>
@@ -1287,7 +1231,7 @@ const PatientDetail = () => {
       >
         <div className="modal-header">
           <h5 className="modal-title">
-            Select a quick reply to send to your patient {patient.name}
+            Select a quick reply to send to your patient {patient.full_name}
           </h5>
           <button
             type="button"

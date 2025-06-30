@@ -29,7 +29,7 @@ const Login = () => {
   return (
     <React.Fragment>
       <div className="bg-overlay"></div>
-      <div className="account-pages my-5 pt-5">
+      <div className="account-pages">
         <Container>
           <Row className="justify-content-center align-items-center min-vh-100">
             <Col xs={12} sm={10} md={8} lg={6} xl={4}>

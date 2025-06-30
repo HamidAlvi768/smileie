@@ -41,7 +41,17 @@ function MyAccount() {
 
   function getProfile() {
     console.log("Fetching profile data...");
-    fetch(API_URL + "users/view?id=68")
+    
+    // Get user ID from localStorage
+    const authUser = JSON.parse(localStorage.getItem("authUser"));
+    const userId = authUser?.id;
+    
+    if (!userId) {
+      console.error("No user ID found in localStorage");
+      return;
+    }
+    
+    fetch(API_URL + `users/view?id=${userId}`)
       .then(response => response.json())
       .then(data => {
         console.log("Profile data fetched:", data);
@@ -59,6 +69,9 @@ function MyAccount() {
           confirmPassword: profile.confirmPassword || form.confirmPassword,
           dentalNotation: profile.dentalNotation || form.dentalNotation,
         });
+      })
+      .catch(error => {
+        console.error("Error fetching profile:", error);
       });
   }
 

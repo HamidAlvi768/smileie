@@ -1,7 +1,7 @@
 import { call, put, takeEvery } from "redux-saga/effects";
-import { getPatientsAPI, addPatientAPI, getRecentPatientsAPI } from "../../helpers/api_helper";
-import { GET_PATIENTS, ADD_PATIENT, GET_RECENT_PATIENTS } from "./actionTypes";
-import { getPatientsSuccess, patientsApiFail, addPatientSuccess, addPatientMessage, getPatients, getRecentPatientsSuccess } from "./actions";
+import { getPatientsAPI, addPatientAPI, getRecentPatientsAPI, getPatientDetailAPI } from "../../helpers/api_helper";
+import { GET_PATIENTS, ADD_PATIENT, GET_RECENT_PATIENTS, GET_PATIENT_DETAIL } from "./actionTypes";
+import { getPatientsSuccess, patientsApiFail, addPatientSuccess, addPatientMessage, getPatients, getRecentPatientsSuccess, getPatientDetailSuccess } from "./actions";
 
 function* fetchPatients() {
   try {
@@ -28,7 +28,6 @@ function* addPatientSaga({ payload }) {
   }
 }
 
-
 function* fetchRecentPatients() {
   try {
     const response = yield call(getRecentPatientsAPI);
@@ -38,10 +37,20 @@ function* fetchRecentPatients() {
   }
 }
 
+function* fetchPatientDetail({ payload }) {
+  try {
+    const response = yield call(getPatientDetailAPI, payload);
+    yield put(getPatientDetailSuccess(response));
+  } catch (error) {
+    yield put(patientsApiFail(error));
+  }
+}
+
 function* patientsSaga() {
   yield takeEvery(GET_PATIENTS, fetchPatients);
   yield takeEvery(ADD_PATIENT, addPatientSaga);
   yield takeEvery(GET_RECENT_PATIENTS, fetchRecentPatients);
+  yield takeEvery(GET_PATIENT_DETAIL, fetchPatientDetail);
 }
 
 export default patientsSaga; 

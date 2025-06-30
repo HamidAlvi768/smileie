@@ -109,11 +109,9 @@ const Header = (props) => {
     }
     if (!menu.navbarItems) return false;
     // For patient-list and patient-detail, use robust path matching
-    if (menu.id === 'patient-list') {
-      return isPathActive(location.pathname, '/patients');
-    }
-    if (menu.id === 'patient-detail') {
-      return /^\/patients\/[\w-]+/.test(location.pathname);
+    if (menu.id === 'patients') {
+      // Mark as active for any /patients route (including /patients/:id/...)
+      return location.pathname.startsWith('/patients/');
     }
     return menu.navbarItems.some((sub) => isPathActive(location.pathname, sub.url));
   };
@@ -173,7 +171,7 @@ const Header = (props) => {
                   type="button"
                   className={`btn header-item${
                     getMenuIsActive(menu) ? " active" : ""
-                  }`}
+                  }${menu.navbarItems && menu.navbarItems.length > 0 ? " has-submenu" : ""}`}
                   onClick={() => handleMenuClick(menu)}
                   style={{ position: 'relative' }}
                 >

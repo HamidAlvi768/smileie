@@ -118,18 +118,23 @@
     border-radius: 0px;
 
     &:hover {
-        color: var(--#{$prefix}header-item-color);
+        // color: var(--#{$prefix}header-item-color) !important;
+        background-color: var(--#{$prefix}header-dark-bg), 0.7;
     }
-
+    
     &.active,
     &:focus,
     &:hover {
-        color: $primary !important;
+        // color: rgba($white, 0.7);
         font-weight: 600;
-        border-radius: 6px;
+        // border-radius: 6px;
         transition: background 0.2s, color 0.2s;
     }
-
+    &.active{
+        background-color: var(--#{$prefix}header-dark-bg);
+        border-radius: 0px;
+    }
+    
     &.active::after,
     &:focus::after,
     &:hover::after {
@@ -140,9 +145,33 @@
         right: 10px;
         bottom: 15px;
         height: 3px;
-        background: #1da5fe;
+        // background: #1da5fe;
         border-radius: 2px;
         transition: all 0.2s;
+    }
+}
+
+// Style for header items with sub-menus (navbarItems)
+.header-item.has-submenu {
+    background-color: inherit;
+    &:hover {
+        background-color: #e9ecef;
+    }
+    &.active {
+        background-color: var(--#{$prefix}header-dark-bg);
+        color: rgba($white, 0.7);;
+    }
+}
+
+// Add special background to header items WITHOUT sub-menus
+.header-item:not(.has-submenu) {
+    &:hover {
+        background-color: #e9ecef; // Darker on hover
+
+    }
+    &.active {
+        background-color: #1da5fe; // Blue background when active
+        color: white;
     }
 }
 
@@ -256,6 +285,30 @@ body[data-topbar="dark"] {
 
         &:hover {
             color: $header-dark-item-color;
+        }
+    }
+
+    // Dark theme styling for sub-menu items
+    .header-item.has-submenu {
+        background-color: inherit;
+        &:hover {
+            background-color: inherit;
+        }
+        &.active {
+            background-color: var(--#{$prefix}header-dark-bg);
+            color: inherit;
+        }
+    }
+
+    // Dark theme support
+    .header-item:not(.has-submenu) {
+        background-color: rgba($white, 0.1);
+        &:hover {
+            background-color: rgba($white, 0.2);
+        }
+        &.active {
+            background-color: rgba($white, 0.3);
+            color: $white;
         }
     }
 

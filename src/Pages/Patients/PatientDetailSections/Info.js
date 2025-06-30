@@ -1,36 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input } from 'reactstrap';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const Info = ({ patient }) => {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  // Get patient detail from Redux (already fetched in PatientDetail.js)
+  const patientDetail = useSelector(state => state.patients.patientDetail) || {};
+
   // State for edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editedInfo, setEditedInfo] = useState(null);
 
-  // Mock data - in a real app, this would come from props or an API
-  const initialPatientInfo = {
-    firstName: 'Paula',
-    lastName: 'Barr',
-    email: 'yogz74@hotmail.co.uk',
-    secondaryEmail: '',
-    language: 'en',
-    appActivation: 'Yes',
-    dateOfBirth: 'Mar 16, 1973',
-    scanProcessVersion: 'v1',
-    adapterInstructions: 'Disabled',
-    scanSequenceOrder: 'Aligners in first',
-    practice: 'Smilie UK'
+  // Map API fields to UI fields
+  const patientInfo = {
+    firstName: patientDetail.first_name || '',
+    lastName: patientDetail.last_name || '',
+    email: patientDetail.email || '',
+    language: 'en', // Not in API, keep as default or from patientDetail if available
+    appActivation: 'Yes', // Not in API, keep as default or from patientDetail if available
+    dateOfBirth: patientDetail.dob || '',
+    practice: patientDetail.practice || '',
   };
 
-  // Initialize editedInfo with initialPatientInfo
-  const [patientInfo, setPatientInfo] = useState(initialPatientInfo);
-
+  // When opening the modal, initialize editedInfo with current values
   const toggleEditModal = () => {
     if (!isEditModalOpen) {
-      // When opening the modal, initialize editedInfo with current values
       setEditedInfo({ ...patientInfo });
     }
     setIsEditModalOpen(!isEditModalOpen);
@@ -45,9 +42,11 @@ const Info = ({ patient }) => {
   };
 
   const handleSave = () => {
-    setPatientInfo(editedInfo);
-    toggleEditModal();
     // In a real app, you would make an API call here to save the changes
+    // For now, just close the modal
+    toggleEditModal();
+    // Optionally update Redux or local state if needed
+    // setPatientInfo(editedInfo);
     console.log('Saving changes:', editedInfo);
   };
 
@@ -97,22 +96,6 @@ const Info = ({ patient }) => {
         </div>
         <div className="form-group-fourth">
           <FormGroup>
-            <Label for="secondaryEmail">Secondary Email</Label>
-            <Input
-              type="email"
-              name="secondaryEmail"
-              id="secondaryEmail"
-              value={editedInfo.secondaryEmail}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-        </div>
-      </div>
-
-      {/* Settings Group */}
-      <div className="form-group-row">
-        <div className="form-group-fourth">
-          <FormGroup>
             <Label for="language">Language</Label>
             <Input
               type="select"
@@ -128,6 +111,9 @@ const Info = ({ patient }) => {
             </Input>
           </FormGroup>
         </div>
+      </div>
+      {/* Settings Group */}
+      <div className="form-group-row">
         <div className="form-group-fourth">
           <FormGroup>
             <Label for="appActivation">App Activation</Label>
@@ -153,56 +139,6 @@ const Info = ({ patient }) => {
               value={editedInfo.dateOfBirth}
               onChange={handleInputChange}
             />
-          </FormGroup>
-        </div>
-
-      {/* Scan Settings Group */}
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="scanProcessVersion">Scan Process Version</Label>
-            <Input
-              type="select"
-              name="scanProcessVersion"
-              id="scanProcessVersion"
-              value={editedInfo.scanProcessVersion}
-              onChange={handleInputChange}
-            >
-              <option value="v1">v1</option>
-              <option value="v2">v2</option>
-              <option value="v3">v3</option>
-            </Input>
-          </FormGroup>
-        </div>
-      </div>
-      <div className="form-group-row">
-        <div className="form-group-third">
-          <FormGroup>
-            <Label for="adapterInstructions">Adapter Instructions</Label>
-            <Input
-              type="select"
-              name="adapterInstructions"
-              id="adapterInstructions"
-              value={editedInfo.adapterInstructions}
-              onChange={handleInputChange}
-            >
-              <option value="Enabled">Enabled</option>
-              <option value="Disabled">Disabled</option>
-            </Input>
-          </FormGroup>
-        </div>
-        <div className="form-group-third">
-          <FormGroup>
-            <Label for="scanSequenceOrder">Scan Sequence Order</Label>
-            <Input
-              type="select"
-              name="scanSequenceOrder"
-              id="scanSequenceOrder"
-              value={editedInfo.scanSequenceOrder}
-              onChange={handleInputChange}
-            >
-              <option value="Aligners in first">Aligners in first</option>
-              <option value="Scans in first">Scans in first</option>
-            </Input>
           </FormGroup>
         </div>
         <div className="form-group-third">
@@ -247,10 +183,6 @@ const Info = ({ patient }) => {
               <div>{patientInfo.email}</div>
             </div>
             <div className="info-item">
-              <label>Secondary Email</label>
-              <div>{patientInfo.secondaryEmail || '-'}</div>
-            </div>
-            <div className="info-item">
               <label>Language</label>
               <div>{patientInfo.language.toUpperCase()}</div>
             </div>
@@ -265,18 +197,6 @@ const Info = ({ patient }) => {
             <div className="info-item">
               <label>Date of Birth</label>
               <div>{patientInfo.dateOfBirth}</div>
-            </div>
-            <div className="info-item">
-              <label>Scan Process Version</label>
-              <div>{patientInfo.scanProcessVersion}</div>
-            </div>
-            <div className="info-item">
-              <label>Adapter Instructions</label>
-              <div>{patientInfo.adapterInstructions}</div>
-            </div>
-            <div className="info-item">
-              <label>Scan Sequence Order</label>
-              <div>{patientInfo.scanSequenceOrder}</div>
             </div>
             <div className="info-item">
               <label>Practice</label>

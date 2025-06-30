@@ -3,7 +3,7 @@ export const POST_FAKE_REGISTER = "/post-fake-register";
 
 //LOGIN
 export const POST_FAKE_LOGIN = "/post-fake-login";
-export const POST_FAKE_JWT_LOGIN = "/post-jwt-login";
+export const POST_FAKE_JWT_LOGIN = "/post-jwt-fake-login";
 export const POST_FAKE_PASSWORD_FORGET = "/fake-forget-pwd";
 export const POST_FAKE_JWT_PASSWORD_FORGET = "/jwt-forget-pwd";
 export const SOCIAL_LOGIN = "/social-login";
@@ -45,6 +45,7 @@ export const DELETE_GENERAL_TYPE_API = "/generic-records/delete";
 export const GET_PATIENTS_API = `/patients?_=${Date.now()}`;
 export const ADD_PATIENT_API = "/patients/create";
 export const GET_RECENT_PATIENTS_API = "/patients/recent";
+export const GET_PATIENT_DETAIL_API = "/patients/view";
 
 //tutorials
 export const GET_TUTORIALS_API = "/tutorials";

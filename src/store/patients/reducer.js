@@ -1,10 +1,12 @@
-import { GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS_SUCCESS } from "./actionTypes";
+import { GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL_SUCCESS, GET_PATIENT_DETAIL } from "./actionTypes";
 
 const INIT_STATE = {
   patients: [],
   error: null,
   successMessage: null,
   recentPatients: [],
+  patientDetail: null,
+  loadingDetail: false,
 };
 
 const patientsReducer = (state = INIT_STATE, action) => {
@@ -19,6 +21,10 @@ const patientsReducer = (state = INIT_STATE, action) => {
       return { ...state, error: action.payload, successMessage: null };
     case GET_RECENT_PATIENTS_SUCCESS:
       return { ...state, recentPatients: action.payload.data };
+    case GET_PATIENT_DETAIL:
+      return { ...state, loadingDetail: true, error: null };
+    case GET_PATIENT_DETAIL_SUCCESS:
+      return { ...state, patientDetail: action.payload.data, loadingDetail: false, error: null };
     default:
       return state;
   }

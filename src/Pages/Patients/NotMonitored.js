@@ -228,28 +228,25 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
           <CardBody>
             {/* Filter Section (now inside Card) */}
             <div className="control-panel">
-              {/* Search Bar */}
+              {/* Single Row for Search and Filters (Monitored.js style) */}
               <Row className="mb-3 align-items-center">
-                <Col>
+                <Col md={2} sm={6} xs={12} className="mb-2">
                   <div>
                     <label className="form-label" htmlFor="search-input">
-                      Search in name/email/profile ID/external ID
+                      Search Patients
                     </label>
                     <Input
                       id="search-input"
                       type="search"
-                      placeholder="Search in name/email/profile ID/external ID"
+                      placeholder="Patient name"
                       value={searchTerm}
                       onChange={handleSearchChange}
                     />
                   </div>
                 </Col>
-              </Row>
-              {/* Filter Panel - Single Row */}
-              <Row className="mb-3 g-2">
                 {filterRowKeys.map((key) => (
                   <Col md={2} sm={6} xs={12} key={key} className="mb-2">
-                    <label className="form-label" htmlFor={`filter-${key}`}> 
+                    <label className="form-label" htmlFor={`filter-${key}`}>
                       {filterLabels[key] || key}
                     </label>
                     <Input
