@@ -138,7 +138,21 @@ const customStyles = {
 const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   const [createPatientModal, setCreatePatientModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const toggleCreatePatient = () => setCreatePatientModal(!createPatientModal);
+  const toggleCreatePatient = () => {
+    if (createPatientModal) {
+      // Modal is being closed, reset form
+      setPatientForm({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        dob: "",
+        practice: "",
+        doctor_id: "",
+      });
+    }
+    setCreatePatientModal(!createPatientModal);
+  };
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const patients = useSelector((state) => state.patients.patients);
@@ -158,7 +172,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   const [selectedPatientName, setSelectedPatientName] = useState("");
 
   // Form state for create patient
-  const [patientForm, setPatientForm] = useState({
+  const initialPatientForm = {
     first_name: "",
     last_name: "",
     email: "",
@@ -166,7 +180,8 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     dob: "",
     practice: "",
     doctor_id: "",
-  });
+  };
+  const [patientForm, setPatientForm] = useState(initialPatientForm);
 
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -373,30 +388,18 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   const handleCreatePatient = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
     try {
       // Add patient
       await dispatch(addPatient(patientForm));
-      
       // Close modal and reset form
       setCreatePatientModal(false);
-      setPatientForm({
-        first_name: "",
-        last_name: "",
-        email: "",
-        phone: "",
-        dob: "",
-        practice: "",
-        doctor_id: "",
-      });
-      
+      setPatientForm(initialPatientForm);
       // Show success message
       showToast({
         message: "Patient created successfully!",
         type: "success",
         title: "Success",
       });
-      
     } catch (error) {
       console.error("Error creating patient:", error);
       showToast({

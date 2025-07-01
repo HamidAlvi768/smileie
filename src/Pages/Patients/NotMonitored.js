@@ -95,7 +95,6 @@ const filterOptions = {
   alignerType: ["Day Aligner", "Night Aligner"],
   alignerStatus: ["All", "In progress", "Finished", "Aligner number not set"],
   appActivation: ["All", "Activated", "Not activated"],
-  monitoringStatus: ["All", "In progress", "Paused"],
 };
 
 const filterLabels = {
@@ -103,7 +102,6 @@ const filterLabels = {
   alignerType: "Aligner Type",
   alignerStatus: "Aligner status",
   appActivation: "App activation",
-  monitoringStatus: "Monitoring Status",
 };
 
 // Merge filter keys into a single array for one row
@@ -112,7 +110,6 @@ const filterRowKeys = [
   "alignerType",
   "alignerStatus",
   "appActivation",
-  "monitoringStatus",
 ];
 
 const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
@@ -141,7 +138,6 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     alignerType: "Day Aligner",
     alignerStatus: "All",
     appActivation: "All",
-    monitoringStatus: "All",
   });
 
   useEffect(() => {

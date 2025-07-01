@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 
 const RecoverPassword = () => {
   document.title =
-    "Recover Password | Upzet - React Admin & Dashboard Template";
+    "Recover Password | Smileie - React Admin & Dashboard Template";
   return (
     <React.Fragment>
       <div className="bg-pattern" style={{ height: "100vh" }}>
@@ -40,18 +40,12 @@ const RecoverPassword = () => {
                         Reset Password
                       </h4>
                       <p className="mb-5 text-center">
-                        Reset your Password with Upzet.
+                        Reset your Password with Smileie.
                       </p>
                       <form className="form-horizontal" action="#">
                         <Row>
                           <Col md={12}>
                             <div className="alert alert-warning alert-dismissible">
-                              <button
-                                type="button"
-                                className="btn-close"
-                                data-bs-dismiss="alert"
-                                aria-label="Close"
-                              ></button>
                               Enter your <b>Email</b> and instructions will be
                               sent to you!
                             </div>
@@ -79,6 +73,11 @@ const RecoverPassword = () => {
                           </Col>
                         </Row>
                       </form>
+                      <div className="text-center mt-3">
+                        <Link to="/login" className="btn btn-link p-0 text-primary" style={{textDecoration: 'underline', fontWeight: 500}}>
+                          <i className="mdi mdi-arrow-left me-1"></i> Back to Login
+                        </Link>
+                      </div>
                     </div>
                   </CardBody>
                 </Card>

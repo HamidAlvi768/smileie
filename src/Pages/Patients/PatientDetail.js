@@ -846,64 +846,9 @@ const PatientDetail = () => {
                     <strong>Patient app:</strong>
                     <span>{patient.patientApp || "Activated"}</span>
                   </div>
-                  {/*
                   <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>ScanBox:</strong>
-                    <div className="d-flex flex-column align-items-end">
-                      <span>{patient.scanBox || "Assigned"}</span>
-                      <Button
-                        color="link"
-                        size="sm"
-                        className="p-0"
-                        onClick={openScanBoxModal}
-                      >
-                        Change
-                      </Button>
-                    </div>
-                  </div>*/}
-                  <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>Next scan:</strong>
+                    <strong>Next aligner:</strong>
                     <span>{patient.nextScan}</span>
-                  </div>
-                  <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong className="align-self-baseline">Frequency:</strong>
-                    <div className="d-flex flex-column align-items-end">
-                      <span>
-                        {patient.frequency ||
-                          `Every ${frequencyModalData.scanFrequency} day(s) (${frequencyModalData.followUpFrequency} day(s) NO-GO)`}
-                      </span>
-                      <div className="d-flex gap-2">
-                        <Button
-                          color="link"
-                          size="sm"
-                          className="p-0"
-                          onClick={openFrequencyModal}
-                        >
-                          Change
-                        </Button>
-                      </div>
-                      <div className="mt-2">
-                        <span>Adaptive:</span>
-                        <span className="fw-bold ms-1">
-                          {adaptiveIntervalSettings.go.enabled ||
-                            adaptiveIntervalSettings.noGo.enabled
-                            ? "On"
-                            : "Off"}
-                        </span>
-                      </div>
-                      <Button
-                        color="link"
-                        size="sm"
-                        className="p-0"
-                        onClick={openAdaptiveIntervalModal}
-                      >
-                        Change
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>Upper/Lower:</strong>
-                    <span>{patient.upperLower || "Both"}</span>
                   </div>
                   <div className="mb-2 d-flex align-items-center justify-content-between">
                     <strong>Aligner #:</strong>
@@ -919,20 +864,6 @@ const PatientDetail = () => {
                       </Button>
                     </div>
                   </div>
-                  {/* <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>Excluded teeth:</strong>
-                    <div className="d-flex flex-column align-items-end">
-                      <span>{patient.excludedTeeth}</span>
-                      <Button
-                        color="link"
-                        size="sm"
-                        className="p-0"
-                        onClick={() => toggleModal("excludedTeeth", true)}
-                      >
-                        Edit
-                      </Button>
-                    </div>
-                  </div> */}
                 </CardBody>
               </Collapse>
             </Card>

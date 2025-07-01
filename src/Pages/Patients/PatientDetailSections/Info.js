@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input } from 'reactstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { updatePatientDetail } from '../../../store/patients/actions';
 
 const Info = ({ patient }) => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const dispatch = useDispatch();
 
   // Get patient detail from Redux (already fetched in PatientDetail.js)
   const patientDetail = useSelector(state => state.patients.patientDetail) || {};
+  const updatingDetail = useSelector(state => state.patients.updatingDetail);
 
   // State for edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -19,7 +22,7 @@ const Info = ({ patient }) => {
     firstName: patientDetail.first_name || '',
     lastName: patientDetail.last_name || '',
     email: patientDetail.email || '',
-    language: 'en', // Not in API, keep as default or from patientDetail if available
+    phone: patientDetail.phone || '',
     appActivation: 'Yes', // Not in API, keep as default or from patientDetail if available
     dateOfBirth: patientDetail.dob || '',
     practice: patientDetail.practice || '',
@@ -42,13 +45,24 @@ const Info = ({ patient }) => {
   };
 
   const handleSave = () => {
-    // In a real app, you would make an API call here to save the changes
-    // For now, just close the modal
-    toggleEditModal();
-    // Optionally update Redux or local state if needed
-    // setPatientInfo(editedInfo);
-    console.log('Saving changes:', editedInfo);
+    // Prepare data for API (convert UI fields to API fields)
+    const data = {
+      first_name: editedInfo.firstName,
+      last_name: editedInfo.lastName,
+      email: editedInfo.email,
+      phone: editedInfo.phone,
+      dob: editedInfo.dateOfBirth,
+      practice: editedInfo.practice,
+    };
+    dispatch(updatePatientDetail(patientDetail.id, data));
   };
+
+  // Close modal when update is done and not loading
+  React.useEffect(() => {
+    if (!updatingDetail && isEditModalOpen) {
+      setIsEditModalOpen(false);
+    }
+  }, [updatingDetail]);
 
   const handleManageGuardians = () => {
     navigate(`/patients/${id}/guardians`);
@@ -96,19 +110,14 @@ const Info = ({ patient }) => {
         </div>
         <div className="form-group-fourth">
           <FormGroup>
-            <Label for="language">Language</Label>
+            <Label for="phone">Phone</Label>
             <Input
-              type="select"
-              name="language"
-              id="language"
-              value={editedInfo.language}
+              type="text"
+              name="phone"
+              id="phone"
+              value={editedInfo.phone}
               onChange={handleInputChange}
-            >
-              <option value="en">English</option>
-              <option value="fr">French</option>
-              <option value="es">Spanish</option>
-              <option value="de">German</option>
-            </Input>
+            />
           </FormGroup>
         </div>
       </div>
@@ -183,8 +192,8 @@ const Info = ({ patient }) => {
               <div>{patientInfo.email}</div>
             </div>
             <div className="info-item">
-              <label>Language</label>
-              <div>{patientInfo.language.toUpperCase()}</div>
+              <label>Phone</label>
+              <div>{patientInfo.phone}</div>
             </div>
             <div className="info-item">
               <label>App Activation</label>
@@ -233,8 +242,10 @@ const Info = ({ patient }) => {
           {editedInfo && renderEditForm()}
         </ModalBody>
         <ModalFooter>
-          <Button color="light" onClick={toggleEditModal}>Cancel</Button>
-          <Button color="primary" onClick={handleSave}>Save Changes</Button>
+          <Button color="light" onClick={toggleEditModal} disabled={updatingDetail}>Cancel</Button>
+          <Button color="primary" onClick={handleSave} disabled={updatingDetail}>
+            {updatingDetail ? 'Saving...' : 'Save Changes'}
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

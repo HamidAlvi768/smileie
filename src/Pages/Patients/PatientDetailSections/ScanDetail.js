@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardBody, Button, Modal, ModalBody } from 'reactstrap';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 // Use the provided image for all thumbnails
 const intraoralImg = require('../../../assets/images/intraoral_1.jpg');
@@ -176,6 +178,32 @@ const ScanDetail = () => {
     };
   }, [isModalOpen]);
 
+  const handleDownloadAllPhotos = async (e) => {
+    e.preventDefault();
+    if (!allImages.length) return;
+    const zip = new JSZip();
+    const folder = zip.folder('photos');
+    // Fetch all images as blobs and add to zip
+    await Promise.all(
+      allImages.map(async (img, idx) => {
+        try {
+          // If img.src is a require() result, it may be a module with default
+          const url = typeof img.src === 'string' ? img.src : img.src.default || img.src;
+          const response = await fetch(url);
+          const blob = await response.blob();
+          // Use a meaningful filename
+          const ext = url.split('.').pop().split('?')[0];
+          const name = `${img.section.replace(/\s+/g, '_')}_${img.subsection.replace(/\s+/g, '_')}_${idx + 1}.${ext}`;
+          folder.file(name, blob);
+        } catch (err) {
+          // Skip failed images
+        }
+      })
+    );
+    const content = await zip.generateAsync({ type: 'blob' });
+    saveAs(content, 'photos.zip');
+  };
+
   return (
     <div className="scan-detail-section">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -185,7 +213,7 @@ const ScanDetail = () => {
             <i className="mdi mdi-arrow-left"></i> Back to the list
           </a>
         </div>
-        <a href="#" className="small text-primary fw-bold">
+        <a href="#" className="small text-primary fw-bold" onClick={handleDownloadAllPhotos}>
           <i className="mdi mdi-download me-1"></i>Download all photos
         </a>
       </div>
@@ -193,7 +221,7 @@ const ScanDetail = () => {
       <Card>
         <CardBody>
           {mockScan.sections.map((section) => (
-            <div key={section.name} className="mb-4">
+            <div key={section.name} className="mb-4 border bg-light-subtle p-3 rounded">
               <div className="section-header mb-2">
                 <h6 className="mb-0 fw-semibold">{section.name}</h6>
               </div>
@@ -210,7 +238,7 @@ const ScanDetail = () => {
                   >
                     {subsection.name}
                   </div>
-                  <div className="p-3 border rounded bg-light-subtle">
+                  <div className="p-3 border rounded bg-light-subtle-darker">
                     <div className="d-flex flex-wrap gap-3">
                       {subsection.images.map((img, imgIdx) => (
                         <img

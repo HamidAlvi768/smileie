@@ -139,14 +139,15 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [form, setForm] = useState({
+  const initialFormState = {
     full_name: "",
     specialty: "",
     email: "",
     phone: "",
     practice: "",
     status: "Active",
-  });
+  };
+  const [form, setForm] = useState(initialFormState);
 
   // Form validation
   const [formErrors, setFormErrors] = useState({});
@@ -236,14 +237,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
   }, [form]);
 
   const resetForm = useCallback(() => {
-    setForm({
-      full_name: "",
-      specialty: "",
-      email: "",
-      phone: "",
-      practice: "",
-      status: "Active",
-    });
+    setForm(initialFormState);
     setFormErrors({});
   }, []);
 

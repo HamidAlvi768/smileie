@@ -1,4 +1,4 @@
-import { GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL_SUCCESS, GET_PATIENT_DETAIL } from "./actionTypes";
+import { GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL_SUCCESS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL } from "./actionTypes";
 
 const INIT_STATE = {
   patients: [],
@@ -7,6 +7,8 @@ const INIT_STATE = {
   recentPatients: [],
   patientDetail: null,
   loadingDetail: false,
+  updatingDetail: false,
+  updateDetailError: null,
 };
 
 const patientsReducer = (state = INIT_STATE, action) => {
@@ -25,6 +27,12 @@ const patientsReducer = (state = INIT_STATE, action) => {
       return { ...state, loadingDetail: true, error: null };
     case GET_PATIENT_DETAIL_SUCCESS:
       return { ...state, patientDetail: action.payload.data, loadingDetail: false, error: null };
+    case UPDATE_PATIENT_DETAIL:
+      return { ...state, updatingDetail: true, updateDetailError: null };
+    case UPDATE_PATIENT_DETAIL_SUCCESS:
+      return { ...state, patientDetail: action.payload.data, updatingDetail: false, updateDetailError: null };
+    case UPDATE_PATIENT_DETAIL_FAIL:
+      return { ...state, updatingDetail: false, updateDetailError: action.payload };
     default:
       return state;
   }

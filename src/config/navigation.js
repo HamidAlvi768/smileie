@@ -89,11 +89,11 @@ export const headerRightMenuItems = [
     url: "/notifications/messages",
     badge: 1,
   },
-  {
-    id: "help",
-    label: "Help",
-    url: "/help", // This will be handled specially in Header.js if needed
-  },
+  // {
+  //   id: "help",
+  //   label: "Help",
+  //   url: "/help", // This will be handled specially in Header.js if needed
+  // },
   {
     id: "settings",
     label: "Settings",
