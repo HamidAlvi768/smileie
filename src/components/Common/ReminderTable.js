@@ -200,7 +200,7 @@ const ReminderTable = ({
           <Form onSubmit={handleSubmit}>
             <ModalBody>
               <Row>
-                <Col md={6}>
+                <Col md={4}>
                   <FormGroup>
                     <Label for="name">{labels.name}</Label>
                     <Input
@@ -213,9 +213,9 @@ const ReminderTable = ({
                     />
                   </FormGroup>
                 </Col>
-                <Col md={6}>
+                <Col md={4}>
                   <FormGroup>
-                    <Label for="triggerDays">{labels.triggerDays} (days after monitoring start date)</Label>
+                    <Label for="triggerDays">{labels.triggerDays} (days since monitoring)</Label>
                     <Input
                       id="triggerDays"
                       name="triggerDays"
@@ -227,9 +227,7 @@ const ReminderTable = ({
                     />
                   </FormGroup>
                 </Col>
-              </Row>
-              <Row>
-                <Col md={6}>
+                <Col md={4}>
                   <FormGroup>
                     <Label for="status">{labels.status}</Label>
                     <Input

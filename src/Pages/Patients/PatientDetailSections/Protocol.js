@@ -267,7 +267,7 @@ const Protocol = () => {
           defaultExpanded={false}
         >
           <CollapsibleSection
-            title="Days after monitoring start date"
+            title="Days since monitoring"
             description="Set messages for a patient a certain number of days after the patient's monitoring start date."
             defaultExpanded={false}
           >

@@ -2361,3 +2361,11 @@
   background-color: #e9eef3 !important;
 }
 
+.table th, .table td, th, td {
+  text-align: center;
+}
+
+td > .d-flex {
+  justify-content: center !important;
+}
+

@@ -17,7 +17,8 @@ import {
 } from "reactstrap";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import { getPatients, addPatient } from "../../store/patients/actions";
+import { getPatients, addPatient, clearPatientMessages } from "../../store/patients/actions";
+import { getDoctors } from "../../store/doctors/actions";
 import { useToast } from '../../components/Common/ToastContext';
 
 const columns = [
@@ -118,6 +119,9 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const patients = useSelector(state => state.patients.patients);
+  const doctors = useSelector(state => state.doctor.doctors) || [];
+  const successMessage = useSelector(state => state.patients.successMessage);
+  const error = useSelector(state => state.patients.error);
   const showToast = useToast();
 
   // Form state for create patient
@@ -128,7 +132,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     phone: "",
     dob: "",
     practice: "",
-    doctor_name: "",
+    doctor_id: "",
   });
 
   // Add search and filter state
@@ -143,6 +147,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
   useEffect(() => {
     window.scrollTo(0, 0);
     dispatch(getPatients());
+    dispatch(getDoctors());
   }, [dispatch]);
 
   // Map API patients to table data
@@ -169,24 +174,39 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
 
   const handlePatientFormChange = (e) => {
     const { id, value } = e.target;
-    setPatientForm((prev) => ({ ...prev, [id === "mobile" ? "phone" : id === "doctor" ? "doctor_name" : id]: value }));
+    setPatientForm((prev) => ({ ...prev, [id === "mobile" ? "phone" : id === "doctor" ? "doctor_id" : id]: value }));
   };
 
   const handleCreatePatient = (e) => {
     e.preventDefault();
     dispatch(addPatient(patientForm));
-    setCreatePatientModal(false);
-    setPatientForm({
-      first_name: "",
-      last_name: "",
-      email: "",
-      phone: "",
-      dob: "",
-      practice: "",
-      doctor_name: "",
-    });
-    showToast({ message: 'Patient created successfully!', type: 'success', title: 'Success' });
+    // Do not close modal or show toast here; wait for Redux state
   };
+
+  // Listen for patient creation success/error and show toast
+  useEffect(() => {
+    if (successMessage) {
+      showToast({ message: successMessage || 'Patient created successfully!', type: 'success', title: 'Success' });
+      setCreatePatientModal(false);
+      setPatientForm({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        dob: "",
+        practice: "",
+        doctor_id: "",
+      });
+      dispatch(clearPatientMessages());
+    }
+  }, [successMessage, showToast, dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      showToast({ message: typeof error === 'string' ? error : 'Failed to create patient', type: 'error', title: 'Error' });
+      dispatch(clearPatientMessages());
+    }
+  }, [error, showToast, dispatch]);
 
   // Table row click handler (optional: navigate to patient detail)
   const handleRowClicked = (row) => {
@@ -387,15 +407,19 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                     <Input type="select" id="practice" value={patientForm.practice} onChange={handlePatientFormChange}>
                       <option value="">Select practice</option>
                       <option value="smileie-uk">Smileie UK</option>
+                      <option value="smileie-us">Smileie US</option>
+                      <option value="smileie-au">Smileie AU</option>
                     </Input>
                   </FormGroup>
                 </Col>
                 <Col md={4}>
                   <FormGroup className="mb-3">
                     <Label for="doctor">Doctor</Label>
-                    <Input type="select" id="doctor" value={patientForm.doctor_name} onChange={handlePatientFormChange}>
+                    <Input type="select" id="doctor" value={patientForm.doctor_id} onChange={handlePatientFormChange}>
                       <option value="">Select doctor</option>
-                      <option value="kruchar-mark">Kruchar, Mark (Dr)</option>
+                      {doctors.map((doc) => (
+                        <option key={doc.id} value={doc.id}>{doc.full_name}</option>
+                      ))}
                     </Input>
                   </FormGroup>
                 </Col>

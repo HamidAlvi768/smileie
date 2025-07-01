@@ -25,7 +25,7 @@ const Info = ({ patient }) => {
     phone: patientDetail.phone || '',
     appActivation: 'Yes', // Not in API, keep as default or from patientDetail if available
     dateOfBirth: patientDetail.dob || '',
-    practice: patientDetail.practice || '',
+    practice: patientDetail.practice || 'Smileie UK',
   };
 
   // When opening the modal, initialize editedInfo with current values
@@ -67,6 +67,16 @@ const Info = ({ patient }) => {
   const handleManageGuardians = () => {
     navigate(`/patients/${id}/guardians`);
   };
+
+  // Validation: check if any field is blank
+  const isFormValid = editedInfo && Object.values({
+    firstName: editedInfo.firstName,
+    lastName: editedInfo.lastName,
+    email: editedInfo.email,
+    phone: editedInfo.phone,
+    dateOfBirth: editedInfo.dateOfBirth,
+    practice: editedInfo.practice,
+  }).every(val => val && val.trim() !== "");
 
   const renderEditForm = () => (
     <div className="edit-form-grid">
@@ -154,12 +164,16 @@ const Info = ({ patient }) => {
           <FormGroup>
             <Label for="practice">Practice</Label>
             <Input
-              type="text"
+              type="select"
               name="practice"
               id="practice"
               value={editedInfo.practice}
               onChange={handleInputChange}
-            />
+            >
+              <option value="Smileie UK">Smileie UK</option>
+              <option value="Smileie US">Smileie US</option>
+              <option value="Smileie AU">Smileie AU</option>
+            </Input>
           </FormGroup>
         </div>
       </div>
@@ -234,7 +248,7 @@ const Info = ({ patient }) => {
       </div>
 
       {/* Edit Modal */}
-      <Modal isOpen={isEditModalOpen} toggle={toggleEditModal} size="lg" className="edit-patient-modal">
+      <Modal isOpen={isEditModalOpen} toggle={toggleEditModal} size="lg" className="edit-patient-modal" centered>
         <ModalHeader toggle={toggleEditModal}>
           Edit Patient Information
         </ModalHeader>
@@ -243,7 +257,7 @@ const Info = ({ patient }) => {
         </ModalBody>
         <ModalFooter>
           <Button color="light" onClick={toggleEditModal} disabled={updatingDetail}>Cancel</Button>
-          <Button color="primary" onClick={handleSave} disabled={updatingDetail}>
+          <Button color="primary" onClick={handleSave} disabled={updatingDetail || !isFormValid}>
             {updatingDetail ? 'Saving...' : 'Save Changes'}
           </Button>
         </ModalFooter>

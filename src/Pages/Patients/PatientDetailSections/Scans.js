@@ -41,7 +41,7 @@ const Scans = ({ patient }) => {
         <CardBody>
           <div className="table-responsive">
             <table className="table table-hover align-middle mb-0">
-              <thead>
+              <thead className="table-light">
                 <tr>
                   <th>PROTOCOL</th>
                   <th style={{ cursor: 'pointer' }} onClick={() => handleSort('dueOn')}>

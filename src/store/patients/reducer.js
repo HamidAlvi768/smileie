@@ -33,6 +33,8 @@ const patientsReducer = (state = INIT_STATE, action) => {
       return { ...state, patientDetail: action.payload.data, updatingDetail: false, updateDetailError: null };
     case UPDATE_PATIENT_DETAIL_FAIL:
       return { ...state, updatingDetail: false, updateDetailError: action.payload };
+    case 'CLEAR_PATIENT_MESSAGES':
+      return { ...state, successMessage: null, error: null };
     default:
       return state;
   }

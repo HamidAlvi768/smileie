@@ -40,6 +40,8 @@ const OrderList = () => {
   const [filters, setFilters] = useState({
     type: "All types",
     status: "All statuses",
+    startDate: "",
+    endDate: "",
   });
 
   // Filtering logic
@@ -53,7 +55,15 @@ const OrderList = () => {
       const typeMatch = filters.type === "All types" || order.type === filters.type;
       // Status filter
       const statusMatch = filters.status === "All statuses" || order.status === filters.status;
-      return searchMatch && typeMatch && statusMatch;
+      // Date filter
+      let dateMatch = true;
+      if (filters.startDate) {
+        dateMatch = dateMatch && (order.orderDate >= filters.startDate);
+      }
+      if (filters.endDate) {
+        dateMatch = dateMatch && (order.orderDate <= filters.endDate);
+      }
+      return searchMatch && typeMatch && statusMatch && dateMatch;
     });
   }, [searchTerm, filters]);
 
@@ -67,13 +77,15 @@ const OrderList = () => {
   };
 
   const handleClearFilters = () => {
-    setFilters({ type: "All types", status: "All statuses" });
+    setFilters({ type: "All types", status: "All statuses", startDate: "", endDate: "" });
     setSearchTerm("");
   };
 
   const hasActiveFilters =
     filters.type !== "All types" ||
     filters.status !== "All statuses" ||
+    filters.startDate !== "" ||
+    filters.endDate !== "" ||
     searchTerm.trim() !== "";
 
   return (
@@ -83,7 +95,18 @@ const OrderList = () => {
           title="Smileie"
           breadcrumbItem="Orders"
         />
-        <h4 className="mb-4">Orders</h4>
+        <Row className="mb-3 align-items-center">
+          <Col md={8} xs={6}>
+            <h4 className="mb-0">Orders</h4>
+          </Col>
+          <Col md={4} xs={6} className="text-end">
+            {hasActiveFilters && (
+              <Button color="outline-secondary" size="sm" onClick={handleClearFilters}>
+                Clear Filters
+              </Button>
+            )}
+          </Col>
+        </Row>
         <Card>
           <CardBody>
             {/* Filter Section */}
@@ -114,12 +137,23 @@ const OrderList = () => {
                     </Input>
                   </Col>
                 ))}
-                <Col lg={2} md={3} sm={6} xs={12} className="mt-2 mt-lg-0">
-                  {hasActiveFilters && (
-                    <Button color="outline-secondary" size="sm" onClick={handleClearFilters}>
-                      Clear Filters
-                    </Button>
-                  )}
+                <Col lg={2} md={3} sm={6} xs={12}>
+                  <Label className="form-label" htmlFor="filter-startDate">Start Date</Label>
+                  <Input
+                    id="filter-startDate"
+                    type="date"
+                    value={filters.startDate}
+                    onChange={handleFilterChange}
+                  />
+                </Col>
+                <Col lg={2} md={3} sm={6} xs={12}>
+                  <Label className="form-label" htmlFor="filter-endDate">End Date</Label>
+                  <Input
+                    id="filter-endDate"
+                    type="date"
+                    value={filters.endDate}
+                    onChange={handleFilterChange}
+                  />
                 </Col>
               </Row>
             </div>

@@ -600,6 +600,8 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                     >
                       <option value="">Select practice</option>
                       <option value="smileie-uk">Smileie UK</option>
+                      <option value="smileie-us">Smileie US</option>
+                      <option value="smileie-au">Smileie AU</option>
                     </Input>
                   </FormGroup>
                 </Col>

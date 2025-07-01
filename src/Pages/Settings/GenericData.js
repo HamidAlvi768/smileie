@@ -21,7 +21,6 @@ const GenericData = () => {
     title: "",
     description: "",
     parent_id: parentId,
-    status: "Active",
   });
 
   const showToast = useToast();
@@ -51,7 +50,6 @@ const GenericData = () => {
         title: "",
         description: "",
         parent_id: parentId,
-        status: "Active",
       });
     }
   };
@@ -97,7 +95,6 @@ const GenericData = () => {
       title: entity.title || "",
       description: entity.description || "",
       parent_id: parentId,
-      status: entity.status || "Active",
     });
     setModal(true);
   };
@@ -121,14 +118,6 @@ const GenericData = () => {
         showToast({ message: 'Failed to delete record', type: 'error', title: 'Error' });
       }
     }
-  };
-
-  const getStatusBadge = (status) => {
-    return status === true || status === "Active" ? (
-      <Badge color="success">Active</Badge>
-    ) : (
-      <Badge color="secondary">InActive</Badge>
-    );
   };
 
   document.title = "Records | Smileie";
@@ -163,7 +152,7 @@ const GenericData = () => {
                         <tr>
                           <th scope="col">Name</th>
                           <th scope="col">Description</th>
-                          <th scope="col">Status</th>
+                          {/* <th scope="col">Status</th> */}
                           <th scope="col">Actions</th>
                         </tr>
                       </thead>
@@ -174,7 +163,7 @@ const GenericData = () => {
                               <h6 className="mb-0">{entity.title}</h6>
                             </td>
                             <td>{entity.description}</td>
-                            <td>{getStatusBadge(entity.active ?? entity.status)}</td>
+                            {/* <td>{getStatusBadge(entity.active ?? entity.status)}</td> */}
                             <td>
                               <div className="d-flex gap-2">
                                 <Button
@@ -226,7 +215,7 @@ const GenericData = () => {
                   />
                 </FormGroup>
               </Col>
-              <Col md={4}>
+              <Col md={8}>
                 <FormGroup>
                   <Label for="description">Description</Label>
                   <Input
@@ -238,21 +227,7 @@ const GenericData = () => {
                   />
                 </FormGroup>
               </Col>
-              <Col md={4}>
-                <FormGroup>
-                  <Label for="status">Status</Label>
-                  <Input
-                    id="statuss"
-                    name="status"
-                    type="select"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </Input>
-                </FormGroup>
-              </Col>
+              {/* Status field removed */}
             </Row>
           </ModalBody>
           <ModalFooter>

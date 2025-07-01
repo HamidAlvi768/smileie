@@ -19,7 +19,6 @@ const EntitiesList = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    status: "Active",
     type: "",
   });
 
@@ -50,7 +49,6 @@ const EntitiesList = () => {
       setFormData({
         title: "",
         description: "",
-        status: "Active",
         type: "",
       });
     }
@@ -102,7 +100,9 @@ const EntitiesList = () => {
 
   const handleEdit = (entity) => {
     setEditingEntity(entity);
-    setFormData(entity);
+    // Remove status if present in entity
+    const { status, ...rest } = entity;
+    setFormData(rest);
     setModal(true);
   };
 
@@ -153,14 +153,14 @@ const EntitiesList = () => {
                   <div className="d-flex justify-content-between align-items-center mb-4">
                     <h4 className="card-title mb-0">Entities List</h4>
                     
-                    <Button 
+                    {/* <Button 
                       color="primary" 
                       onClick={toggleModal}
                       className="btn-sm"
                     >
                       <i className="ri-add-line me-1"></i>
                       Add New Entity
-                    </Button>
+                    </Button> */}
                    
                   </div>
 
@@ -171,8 +171,7 @@ const EntitiesList = () => {
                           <th scope="col">Name</th>
                           <th scope="col">Type</th>
                           <th scope="col">Description</th>
-                          <th scope="col">Status</th>
-                          {/* <th scope="col">Actions</th> */}
+                          {/* <th scope="col">Status</th> */}
                         </tr>
                       </thead>
                       <tbody>
@@ -188,9 +187,6 @@ const EntitiesList = () => {
                             </td>
                             <td>{entity.type || (entity.title ? entity.title.toLowerCase().replace(/\s+/g, '_') : '')}</td>
                             <td>{entity.description}</td>
-                            <td>
-                              <span className={`badge bg-${entity.active === true ? 'success' : 'secondary'}`}>{entity.active?"Active":"InActive"}</span>
-                            </td>
                             {/*
                             <td>
                               <div className="d-flex gap-2">
@@ -271,21 +267,7 @@ const EntitiesList = () => {
                   />
                 </FormGroup>
               </Col>
-              <Col md={6}>
-                <FormGroup>
-                  <Label for="status">Status</Label>
-                  <Input
-                    id="statuss"
-                    name="status"
-                    type="select"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </Input>
-                </FormGroup>
-              </Col>
+              {/* Status field removed */}
             </Row>
           </ModalBody>
           <ModalFooter>

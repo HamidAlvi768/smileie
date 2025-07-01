@@ -14,6 +14,7 @@ const VideoTtutorials = () => {
   const [editingTutorial, setEditingTutorial] = useState(null);
   const [tutorialToDelete, setTutorialToDelete] = useState(null);
   const [formData, setFormData] = useState({ title: "", url: "", description: "" });
+  const [urlError, setUrlError] = useState("");
   const showToast = useToast();
 
   useEffect(() => {
@@ -51,8 +52,23 @@ const VideoTtutorials = () => {
     setDeleteModal(true);
   };
 
+  const validateUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!validateUrl(formData.url)) {
+      setUrlError("Please enter a valid URL.");
+      return;
+    } else {
+      setUrlError("");
+    }
     const payload = {
       title: formData.title,
       description: formData.description,
@@ -149,6 +165,7 @@ const VideoTtutorials = () => {
                   <FormGroup>
                     <Label for="url">URL</Label>
                     <Input id="url" name="url" value={formData.url} onChange={handleInputChange} required />
+                    {urlError && <div className="text-danger small mt-1">{urlError}</div>}
                   </FormGroup>
                 </Col>
                 <Col md={12}>

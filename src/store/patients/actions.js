@@ -12,4 +12,5 @@ export const getPatientDetail = (id) => ({ type: GET_PATIENT_DETAIL, payload: id
 export const getPatientDetailSuccess = (patient) => ({ type: GET_PATIENT_DETAIL_SUCCESS, payload: patient });
 export const updatePatientDetail = (id, data) => ({ type: UPDATE_PATIENT_DETAIL, payload: { id, data } });
 export const updatePatientDetailSuccess = (patient) => ({ type: UPDATE_PATIENT_DETAIL_SUCCESS, payload: patient });
-export const updatePatientDetailFail = (error) => ({ type: UPDATE_PATIENT_DETAIL_FAIL, payload: error }); 
+export const updatePatientDetailFail = (error) => ({ type: UPDATE_PATIENT_DETAIL_FAIL, payload: error });
+export const clearPatientMessages = () => ({ type: 'CLEAR_PATIENT_MESSAGES' }); 

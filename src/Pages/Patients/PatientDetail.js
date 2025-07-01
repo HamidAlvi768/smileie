@@ -49,6 +49,7 @@ import {
 } from "../../store/messages/actions";
 import config from '../../config.js';
 import OrderDetail from "./PatientDetailSections/OrderDetail";
+import PatientOrders from "./PatientDetailSections/Orders.js";
 
 // Mock data moved outside the component
 const PATIENT_MOCK_DATA = {
@@ -765,7 +766,7 @@ const PatientDetail = () => {
           <Button
             color="link"
             className="back-button"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/patients/monitored')}
           >
             <i className="mdi mdi-chevron-left"></i>
           </Button>
@@ -847,10 +848,6 @@ const PatientDetail = () => {
                     <span>{patient.patientApp || "Activated"}</span>
                   </div>
                   <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>Next aligner:</strong>
-                    <span>{patient.nextScan}</span>
-                  </div>
-                  <div className="mb-2 d-flex align-items-center justify-content-between">
                     <strong>Aligner #:</strong>
                     <div className="d-flex flex-column align-items-end">
                       <span>{`#${alignerModalData.currentAligner} of ${alignerModalData.totalAligners}`}</span>
@@ -863,6 +860,10 @@ const PatientDetail = () => {
                         Edit
                       </Button>
                     </div>
+                  </div>
+                  <div className="mb-2 d-flex align-items-center justify-content-between">
+                    <strong>Next aligner:</strong>
+                    <span>{patient.nextScan}</span>
                   </div>
                 </CardBody>
               </Collapse>
@@ -1057,7 +1058,7 @@ const PatientDetail = () => {
                 element={<Scans patient={PATIENT_MOCK_DATA} />}
               />
               <Route path="scans/:scanId" element={<ScanDetail />} />
-              <Route path="order" element={<OrderDetail order={SAMPLE_ORDER} />} />
+              <Route path="order" element={<PatientOrders order={SAMPLE_ORDER} />} />
               <Route path="history" element={<History patient={patient} />} />
               <Route
                 path="*"
