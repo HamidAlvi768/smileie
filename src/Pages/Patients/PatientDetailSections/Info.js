@@ -229,7 +229,7 @@ const Info = ({ patient }) => {
         </CardBody>
       </Card>
 
-      <div className="guardians-section">
+      {/* <div className="guardians-section">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5 className="mb-0">Guardians</h5>
           <Button color="primary" size="sm" className="manage-guardians-btn" onClick={handleManageGuardians}>
@@ -245,7 +245,7 @@ const Info = ({ patient }) => {
             </div>
           </CardBody>
         </Card>
-      </div>
+      </div> */}
 
       {/* Edit Modal */}
       <Modal isOpen={isEditModalOpen} toggle={toggleEditModal} size="lg" className="edit-patient-modal" centered>

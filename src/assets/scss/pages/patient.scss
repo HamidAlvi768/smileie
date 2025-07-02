@@ -2361,11 +2361,29 @@
   background-color: #e9eef3 !important;
 }
 
-.table th, .table td, th, td {
-  text-align: center;
-}
+// Space between for table columns
+// .table thead th {
+//   text-align: left;
+// }
+// .table tbody td {
+//   text-align: left;
+// }
+// .table tbody td:last-child, .table thead th:last-child {
+//   text-align: left;
+// }
 
 td > .d-flex {
   justify-content: center !important;
+}
+
+.treatment-plan-3d-section .approval-badge {
+  font-size: 0.9rem;
+  padding: 0.4em 0.8em;
+  border-radius: 2em;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(22, 177, 199, 0.08);
+  margin-left: 0.75rem;
+  margin-bottom: 2px;
+  display: inline-block;
 }
 

@@ -50,6 +50,8 @@ import {
 import config from '../../config.js';
 import OrderDetail from "./PatientDetailSections/OrderDetail";
 import PatientOrders from "./PatientDetailSections/Orders.js";
+import ConsentForms from "./PatientDetailSections/ConsentForms";
+import TreatmentPlan3D from "./PatientDetailSections/TreatmentPlan3D";
 
 // Mock data moved outside the component
 const PATIENT_MOCK_DATA = {
@@ -114,6 +116,8 @@ const NAVBAR_ITEMS_TEMPLATE = [
   { id: "notes", label: "Notes", url: "/patients/:id/notes" },
   */
   { id: "files", label: "Files", url: "/patients/:id/files" },
+  { id: "consent-forms", label: "Consent Forms", url: "/patients/:id/consent-forms" },
+  { id: "treatment-plan-3d", label: "3D Treatment Plan", url: "/patients/:id/treatment-plan-3d" },
   // { id: "guardians", label: "Guardians", url: "/patients/:id/guardians" },
   /* Temporarily commented out Scheduled Actions
   {
@@ -1045,6 +1049,14 @@ const PatientDetail = () => {
               <Route
                 path="files"
                 element={<Files patient={PATIENT_MOCK_DATA} />}
+              />
+              <Route
+                path="consent-forms"
+                element={<ConsentForms patient={PATIENT_MOCK_DATA} />}
+              />
+              <Route
+                path="treatment-plan-3d"
+                element={<TreatmentPlan3D patient={PATIENT_MOCK_DATA} />}
               />
               <Route
                 path="guardians"

@@ -32,12 +32,7 @@ const RevenueByLocation = () => {
                                     regions: [
                                         {
                                             values: countryData,
-                                            scale: ["#E2F4F4", "#56B3B4"], // Light to dark teal color scale
-                                            normalizeFunction: "polynomial",
-                                            legend: {
-                                                vertical: true,
-                                                title: "Patients"
-                                            },
+                                            scale: ["#56B3B4"], // Teal for countries with data
                                         },
                                     ],
                                 }}
@@ -55,7 +50,7 @@ const RevenueByLocation = () => {
                                 }}
                                 regionStyle={{
                                     initial: {
-                                        fill: "#d1d5db", // A neutral grey for countries with no data
+                                        fill: "#d1d5db", // Neutral grey for countries with no data
                                     },
                                     hover: {
                                         "fill-opacity": 0.8,

@@ -1,6 +1,6 @@
 import { call, put, takeEvery } from "redux-saga/effects";
 import { GET_PLANS, ADD_PLAN, DELETE_PLAN, UPDATE_PLAN } from "./actionTypes";
-import { getPlansSuccess, getPlansFail, addPlanSuccess, addPlanFail, deletePlanSuccess, deletePlanFail, updatePlanSuccess, updatePlanFail, getPlans } from "./actions";
+import { getPlansSuccess, getPlansFail, addPlanSuccess, addPlanFail, deletePlanSuccess, deletePlanFail, updatePlanSuccess, updatePlanFail, getPlans, addPlanMessage } from "./actions";
 import { getPlansAPI, addPlanAPI, deletePlanAPI, updatePlanAPI } from "../../helpers/api_helper";
 
 function* fetchPlans() {
@@ -15,7 +15,12 @@ function* fetchPlans() {
 function* addPlanSaga({ payload }) {
   try {
     const response = yield call(addPlanAPI, payload);
+    if (response.status === "error") {
+      yield put(addPlanFail(response.message || "Failed to add plan"));
+      return;
+    }
     yield put(addPlanSuccess(response));
+    yield put(addPlanMessage(response.message || "Plan added successfully!"));
     yield put(getPlans());
   } catch (error) {
     yield put(addPlanFail(error));
@@ -34,9 +39,14 @@ function* deletePlanSaga({ payload }) {
 function* updatePlanSaga({ payload }) {
   try {
     const response = yield call(updatePlanAPI, payload);
+    if (response.status === "error") {
+      yield put(addPlanFail(response.message || "Failed to update plan"));
+      return;
+    }
     yield put(updatePlanSuccess(response.data ? response.data : payload));
+    yield put(addPlanMessage(response.message || "Plan updated successfully!"));
   } catch (error) {
-    yield put(updatePlanFail(error));
+    yield put(addPlanFail(error));
   }
 }
 

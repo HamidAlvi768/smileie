@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getPlans, addPlan, deletePlan, updatePlan } from "../../store/plans/actions";
+import { getPlans, addPlan, deletePlan, updatePlan, clearPlanMessages } from "../../store/plans/actions";
 import { Container, Row, Col, Card, CardBody, Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import { useToast } from '../../components/Common/ToastContext';
@@ -9,6 +9,8 @@ const TreatmentPlans = () => {
   const dispatch = useDispatch();
   const plansRaw = useSelector((state) => state.plans.plans);
   const plans = Array.isArray(plansRaw) ? plansRaw : [];
+  const successMessage = useSelector((state) => state.plans.successMessage);
+  const error = useSelector((state) => state.plans.error);
   const [modal, setModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
@@ -19,6 +21,21 @@ const TreatmentPlans = () => {
   useEffect(() => {
     dispatch(getPlans());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (successMessage && !error) {
+      showToast({ message: successMessage, type: 'success', title: 'Success' });
+      setModal(false);
+      dispatch(clearPlanMessages());
+    }
+  }, [successMessage, error, showToast, dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      showToast({ message: typeof error === 'string' ? error : 'Failed to add plan', type: 'error', title: 'Error' });
+      dispatch(clearPlanMessages());
+    }
+  }, [error, showToast, dispatch]);
 
   const toggleModal = () => setModal(!modal);
   const toggleDeleteModal = () => setDeleteModal(!deleteModal);
@@ -47,27 +64,21 @@ const TreatmentPlans = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      if (editingPlan) {
-        dispatch(updatePlan({
-          id: editingPlan.id,
-          name: formData.name,
-          weeks: formData.duration,
-          active: formData.status === "Active",
-        }));
-        showToast({ message: 'Plan updated successfully!', type: 'success', title: 'Success' });
-      } else {
-        dispatch(addPlan({
-          name: formData.name,
-          weeks: formData.duration,
-          active: formData.status === "Active",
-        }));
-        showToast({ message: 'Plan added successfully!', type: 'success', title: 'Success' });
-      }
-      setModal(false);
-    } catch (err) {
-      showToast({ message: 'Failed to save plan', type: 'error', title: 'Error' });
+    if (editingPlan) {
+      dispatch(updatePlan({
+        id: editingPlan.id,
+        name: formData.name,
+        weeks: formData.duration,
+        active: formData.status === "Active",
+      }));
+    } else {
+      dispatch(addPlan({
+        name: formData.name,
+        weeks: formData.duration,
+        active: formData.status === "Active",
+      }));
     }
+    // Do not close modal or show toast here; wait for Redux state
   };
 
   const confirmDelete = () => {

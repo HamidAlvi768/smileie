@@ -19,17 +19,17 @@ import {
 
 const PatientOrders = () => {
   const [orders, setOrders] = useState([
-    { id: 1, mainConcern: 'Impression Kit', comments: 'Send ASAP' },
-    { id: 2, mainConcern: 'Day time dual arch', comments: 'Patient prefers day time' },
-    { id: 3, mainConcern: 'Refinement Aligners', comments: 'Second refinement needed' },
+    { id: 1, mainConcern: 'Impression Kit', comments: 'Send ASAP', date: '2024-05-29', status: 'Pending' },
+    { id: 2, mainConcern: 'Day time dual arch', comments: 'Patient prefers day time', date: '2024-05-28', status: 'Shipped' },
+    { id: 3, mainConcern: 'Refinement Aligners', comments: 'Second refinement needed', date: '2024-05-27', status: 'Delivered' },
   ]);
   const [modal, setModal] = useState(false);
-  const [form, setForm] = useState({ mainConcern: '', comments: '' });
+  const [form, setForm] = useState({ mainConcern: '', comments: '', status: 'Pending' });
 
   const toggleModal = () => {
     setModal(!modal);
     if (!modal) {
-      setForm({ mainConcern: '', comments: '' });
+      setForm({ mainConcern: '', comments: '', status: 'Pending' });
     }
   };
 
@@ -45,6 +45,8 @@ const PatientOrders = () => {
         id: orders.length + 1,
         mainConcern: form.mainConcern,
         comments: form.comments,
+        date: new Date().toISOString().split('T')[0],
+        status: form.status,
       },
     ]);
     toggleModal();
@@ -69,12 +71,14 @@ const PatientOrders = () => {
                       <th>Order #</th>
                       <th>Main Concern</th>
                       <th>Comments</th>
+                      <th>Date</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {orders.length === 0 ? (
                       <tr>
-                        <td colSpan={3} className="text-center text-muted">No orders yet.</td>
+                        <td colSpan={5} className="text-center text-muted">No orders yet.</td>
                       </tr>
                     ) : (
                       orders.map((order) => (
@@ -82,6 +86,8 @@ const PatientOrders = () => {
                           <td>{order.id}</td>
                           <td>{order.mainConcern}</td>
                           <td>{order.comments}</td>
+                          <td>{order.date}</td>
+                          <td>{order.status}</td>
                         </tr>
                       ))
                     )}
@@ -127,6 +133,22 @@ const PatientOrders = () => {
                 value={form.comments}
                 onChange={handleChange}
               />
+            </FormGroup>
+            <FormGroup>
+              <Label for="status">Status</Label>
+              <Input
+                id="status"
+                name="status"
+                type="select"
+                value={form.status}
+                onChange={handleChange}
+                required
+              >
+                <option>Pending</option>
+                <option>Shipped</option>
+                <option>Delivered</option>
+                <option>Cancelled</option>
+              </Input>
             </FormGroup>
           </ModalBody>
           <ModalFooter>

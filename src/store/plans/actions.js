@@ -27,4 +27,7 @@ export const deletePlanFail = (error) => ({ type: DELETE_PLAN_FAIL, payload: err
 
 export const updatePlan = (plan) => ({ type: UPDATE_PLAN, payload: plan });
 export const updatePlanSuccess = (plan) => ({ type: UPDATE_PLAN_SUCCESS, payload: plan });
-export const updatePlanFail = (error) => ({ type: UPDATE_PLAN_FAIL, payload: error }); 
+export const updatePlanFail = (error) => ({ type: UPDATE_PLAN_FAIL, payload: error });
+
+export const addPlanMessage = (message) => ({ type: "ADD_PLAN_MESSAGE", payload: message });
+export const clearPlanMessages = () => ({ type: "CLEAR_PLAN_MESSAGES" }); 

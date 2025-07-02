@@ -165,13 +165,13 @@
 
 // Add special background to header items WITHOUT sub-menus
 .header-item:not(.has-submenu) {
+    background-color: inherit;
     &:hover {
-        background-color: #e9ecef; // Darker on hover
-
+        background-color: #e9ecef;
     }
     &.active {
-        background-color: #1da5fe; // Blue background when active
-        color: white;
+        background-color: var(--#{$prefix}header-dark-bg);
+        color: rgba($white, 0.7);;
     }
 }
 

@@ -38,12 +38,6 @@ const settingsData = [
         url: "/settings/scan-notification-frequency",
       },
       {
-        name: "Photo Upload Reminder",
-        description: "Manage reminders for patient photo uploads.",
-        icon: "ri-image-line",
-        url: "/settings/photo-upload-reminder",
-      },
-      {
         name: "Next Step Reminder",
         description: "Configure reminders for upcoming patient actions.",
         icon: "ri-arrow-right-circle-line",
@@ -74,16 +68,6 @@ const Settings = () => {
           <Breadcrumbs
             title="Smileie"
             breadcrumbItem="Settings"
-            extraContentRight={(
-              <div className="d-flex align-items-center">
-                {/* <Link to="/settings/entities-list" className="btn btn-link btn-label waves-effect waves-light me-2">
-                  <i className="ri-list-check label-icon"></i> Entities
-                </Link> */}
-                <Link to="/settings/reminders" className="btn btn-primary btn-label waves-effect waves-light">
-                  <i className="ri-add-line me-1"></i> Add Reminders
-                </Link>
-              </div>
-            )}
           />
 
           {settingsData.map((sectionData, sectionIdx) => (

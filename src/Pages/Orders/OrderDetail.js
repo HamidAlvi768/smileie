@@ -127,11 +127,6 @@ const OrderDetail = () => {
                         <td>{r.id}</td>
                         <td>{r.date}</td>
                         <td>${r.amount}</td>
-                        <td>
-                          <Button color="link" size="sm" href={r.url} target="_blank">
-                            <i className="ri-download-2-line"></i> Download
-                          </Button>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
