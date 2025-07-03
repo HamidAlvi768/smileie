@@ -113,6 +113,13 @@ const filterRowKeys = [
   "appActivation",
 ];
 
+const defaultFilters = {
+  compliance: "All patients",
+  alignerType: "Day Aligner",
+  alignerStatus: "All",
+  appActivation: "All",
+};
+
 const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
   const [createPatientModal, setCreatePatientModal] = useState(false);
   const toggleCreatePatient = () => setCreatePatientModal(!createPatientModal);
@@ -225,18 +232,42 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     }));
   };
 
+  const hasActiveFilters =
+    filters.compliance !== defaultFilters.compliance ||
+    filters.alignerType !== defaultFilters.alignerType ||
+    filters.alignerStatus !== defaultFilters.alignerStatus ||
+    filters.appActivation !== defaultFilters.appActivation ||
+    searchTerm.trim() !== "";
+
+  const handleClearFilters = () => {
+    setFilters({ ...defaultFilters });
+    setSearchTerm("");
+  };
+
   return (
     <div className="page-content">
       <Container fluid>
         {/* Page Title and New Patient Button */}
         <Row className="mb-3 align-items-center">
-          <Col md={10} xs={8}>
+          <Col md={8} xs={6}>
             <h4 className="mb-0">{pageTitle}</h4>
           </Col>
-          <Col md={2} xs={4} className="text-end">
-            <Button color="primary" onClick={toggleCreatePatient}>
-              + New patient
-            </Button>
+          <Col md={4} xs={6} className="text-end">
+            <div className="d-flex align-items-center justify-content-end">
+              {hasActiveFilters && (
+                <Button
+                  color="outline-secondary"
+                  size="sm"
+                  className="me-2"
+                  onClick={handleClearFilters}
+                >
+                  Clear Filters
+                </Button>
+              )}
+              <Button color="primary" onClick={toggleCreatePatient}>
+                + New patient
+              </Button>
+            </div>
           </Col>
         </Row>
 

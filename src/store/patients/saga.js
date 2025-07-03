@@ -50,6 +50,10 @@ function* updatePatientDetailSaga({ payload }) {
   try {
     const { id, data } = payload;
     const response = yield call(updatePatientDetailAPI, id, data);
+    // If backend returns status: "error" in a 200 response, treat as error
+    if (response.status === "error") {
+      throw response.message || "Failed to update patient information";
+    }
     yield put(updatePatientDetailSuccess(response));
     // Immediately re-fetch the latest patient detail
     yield put(getPatientDetail(id));

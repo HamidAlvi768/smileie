@@ -3,6 +3,7 @@ import { Button, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, For
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { updatePatientDetail } from '../../../store/patients/actions';
+import { useToast } from '../../../components/Common/ToastContext';
 
 const Info = ({ patient }) => {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ const Info = ({ patient }) => {
   // Get patient detail from Redux (already fetched in PatientDetail.js)
   const patientDetail = useSelector(state => state.patients.patientDetail) || {};
   const updatingDetail = useSelector(state => state.patients.updatingDetail);
+  const updateDetailError = useSelector(state => state.patients.updateDetailError);
+  const showToast = useToast();
 
   // State for edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -63,6 +66,29 @@ const Info = ({ patient }) => {
       setIsEditModalOpen(false);
     }
   }, [updatingDetail]);
+
+  // Toast handling for update success/error
+  const prevUpdatingDetail = React.useRef(false);
+  React.useEffect(() => {
+    // Success: was updating, now not updating, and no error
+    if (prevUpdatingDetail.current && !updatingDetail && !updateDetailError && isEditModalOpen) {
+      showToast({
+        message: 'Patient information updated successfully!',
+        type: 'success',
+        title: 'Success',
+      });
+      setIsEditModalOpen(false);
+    }
+    // Error: was updating, now not updating, and error exists
+    if (prevUpdatingDetail.current && !updatingDetail && updateDetailError && isEditModalOpen) {
+      showToast({
+        message: typeof updateDetailError === 'string' ? updateDetailError : 'Failed to update patient information',
+        type: 'error',
+        title: 'Error',
+      });
+    }
+    prevUpdatingDetail.current = updatingDetail;
+  }, [updatingDetail, updateDetailError, isEditModalOpen, showToast]);
 
   const handleManageGuardians = () => {
     navigate(`/patients/${id}/guardians`);

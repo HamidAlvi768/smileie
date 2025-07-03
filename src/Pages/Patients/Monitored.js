@@ -204,6 +204,28 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     "monitoringStatus",
   ];
 
+  const defaultFilters = {
+    compliance: "All patients",
+    alignerType: "Day Aligner",
+    alignerStatus: "All",
+    appActivation: "All",
+    monitoringStatus: "All",
+  };
+
+  const hasActiveFilters =
+    filters.compliance !== defaultFilters.compliance ||
+    filters.alignerType !== defaultFilters.alignerType ||
+    filters.alignerStatus !== defaultFilters.alignerStatus ||
+    filters.appActivation !== defaultFilters.appActivation ||
+    filters.monitoringStatus !== defaultFilters.monitoringStatus ||
+    searchTerm.trim() !== "";
+
+  const handleClearFilters = () => {
+    setFilters({ ...defaultFilters });
+    setSearchTerm("");
+    setCurrentPage(1);
+  };
+
   // Scroll to top on mount and fetch data
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -446,17 +468,29 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
       <Container fluid>
         {/* Page Title and New Patient Button */}
         <Row className="mb-3 align-items-center">
-          <Col md={10} xs={8}>
+          <Col md={8} xs={6}>
             <h4 className="mb-0">{pageTitle}</h4>
           </Col>
-          <Col md={2} xs={4} className="text-end">
-            <Button 
-              color="primary" 
-              onClick={toggleCreatePatient}
-              disabled={isLoading}
-            >
-              + New patient
-            </Button>
+          <Col md={4} xs={6} className="text-end">
+            <div className="d-flex align-items-center justify-content-end">
+              {hasActiveFilters && (
+                <Button
+                  color="outline-secondary"
+                  size="sm"
+                  className="me-2"
+                  onClick={handleClearFilters}
+                >
+                  Clear Filters
+                </Button>
+              )}
+              <Button 
+                color="primary" 
+                onClick={toggleCreatePatient}
+                disabled={isLoading}
+              >
+                + New patient
+              </Button>
+            </div>
           </Col>
         </Row>
 
