@@ -124,14 +124,6 @@ const ReminderTable = ({
               <CardBody>
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <h5 className="card-title mb-0">{title}</h5>
-                  <Button 
-                    color="primary" 
-                    onClick={toggleModal}
-                    className="btn-sm"
-                  >
-                    <i className="ri-add-line me-1"></i>
-                    {addButtonLabel}
-                  </Button>
                 </div>
 
                 <div className="table-responsive">
@@ -173,13 +165,6 @@ const ReminderTable = ({
                               >
                                 <i className="ri-pencil-line"></i>
                               </Button>
-                              <Button
-                                color="outline-danger"
-                                size="sm"
-                                onClick={() => handleDelete(notification)}
-                              >
-                                <i className="ri-delete-bin-line"></i>
-                              </Button>
                             </div>
                           </td>
                         </tr>
@@ -215,7 +200,7 @@ const ReminderTable = ({
                 </Col>
                 <Col md={4}>
                   <FormGroup>
-                    <Label for="triggerDays">{labels.triggerDays} (days since monitoring)</Label>
+                    <Label for="triggerDays">{labels.triggerDays} (days before aligner change)</Label>
                     <Input
                       id="triggerDays"
                       name="triggerDays"

@@ -17,7 +17,7 @@ import {
 } from "reactstrap";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import { getPatients, addPatient } from "../../store/patients/actions";
+import { getPatients, addPatient, clearPatientMessages } from "../../store/patients/actions";
 import { useToast } from "../../components/Common/ToastContext";
 import { getDoctors } from "../../store/doctors/actions";
 
@@ -385,31 +385,9 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     }));
   };
 
-  const handleCreatePatient = async (e) => {
+  const handleCreatePatient = (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    try {
-      // Add patient
-      await dispatch(addPatient(patientForm));
-      // Close modal and reset form
-      setCreatePatientModal(false);
-      setPatientForm(initialPatientForm);
-      // Show success message
-      showToast({
-        message: "Patient created successfully!",
-        type: "success",
-        title: "Success",
-      });
-    } catch (error) {
-      console.error("Error creating patient:", error);
-      showToast({
-        message: "Failed to create patient. Please try again.",
-        type: "error",
-        title: "Error",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    dispatch(addPatient(patientForm));
   };
 
   // Handle pagination change
@@ -437,6 +415,31 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     }));
     setCurrentPage(1); // Reset to first page when filtering
   };
+
+  // Toast handling for patient creation success/error
+  useEffect(() => {
+    if (successMessage) {
+      showToast({
+        message: successMessage || 'Patient created successfully!',
+        type: 'success',
+        title: 'Success',
+      });
+      setCreatePatientModal(false);
+      setPatientForm(initialPatientForm);
+      dispatch(clearPatientMessages());
+    }
+  }, [successMessage, showToast, dispatch]);
+
+  useEffect(() => {
+    if (patientsError) {
+      showToast({
+        message: typeof patientsError === 'string' ? patientsError : 'Failed to create patient',
+        type: 'error',
+        title: 'Error',
+      });
+      dispatch(clearPatientMessages());
+    }
+  }, [patientsError, showToast, dispatch]);
 
   return (
     <div className="page-content">

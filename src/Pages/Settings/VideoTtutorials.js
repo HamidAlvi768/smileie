@@ -155,13 +155,13 @@ const VideoTtutorials = () => {
           <Form onSubmit={handleSubmit}>
             <ModalBody>
               <Row>
-                <Col md={6}>
+                <Col md={12}>
                   <FormGroup>
                     <Label for="title">Title</Label>
                     <Input id="title" name="title" value={formData.title} onChange={handleInputChange} required />
                   </FormGroup>
                 </Col>
-                <Col md={6}>
+                <Col md={12}>
                   <FormGroup>
                     <Label for="url">URL</Label>
                     <Input id="url" name="url" value={formData.url} onChange={handleInputChange} required />

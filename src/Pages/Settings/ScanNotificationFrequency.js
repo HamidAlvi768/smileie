@@ -4,24 +4,24 @@ import ReminderTable from "../../components/Common/ReminderTable";
 const initialData = [
   {
     id: 1,
-    name: "Weekly Scan Reminder",
-    triggerDays: 7,
+    name: "2 Days Before Aligner Change",
+    triggerDays: 2,
     status: "Active",
-    customMessage: "Don't forget to submit your weekly scan! Your progress depends on it."
+    customMessage: "Your aligner change is in 2 days. Please prepare accordingly."
   },
   {
     id: 2,
-    name: "Monthly Progress Check",
-    triggerDays: 30,
+    name: "1 Day Before Aligner Change",
+    triggerDays: 1,
     status: "Active",
-    customMessage: "Time for your monthly progress review. Keep up the great work!"
+    customMessage: "Your aligner change is tomorrow. Get ready!"
   },
   {
     id: 3,
-    name: "Daily Follow-up",
-    triggerDays: 2,
-    status: "Inactive",
-    customMessage: "Stay cautious! It's only two days left."
+    name: "On the Day of Aligner Change",
+    triggerDays: 0,
+    status: "Active",
+    customMessage: "Today is the day to change your aligner!"
   }
 ];
 
@@ -35,6 +35,7 @@ const ScanNotificationFrequency = () => (
     addButtonLabel="Add New Notification"
     modalTitleAdd="Add New Notification"
     modalTitleEdit="Edit Notification"
+    // fieldLabels={{ triggerDays: "Days Before Aligner Change" }}
   />
 );
 
