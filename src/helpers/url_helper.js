@@ -42,11 +42,13 @@ export const UPDATE_GENERAL_TYPE_API = "/generic-records/update";
 export const DELETE_GENERAL_TYPE_API = "/generic-records/delete";
 
 //patients
-export const GET_PATIENTS_API = `/patients?_=${Date.now()}`;
+export const GET_MONITORED_PATIENTS_API = `/patients`;
+export const GET_NOT_MONITORED_PATIENTS_API = `/patients`;
 export const ADD_PATIENT_API = "/patients/create";
 export const GET_RECENT_PATIENTS_API = "/patients/recent";
 export const GET_PATIENT_DETAIL_API = "/patients/view";
 export const UPDATE_PATIENT_DETAIL_API = "/patients/update";
+export const GET_CONSENT_FORMS_API = "/consent-forms";
 
 //tutorials
 export const GET_TUTORIALS_API = "/tutorials";

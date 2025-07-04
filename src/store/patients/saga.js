@@ -1,16 +1,7 @@
 import { call, put, takeEvery } from "redux-saga/effects";
-import { getPatientsAPI, addPatientAPI, getRecentPatientsAPI, getPatientDetailAPI, updatePatientDetailAPI } from "../../helpers/api_helper";
-import { GET_PATIENTS, ADD_PATIENT, GET_RECENT_PATIENTS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL } from "./actionTypes";
-import { getPatientsSuccess, patientsApiFail, addPatientSuccess, addPatientMessage, getPatients, getRecentPatientsSuccess, getPatientDetailSuccess, updatePatientDetailSuccess, updatePatientDetailFail, getPatientDetail } from "./actions";
-
-function* fetchPatients() {
-  try {
-    const response = yield call(getPatientsAPI);
-    yield put(getPatientsSuccess(response));
-  } catch (error) {
-    yield put(patientsApiFail(error));
-  }
-}
+import { addPatientAPI, getRecentPatientsAPI, getPatientDetailAPI, updatePatientDetailAPI, getMonitoredPatientsAPI, getNotMonitoredPatientsAPI, getConsentFormsAPI } from "../../helpers/api_helper";
+import { ADD_PATIENT, GET_RECENT_PATIENTS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, GET_MONITORED_PATIENTS, GET_NOT_MONITORED_PATIENTS, GET_CONSENT_FORMS } from "./actionTypes";
+import { addPatientSuccess, addPatientMessage, getPatients, getRecentPatientsSuccess, getPatientDetailSuccess, updatePatientDetailSuccess, updatePatientDetailFail, getPatientDetail, getMonitoredPatientsSuccess, getNotMonitoredPatientsSuccess, patientsApiFail, getConsentFormsSuccess, getConsentFormsFail } from "./actions";
 
 function* addPatientSaga({ payload }) {
   try {
@@ -62,12 +53,43 @@ function* updatePatientDetailSaga({ payload }) {
   }
 }
 
+function* fetchMonitoredPatients() {
+  try {
+    const response = yield call(getMonitoredPatientsAPI);
+    yield put(getMonitoredPatientsSuccess(response));
+  } catch (error) {
+    yield put(patientsApiFail(error));
+  }
+}
+
+function* fetchNotMonitoredPatients() {
+  try {
+    const response = yield call(getNotMonitoredPatientsAPI);
+    yield put(getNotMonitoredPatientsSuccess(response));
+  } catch (error) {
+    yield put(patientsApiFail(error));
+  }
+}
+
+function* fetchConsentForms(action) {
+  try {
+    const response = yield call(getConsentFormsAPI, action.payload);
+    // Debug: log API response for consent forms
+    console.log('ConsentForms API response:', response.data);
+    yield put(getConsentFormsSuccess(response.data));
+  } catch (error) {
+    yield put(getConsentFormsFail(error));
+  }
+}
+
 function* patientsSaga() {
-  yield takeEvery(GET_PATIENTS, fetchPatients);
   yield takeEvery(ADD_PATIENT, addPatientSaga);
   yield takeEvery(GET_RECENT_PATIENTS, fetchRecentPatients);
   yield takeEvery(GET_PATIENT_DETAIL, fetchPatientDetail);
   yield takeEvery(UPDATE_PATIENT_DETAIL, updatePatientDetailSaga);
+  yield takeEvery(GET_MONITORED_PATIENTS, fetchMonitoredPatients);
+  yield takeEvery(GET_NOT_MONITORED_PATIENTS, fetchNotMonitoredPatients);
+  yield takeEvery(GET_CONSENT_FORMS, fetchConsentForms);
 }
 
 export default patientsSaga; 

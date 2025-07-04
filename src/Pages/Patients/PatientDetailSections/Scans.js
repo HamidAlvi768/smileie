@@ -3,7 +3,8 @@ import { Card, CardBody, Button } from 'reactstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const mockScans = Array.from({ length: 8 }, (_, i) => ({
-  protocol: `Aligner protocol - Stephen Dyos`,
+  mainConcern: `Aligner protocol - Stephen Dyos`,
+  alignerNumber: i + 1, // Mock aligner number
   dueOn: `2025-05-27 12:1${i} GMT+5`,
   uploadedOn: `2025-05-27 11:5${i} GMT+5`,
 }));
@@ -43,7 +44,8 @@ const Scans = ({ patient }) => {
             <table className="table table-hover align-middle mb-0">
               <thead className="table-light">
                 <tr>
-                  <th>PROTOCOL</th>
+                  <th>MAIN CONCERN</th>
+                  <th>ALIGNER NUMBER</th>
                   <th style={{ cursor: 'pointer' }} onClick={() => handleSort('dueOn')}>
                     DUE ON{' '}
                     <i className={`mdi mdi-arrow-${sortBy === 'dueOn' && sortOrder === 'asc' ? 'up' : 'down'}-bold`}></i>
@@ -58,7 +60,8 @@ const Scans = ({ patient }) => {
               <tbody>
                 {sortedScans.map((scan, idx) => (
                   <tr key={idx}>
-                    <td>{scan.protocol}</td>
+                    <td>{scan.mainConcern}</td>
+                    <td className="text-center" style={{ verticalAlign: 'middle' }}>{scan.alignerNumber}</td>
                     <td>{scan.dueOn}</td>
                     <td>{scan.uploadedOn}</td>
                     <td>

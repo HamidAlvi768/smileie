@@ -27,8 +27,8 @@ const Info = ({ patient }) => {
     email: patientDetail.email || '',
     phone: patientDetail.phone || '',
     appActivation: 'Yes', // Not in API, keep as default or from patientDetail if available
+    appActivationDate: '2024-06-01', // Hardcoded for now
     dateOfBirth: patientDetail.dob || '',
-    practice: patientDetail.practice || 'Smileie UK',
   };
 
   // When opening the modal, initialize editedInfo with current values
@@ -55,7 +55,6 @@ const Info = ({ patient }) => {
       email: editedInfo.email,
       phone: editedInfo.phone,
       dob: editedInfo.dateOfBirth,
-      practice: editedInfo.practice,
     };
     dispatch(updatePatientDetail(patientDetail.id, data));
   };
@@ -101,7 +100,6 @@ const Info = ({ patient }) => {
     email: editedInfo.email,
     phone: editedInfo.phone,
     dateOfBirth: editedInfo.dateOfBirth,
-    practice: editedInfo.practice,
   }).every(val => val && val.trim() !== "");
 
   const renderEditForm = () => (
@@ -162,16 +160,18 @@ const Info = ({ patient }) => {
         <div className="form-group-fourth">
           <FormGroup>
             <Label for="appActivation">App Activation</Label>
-            <Input
-              type="select"
-              name="appActivation"
-              id="appActivation"
-              value={editedInfo.appActivation}
-              onChange={handleInputChange}
-            >
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </Input>
+            <div className="d-flex align-items-center gap-2">
+              <Input
+                type="select"
+                name="appActivation"
+                id="appActivation"
+                value={editedInfo.appActivation}
+                onChange={handleInputChange}
+              >
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </Input>
+            </div>
           </FormGroup>
         </div>
         <div className="form-group-fourth">
@@ -184,22 +184,6 @@ const Info = ({ patient }) => {
               value={editedInfo.dateOfBirth}
               onChange={handleInputChange}
             />
-          </FormGroup>
-        </div>
-        <div className="form-group-third">
-          <FormGroup>
-            <Label for="practice">Practice</Label>
-            <Input
-              type="select"
-              name="practice"
-              id="practice"
-              value={editedInfo.practice}
-              onChange={handleInputChange}
-            >
-              <option value="Smileie UK">Smileie UK</option>
-              <option value="Smileie US">Smileie US</option>
-              <option value="Smileie AU">Smileie AU</option>
-            </Input>
           </FormGroup>
         </div>
       </div>
@@ -241,15 +225,14 @@ const Info = ({ patient }) => {
                 <span className={`status-badge ${patientInfo.appActivation === 'Yes' ? 'active' : 'inactive'}`}>
                   {patientInfo.appActivation}
                 </span>
+                <span className="ms-2 text-muted" style={{ fontSize: '0.95em' }}>
+                  {patientInfo.appActivationDate}
+                </span>
               </div>
             </div>
             <div className="info-item">
               <label>Date of Birth</label>
               <div>{patientInfo.dateOfBirth}</div>
-            </div>
-            <div className="info-item">
-              <label>Practice</label>
-              <div>{patientInfo.practice}</div>
             </div>
           </div>
         </CardBody>

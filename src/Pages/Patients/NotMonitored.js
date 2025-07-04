@@ -17,7 +17,7 @@ import {
 } from "reactstrap";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import { getPatients, addPatient, clearPatientMessages } from "../../store/patients/actions";
+import { getNotMonitoredPatients, addPatient, clearPatientMessages } from "../../store/patients/actions";
 import { getDoctors } from "../../store/doctors/actions";
 import { useToast } from '../../components/Common/ToastContext';
 
@@ -121,11 +121,12 @@ const defaultFilters = {
 };
 
 const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [createPatientModal, setCreatePatientModal] = useState(false);
   const toggleCreatePatient = () => setCreatePatientModal(!createPatientModal);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const patients = useSelector(state => state.patients.patients);
+  const patients = useSelector(state => state.patients.notMonitoredPatients);
   const doctors = useSelector(state => state.doctor.doctors) || [];
   const successMessage = useSelector(state => state.patients.successMessage);
   const error = useSelector(state => state.patients.error);
@@ -138,7 +139,6 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     email: "",
     phone: "",
     dob: "",
-    practice: "",
     doctor_id: "",
   });
 
@@ -153,9 +153,19 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getPatients());
+    setIsLoading(true);
+    dispatch(getNotMonitoredPatients());
     dispatch(getDoctors());
   }, [dispatch]);
+
+  const notMonitoredPatients = useSelector((state) => state.patients.notMonitoredPatients);
+  const notMonitoredError = useSelector((state) => state.patients.error);
+
+  useEffect(() => {
+    if (notMonitoredPatients || notMonitoredError) {
+      setIsLoading(false);
+    }
+  }, [notMonitoredPatients, notMonitoredError]);
 
   // Map API patients to table data
   const data = patients && Array.isArray(patients) ? patients.map((p) => ({
@@ -201,7 +211,6 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
         email: "",
         phone: "",
         dob: "",
-        practice: "",
         doctor_id: "",
       });
       dispatch(clearPatientMessages());
@@ -209,11 +218,11 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
   }, [successMessage, showToast, dispatch]);
 
   useEffect(() => {
-    if (error) {
-      showToast({ message: typeof error === 'string' ? error : 'Failed to create patient', type: 'error', title: 'Error' });
+    if (notMonitoredError) {
+      showToast({ message: typeof notMonitoredError === 'string' ? notMonitoredError : 'Failed to create patient', type: 'error', title: 'Error' });
       dispatch(clearPatientMessages());
     }
-  }, [error, showToast, dispatch]);
+  }, [notMonitoredError, showToast, dispatch]);
 
   // Table row click handler (optional: navigate to patient detail)
   const handleRowClicked = (row) => {
@@ -430,17 +439,6 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                   <FormGroup className="mb-3">
                     <Label for="dob">Date of Birth</Label>
                     <Input type="date" id="dob" value={patientForm.dob} onChange={handlePatientFormChange} />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="practice">Practice</Label>
-                    <Input type="select" id="practice" value={patientForm.practice} onChange={handlePatientFormChange}>
-                      <option value="">Select practice</option>
-                      <option value="smileie-uk">Smileie UK</option>
-                      <option value="smileie-us">Smileie US</option>
-                      <option value="smileie-au">Smileie AU</option>
-                    </Input>
                   </FormGroup>
                 </Col>
                 <Col md={4}>

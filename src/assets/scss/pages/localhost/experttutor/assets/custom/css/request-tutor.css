@@ -1,0 +1,331 @@
+/* Request Tutor Page Styles */
+:root {
+    --request-tutor-primary: #564FFD;
+    --request-tutor-text-dark: #1B1B3F;
+    --request-tutor-text-light: #6F6F6F;
+    --request-tutor-bg-light: #F8F8F8;
+    --request-tutor-border: #E7E7E7;
+    --request-tutor-white: #FFFFFF;
+}
+
+.request-tutor-page {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--request-tutor-bg-light);
+    color: var(--request-tutor-text-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Override profile nav styles for this page */
+.request-tutor-page .profile-main-nav {
+    margin-bottom: 20px;
+}
+
+.request-tutor-page .profile-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 30px;
+}
+
+.request-tutor-main {
+    max-width: 1600px;
+    padding: 0 40px;
+    flex: 1 0 auto;
+}
+
+/* Footer specific styles */
+.main-footer {
+    flex-shrink: 0; /* Prevents the footer from shrinking */
+    width: 100%;
+    margin-top: auto; /* Pushes the footer to the bottom */
+}
+
+.request-tutor-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--request-tutor-text-dark);
+    margin-bottom: 2rem;
+    margin-left: -62rem;
+}
+
+.request-tutor-form {
+    background: transparent;
+    border-radius: 20px;
+    padding: 40px 60px;
+    width: 160%;
+    padding-top: 0px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Form Sections */
+.form-section {
+    margin-bottom: 30px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 500;
+    color: var(--request-tutor-text-dark);
+    margin-bottom: 8px;
+}
+
+.form-control,
+.form-select {
+    height: 52px;
+    padding: 0 20px;
+    width: 100%;
+    border: 1px solid var(--request-tutor-border);
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--request-tutor-text-dark);
+    background-color: var(--request-tutor-white);
+    transition: all 0.3s ease;
+}
+
+.form-control::placeholder {
+    color: #999;
+}
+
+.form-select {
+    color: #999;
+}
+
+.form-select option:not(:first-child) {
+    color: var(--request-tutor-text-dark);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--request-tutor-primary);
+    box-shadow: 0 0 0 2px rgba(86, 79, 253, 0.1);
+    outline: none;
+}
+
+.request-tutor-textarea {
+    height: auto;
+    padding: 20px;
+    min-height: 200px;
+    resize: none;
+}
+
+/* Two Column Layout */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 10px;
+}
+
+.form-row.three-columns {
+    grid-template-columns: 1fr 2fr 1fr;
+}
+
+/* Connected Inputs */
+.connected-inputs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.connector {
+    color: var(--request-tutor-text-dark);
+    font-weight: 500;
+}
+
+/* File Upload */
+.file-upload {
+    width: 100%;
+}
+
+.file-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.file-name {
+    width: 100%;
+    padding-right: 100px; /* Space for the button */
+}
+
+.attach-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--request-tutor-primary);
+    color: var(--request-tutor-white);
+    border: none;
+    padding: 8px 24px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    height: 38px;
+    line-height: 22px;
+}
+
+.attach-btn:hover {
+    background: #4540E5;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 40px;
+}
+
+.preview-btn {
+    border: none;
+    color: var(--request-tutor-white);
+    background: var(--request-tutor-primary);
+    padding: 10px 32px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.preview-btn:hover {
+    background: #4540E5;
+}
+
+.finish-btn {
+    background: #FDA34F;
+    color: var(--request-tutor-white);
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.finish-btn:hover {
+    background: #ec924a;
+}
+
+/* Responsive Styles */
+@media (max-width: 1400px) {
+    .request-tutor-form {
+        width: 140%;
+    }
+    
+    .request-tutor-title {
+        margin-left: -40rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    .request-tutor-form {
+        width: 120%;
+    }
+    
+    .request-tutor-title {
+        margin-left: -20rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .request-tutor-main {
+        margin: 0 auto;
+    }
+
+    .request-tutor-form {
+        width: 100%;
+        padding: 30px 40px;
+    }
+    
+    .request-tutor-title {
+        margin-left: 0;
+        text-align: center;
+        font-size: 2rem;
+    }
+    
+    .form-row.three-columns {
+        grid-template-columns: 1fr 1.5fr 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .request-tutor-page {
+        padding-top: 20px;
+    }
+
+    .request-tutor-main {
+        padding: 0 15px;
+    }
+
+    .request-tutor-form {
+        padding: 20px 15px;
+    }
+
+    .form-row,
+    .form-row.three-columns {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .connected-inputs {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .connector {
+        align-self: flex-start;
+        margin: 5px 0;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .preview-btn,
+    .finish-btn {
+        width: 100%;
+        height: 48px;
+    }
+    
+    .form-control,
+    .form-select {
+        height: 48px;
+        font-size: 14px;
+    }
+    
+    .form-label {
+        font-size: 14px;
+    }
+    
+    .request-tutor-textarea {
+        min-height: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .request-tutor-title {
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .request-tutor-form {
+        padding: 15px 10px;
+    }
+    
+    .form-section {
+        margin-bottom: 20px;
+    }
+    
+    .attach-btn {
+        padding: 6px 16px;
+        font-size: 14px;
+        height: 34px;
+    }
+    
+    .file-name {
+        padding-right: 80px;
+    }
+} 

@@ -37,9 +37,9 @@ const mockActions = [
 ];
 
 const actionTypeMeta = {
-  review: { icon: 'mdi-message-alert-outline', color: '#f39c12' },
-  instruction: { icon: 'mdi-account-check-outline', color: '#1da5fe' },
-  observation: { icon: 'mdi-eye-outline', color: '#e74c3c' },
+  review: { icon: 'mdi-information-outline', color: '#f39c12' },
+  instruction: { icon: 'mdi-information-outline', color: '#f39c12' },
+  observation: { icon: 'mdi-information-outline', color: '#f39c12' },
 };
 
 const actionTypeOptions = [

@@ -1,6 +1,6 @@
 import axios from "axios";
 import config from "../config";
-import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API, GET_GENERAL_TYPES_API, ADD_GENERAL_TYPE_API, UPDATE_GENERAL_TYPE_API, DELETE_GENERAL_TYPE_API, GET_PATIENTS_API, ADD_PATIENT_API, GET_RECENT_PATIENTS_API, GET_PATIENT_DETAIL_API, GET_TUTORIALS_API, ADD_TUTORIAL_API, UPDATE_TUTORIAL_API, DELETE_TUTORIAL_API, UPDATE_PATIENT_DETAIL_API } from "./url_helper";
+import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API, GET_GENERAL_TYPES_API, ADD_GENERAL_TYPE_API, UPDATE_GENERAL_TYPE_API, DELETE_GENERAL_TYPE_API, GET_MONITORED_PATIENTS_API, GET_NOT_MONITORED_PATIENTS_API, ADD_PATIENT_API, GET_RECENT_PATIENTS_API, GET_PATIENT_DETAIL_API, GET_TUTORIALS_API, ADD_TUTORIAL_API, UPDATE_TUTORIAL_API, DELETE_TUTORIAL_API, UPDATE_PATIENT_DETAIL_API, GET_CONSENT_FORMS_API } from "./url_helper";
 
 // default
 axios.defaults.baseURL = config.API_URL;
@@ -183,11 +183,15 @@ export const loginAPI = async (email, password) => {
 };
 
 // Patients API
-export const getPatientsAPI = () => api.get(GET_PATIENTS_API);
+export const getMonitoredPatientsAPI = () => api.get(GET_MONITORED_PATIENTS_API);
+export const getNotMonitoredPatientsAPI = () => api.get(GET_NOT_MONITORED_PATIENTS_API);
 export const addPatientAPI = (patient) => api.create(ADD_PATIENT_API, patient);
 export const getRecentPatientsAPI = () => api.get(GET_RECENT_PATIENTS_API);
 export const getPatientDetailAPI = (id) => api.get(`${GET_PATIENT_DETAIL_API}?id=${id}`);
 export const updatePatientDetailAPI = (id, data) => api.update(`${UPDATE_PATIENT_DETAIL_API}?id=${id}`, data);
+export const getConsentFormsAPI = async (patientId) => {
+  return await api.get(`${GET_CONSENT_FORMS_API}?id=${patientId}`);
+};
 
 // Tutorials API
 export const getTutorialsAPI = () => api.get(GET_TUTORIALS_API);

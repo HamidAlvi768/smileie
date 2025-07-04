@@ -1,5 +1,6 @@
 module.exports = {
   // API_URL: "http://192.168.18.53/jantrah/smileie/backend/api/",
+  WEB_APP_URL: "https://smileie.jantrah.com/backend",
   API_URL: "https://smileie.jantrah.com/backend/api/",
   google: {
     API_KEY: "",

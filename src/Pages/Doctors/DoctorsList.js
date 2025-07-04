@@ -278,9 +278,11 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
         type: "success",
         title: "Success",
       });
+      setCreateDoctorModal(false);
+      resetForm();
       dispatch(clearDoctorError());
     }
-  }, [successMessage, showToast, dispatch]);
+  }, [successMessage, showToast, dispatch, resetForm]);
 
   useEffect(() => {
     if (error) {
@@ -289,6 +291,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
         type: 'error',
         title: 'Error',
       });
+      // Do NOT close the modal or reset the form on error
       dispatch(clearDoctorError());
     }
   }, [error, showToast, dispatch]);
@@ -332,21 +335,16 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
       setIsSubmitting(true);
       try {
         await dispatch(addDoctor(form));
-        toggleCreateDoctor();
         fetchDoctors();
         setCurrentPage(1); // Reset to first page
       } catch (error) {
         console.error("Error creating doctor:", error);
-        showToast({
-          message: error?.response?.data?.message || error?.message || "Failed to create doctor",
-          type: "error",
-          title: "Error",
-        });
+        // Error toast is handled in useEffect
       } finally {
         setIsSubmitting(false);
       }
     },
-    [dispatch, form, validateForm, toggleCreateDoctor, fetchDoctors]
+    [dispatch, form, validateForm, fetchDoctors]
   );
 
   const handleRowClicked = useCallback(

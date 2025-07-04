@@ -19,17 +19,17 @@ import {
 
 const PatientOrders = () => {
   const [orders, setOrders] = useState([
-    { id: 1, mainConcern: 'Impression Kit', comments: 'Send ASAP', date: '2024-05-29', status: 'Pending' },
+    { id: 1, mainConcern: 'Impression Kit', comments: 'Send ASAP', date: '2024-05-29', status: 'New' },
     { id: 2, mainConcern: 'Day time dual arch', comments: 'Patient prefers day time', date: '2024-05-28', status: 'Shipped' },
     { id: 3, mainConcern: 'Refinement Aligners', comments: 'Second refinement needed', date: '2024-05-27', status: 'Delivered' },
   ]);
   const [modal, setModal] = useState(false);
-  const [form, setForm] = useState({ mainConcern: '', comments: '', status: 'Pending' });
+  const [form, setForm] = useState({ mainConcern: '', comments: '', status: 'New', date: '' });
 
   const toggleModal = () => {
     setModal(!modal);
     if (!modal) {
-      setForm({ mainConcern: '', comments: '', status: 'Pending' });
+      setForm({ mainConcern: '', comments: '', status: 'New', date: '' });
     }
   };
 
@@ -45,7 +45,7 @@ const PatientOrders = () => {
         id: orders.length + 1,
         mainConcern: form.mainConcern,
         comments: form.comments,
-        date: new Date().toISOString().split('T')[0],
+        date: form.date || new Date().toISOString().split('T')[0],
         status: form.status,
       },
     ]);
@@ -134,22 +134,39 @@ const PatientOrders = () => {
                 onChange={handleChange}
               />
             </FormGroup>
-            <FormGroup>
-              <Label for="status">Status</Label>
-              <Input
-                id="status"
-                name="status"
-                type="select"
-                value={form.status}
-                onChange={handleChange}
-                required
-              >
-                <option>Pending</option>
-                <option>Shipped</option>
-                <option>Delivered</option>
-                <option>Cancelled</option>
-              </Input>
-            </FormGroup>
+            <Row>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="status">Status</Label>
+                  <Input
+                    id="status"
+                    name="status"
+                    type="select"
+                    value={form.status}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option>New</option>
+                    <option>Shipped</option>
+                    <option>Delivered</option>
+                    <option>Cancelled</option>
+                  </Input>
+                </FormGroup>
+              </Col>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="date">Date</Label>
+                  <Input
+                    id="date"
+                    name="date"
+                    type="date"
+                    value={form.date}
+                    onChange={handleChange}
+                    required
+                  />
+                </FormGroup>
+              </Col>
+            </Row>
           </ModalBody>
           <ModalFooter>
             <Button color="secondary" onClick={toggleModal} type="button">

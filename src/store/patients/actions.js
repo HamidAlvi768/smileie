@@ -1,4 +1,4 @@
-import { GET_PATIENTS, GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL, GET_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL } from "./actionTypes";
+import { GET_PATIENTS, GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL, GET_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL, GET_MONITORED_PATIENTS, GET_MONITORED_PATIENTS_SUCCESS, GET_NOT_MONITORED_PATIENTS, GET_NOT_MONITORED_PATIENTS_SUCCESS, GET_CONSENT_FORMS, GET_CONSENT_FORMS_SUCCESS, GET_CONSENT_FORMS_FAIL } from "./actionTypes";
 
 export const getPatients = () => ({ type: GET_PATIENTS });
 export const getPatientsSuccess = (patients) => ({ type: GET_PATIENTS_SUCCESS, payload: patients });
@@ -13,4 +13,11 @@ export const getPatientDetailSuccess = (patient) => ({ type: GET_PATIENT_DETAIL_
 export const updatePatientDetail = (id, data) => ({ type: UPDATE_PATIENT_DETAIL, payload: { id, data } });
 export const updatePatientDetailSuccess = (patient) => ({ type: UPDATE_PATIENT_DETAIL_SUCCESS, payload: patient });
 export const updatePatientDetailFail = (error) => ({ type: UPDATE_PATIENT_DETAIL_FAIL, payload: error });
-export const clearPatientMessages = () => ({ type: 'CLEAR_PATIENT_MESSAGES' }); 
+export const clearPatientMessages = () => ({ type: 'CLEAR_PATIENT_MESSAGES' });
+export const getMonitoredPatients = () => ({ type: GET_MONITORED_PATIENTS });
+export const getMonitoredPatientsSuccess = (patients) => ({ type: GET_MONITORED_PATIENTS_SUCCESS, payload: patients });
+export const getNotMonitoredPatients = () => ({ type: GET_NOT_MONITORED_PATIENTS });
+export const getNotMonitoredPatientsSuccess = (patients) => ({ type: GET_NOT_MONITORED_PATIENTS_SUCCESS, payload: patients });
+export const getConsentForms = (patientId) => ({ type: GET_CONSENT_FORMS, payload: patientId });
+export const getConsentFormsSuccess = (data) => ({ type: GET_CONSENT_FORMS_SUCCESS, payload: data });
+export const getConsentFormsFail = (error) => ({ type: GET_CONSENT_FORMS_FAIL, payload: error }); 

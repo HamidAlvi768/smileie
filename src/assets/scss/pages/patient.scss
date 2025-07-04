@@ -2387,3 +2387,17 @@ td > .d-flex {
   display: inline-block;
 }
 
+.message {
+  .p-2.rounded.bg-primary,
+  .p-2.rounded.bg-light {
+    // Remove default border-radius
+    border-radius: 0;
+  }
+  .p-2.rounded.bg-primary {
+    border-radius: 20px 20px 6px 20px !important;
+  }
+  .p-2.rounded.bg-light {
+    border-radius: 20px 20px 20px 6px !important;
+  }
+}
+

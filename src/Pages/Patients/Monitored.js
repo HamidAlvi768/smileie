@@ -17,7 +17,7 @@ import {
 } from "reactstrap";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
-import { getPatients, addPatient, clearPatientMessages } from "../../store/patients/actions";
+import { getMonitoredPatients, addPatient, clearPatientMessages } from "../../store/patients/actions";
 import { useToast } from "../../components/Common/ToastContext";
 import { getDoctors } from "../../store/doctors/actions";
 
@@ -73,18 +73,15 @@ const columns = [
     minWidth: "180px",
   },
   {
-    name: "TYPE (MX/MD)",
-    selector: (row) => row.type,
+    name: "ALIGNER TYPE",
+    selector: (row) => row.alignerType,
     sortable: true,
     cell: (row) => (
       <div className="cell-content">
-        <div>{row.type}</div>
-        <div className="text-muted" style={{ fontSize: "0.85em" }}>
-          {row.typeDetail}
-        </div>
+        <div className="fw-bold">{row.alignerType || 'Day Aligner'}</div>
       </div>
     ),
-    minWidth: "200px",
+    minWidth: "160px",
   },
   {
     name: "LATEST SCAN",
@@ -147,7 +144,6 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
         email: "",
         phone: "",
         dob: "",
-        practice: "",
         doctor_id: "",
       });
     }
@@ -155,8 +151,8 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   };
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const patients = useSelector((state) => state.patients.patients);
-  const patientsError = useSelector((state) => state.patients.error);
+  const monitoredPatients = useSelector((state) => state.patients.monitoredPatients);
+  const monitoredError = useSelector((state) => state.patients.error);
   const successMessage = useSelector((state) => state.patients.successMessage);
   const doctors = useSelector((state) => state.doctor.doctors) || [];
   const showToast = useToast();
@@ -178,7 +174,6 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     email: "",
     phone: "",
     dob: "",
-    practice: "",
     doctor_id: "",
   };
   const [patientForm, setPatientForm] = useState(initialPatientForm);
@@ -229,20 +224,16 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   // Scroll to top on mount and fetch data
   useEffect(() => {
     window.scrollTo(0, 0);
-    fetchData();
+    setIsLoading(true);
+    dispatch(getMonitoredPatients());
+    dispatch(getDoctors());
   }, [dispatch]);
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      await dispatch(getPatients());
-      await dispatch(getDoctors());
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
+  useEffect(() => {
+    if (monitoredPatients || monitoredError) {
       setIsLoading(false);
     }
-  };
+  }, [monitoredPatients, monitoredError]);
 
   // Add a handler for row click
   const handleRowClicked = (row) => {
@@ -307,7 +298,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
           </div>
         ),
       };
-    } else if (col.name === "TYPE (MX/MD)") {
+    } else if (col.name === "ALIGNER TYPE") {
       return {
         ...col,
         cell: (row) => (
@@ -319,10 +310,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
               handleRowClicked(row);
             }}
           >
-            <div>{row.type}</div>
-            <div className="text-muted" style={{ fontSize: "0.85em" }}>
-              {row.typeDetail}
-            </div>
+            <div>{row.alignerType || 'Day Aligner'}</div>
           </div>
         ),
       };
@@ -365,8 +353,8 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
 
   // Map API patients to table data
   const rawData =
-    patients && Array.isArray(patients)
-      ? patients.map((p, idx) => ({
+    monitoredPatients && Array.isArray(monitoredPatients)
+      ? monitoredPatients.map((p, idx) => ({
           name:
             `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
             p.username ||
@@ -375,8 +363,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
           latestActivity: p.latestActivity || mockPatientFields.latestActivity,
           latestActivityTime:
             p.latestActivityTime || mockPatientFields.latestActivityTime,
-          type: p.type || mockPatientFields.type,
-          typeDetail: p.typeDetail || mockPatientFields.typeDetail,
+          alignerType: p.alignerType || 'Day Aligner',
           latestScan: p.latestScan || mockPatientFields.latestScan,
           lateInfo: p.lateInfo || mockPatientFields.lateInfo,
           scanInterval: p.scanInterval || mockPatientFields.scanInterval,
@@ -453,15 +440,15 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   }, [successMessage, showToast, dispatch]);
 
   useEffect(() => {
-    if (patientsError) {
+    if (monitoredError) {
       showToast({
-        message: typeof patientsError === 'string' ? patientsError : 'Failed to create patient',
+        message: typeof monitoredError === 'string' ? monitoredError : 'Failed to create patient',
         type: 'error',
         title: 'Error',
       });
       dispatch(clearPatientMessages());
     }
-  }, [patientsError, showToast, dispatch]);
+  }, [monitoredError, showToast, dispatch]);
 
   return (
     <div className="page-content">
@@ -623,23 +610,6 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                       value={patientForm.dob}
                       onChange={handlePatientFormChange}
                     />
-                  </FormGroup>
-                </Col>
-
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="practice">Practice</Label>
-                    <Input
-                      type="select"
-                      id="practice"
-                      value={patientForm.practice}
-                      onChange={handlePatientFormChange}
-                    >
-                      <option value="">Select practice</option>
-                      <option value="smileie-uk">Smileie UK</option>
-                      <option value="smileie-us">Smileie US</option>
-                      <option value="smileie-au">Smileie AU</option>
-                    </Input>
                   </FormGroup>
                 </Col>
 

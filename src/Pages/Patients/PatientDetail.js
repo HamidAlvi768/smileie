@@ -34,6 +34,7 @@ import { getPatientDetail } from "../../store/patients/actions";
 import Monitoring from "./PatientDetailSections/Monitoring";
 import Protocol from "./PatientDetailSections/Protocol";
 import Info from "./PatientDetailSections/Info";
+import Alerts from "./PatientDetailSections/Alerts";
 import Notes from "./PatientDetailSections/Notes";
 import Files from "./PatientDetailSections/Files";
 import Guardians from "./PatientDetailSections/Guardians";
@@ -129,6 +130,7 @@ const NAVBAR_ITEMS_TEMPLATE = [
   { id: "scans", label: "Scans", url: "/patients/:id/scans" },
   { id: "order", label: "Orders", url: "/patients/:id/order" },
   { id: "history", label: "History", url: "/patients/:id/history" },
+  { id: "alerts", label: "Alerts", url: "/patients/:id/alerts" },
 ];
 
 const QUICK_REPLY_OPTIONS_DATA = [
@@ -225,7 +227,7 @@ function Message({ sender, content, date, time, index, onSaveQuickReply, myId })
         <small className="text-muted">{date}</small>
       </div>
       <div
-        className={`p-2 rounded ${isSent ? 'bg-teal text-white' : 'bg-light'}`}
+        className={`p-2 rounded ${isSent ? 'bg-primary text-white' : 'bg-light'}`}
         style={isSent ? { backgroundColor: '#17c3b2', color: 'white' } : {}}
       >
         {content}
@@ -1040,6 +1042,10 @@ const PatientDetail = () => {
                 path="info"
                 element={<Info patient={PATIENT_MOCK_DATA} />}
               />
+              <Route
+                path="alerts"
+                element={<Alerts patient={PATIENT_MOCK_DATA} />}
+              />
               {/* Temporarily commented out Notes route
               <Route
                 path="notes"
@@ -1052,7 +1058,7 @@ const PatientDetail = () => {
               />
               <Route
                 path="consent-forms"
-                element={<ConsentForms patient={PATIENT_MOCK_DATA} />}
+                element={<ConsentForms patientId={patientDetail?.id} />}
               />
               <Route
                 path="treatment-plan-3d"

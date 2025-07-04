@@ -95,7 +95,7 @@ const UserPanel = () => {
 
                 <div className="flex-grow-1 overflow-hidden">
                   <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Total Patients</p>
+                    <p className="mb-0">Patients</p>
                   </div>
                   <div className="d-flex align-items-center">
                     <h5 className="mb-0"><CountUp end={stats.patients ?? 0} /></h5>
@@ -145,15 +145,15 @@ const UserPanel = () => {
                 <div className="flex-shrink-0 me-3 align-self-center">
                   <div className="avatar-sm">
                     <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
-                      <i className="fas fa-teeth"></i>
+                      <i className="ri-shopping-cart-2-line"></i>
                     </div>
                   </div>
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Aligners</p>
+                    <p className="mb-0">Orders</p>
                   </div>
-                  <h5 className="mb-0"><CountUp end={stats.aligners ?? 0} /></h5>
+                  <h5 className="mb-0"><CountUp end={stats.orders ?? 0} /></h5>
                 </div>
               </div>
             </CardBody>
