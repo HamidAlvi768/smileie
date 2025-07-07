@@ -65,7 +65,7 @@ const PATIENT_MOCK_DATA = {
   alignerNumber: 21,
   excludedTeeth: "Not Set",
   started: "2024-01-01",
-  patientApp: "Activated",
+  app_activation: 1, // 1 = Activated, 0 = Not Activated
   scanBox: "Assigned",
   frequency: "Every week (3 day(s) NO-GO)",
   upperLower: "Both",
@@ -116,7 +116,7 @@ const NAVBAR_ITEMS_TEMPLATE = [
   /* Temporarily commented out Notes
   { id: "notes", label: "Notes", url: "/patients/:id/notes" },
   */
-  { id: "files", label: "Files", url: "/patients/:id/files" },
+  // { id: "files", label: "Files", url: "/patients/:id/files" },
   { id: "consent-forms", label: "Consent Forms", url: "/patients/:id/consent-forms" },
   { id: "treatment-plan-3d", label: "3D Treatment Plan", url: "/patients/:id/treatment-plan-3d" },
   // { id: "guardians", label: "Guardians", url: "/patients/:id/guardians" },
@@ -262,7 +262,7 @@ const PatientDetail = () => {
     alignerNumber: 21,
     excludedTeeth: "Not Set",
     started: "2024-01-01",
-    patientApp: "Activated",
+    app_activation: 1, // 1 = Activated, 0 = Not Activated
     scanBox: "Assigned",
     frequency: "Every week (3 day(s) NO-GO)",
     upperLower: "Both",
@@ -286,10 +286,11 @@ const PatientDetail = () => {
     },
   };
 
-  // Combine static data with dynamic name from API
+  // Combine static data with dynamic name and app_activation from API
   const patient = {
     ...staticPatientData,
     name: patientDetail?.full_name || "Loading...",
+    app_activation: typeof patientDetail?.app_activation !== 'undefined' ? patientDetail.app_activation : staticPatientData.app_activation,
   };
 
   // Scroll to top on mount or when patient ID changes
@@ -851,7 +852,7 @@ const PatientDetail = () => {
                   </div>
                   <div className="mb-2 d-flex align-items-center justify-content-between">
                     <strong>Patient app:</strong>
-                    <span>{patient.patientApp || "Activated"}</span>
+                    <span>{patient.app_activation === 1 ? "Activated" : "Not Activated"}</span>
                   </div>
                   <div className="mb-2 d-flex align-items-center justify-content-between">
                     <strong>Aligner #:</strong>

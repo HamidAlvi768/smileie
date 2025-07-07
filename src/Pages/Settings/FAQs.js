@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { getFaqs, addFaq, updateFaq, deleteFaq } from "../../store/faqs/actions";
 import { Container, Row, Col, Card, CardBody, Button, Table, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input, Spinner, Alert } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { useToast } from '../../components/Common/ToastContext';
 
 const FAQs = () => {
   document.title = "FAQs | Smileie";
   const dispatch = useDispatch();
   const { faqs, loading, error, adding, addError, updating, updateError, deleting, deleteError } = useSelector(state => state.faqs);
+  const showToast = useToast();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -19,19 +21,47 @@ const FAQs = () => {
     dispatch(getFaqs());
   }, [dispatch]);
 
+  // Toast notifications for FAQ actions
+  useEffect(() => {
+    if (!adding && !addError && prevAdding.current) {
+      showToast({ message: 'FAQ added successfully!', type: 'success', title: 'Success' });
+    }
+    if (!updating && !updateError && prevUpdating.current) {
+      showToast({ message: 'FAQ updated successfully!', type: 'success', title: 'Success' });
+    }
+    if (!deleting && !deleteError && prevDeleting.current) {
+      showToast({ message: 'FAQ deleted successfully!', type: 'success', title: 'Success' });
+    }
+    if (addError && !adding) {
+      showToast({ message: addError, type: 'error', title: 'Error' });
+    }
+    if (updateError && !updating) {
+      showToast({ message: updateError, type: 'error', title: 'Error' });
+    }
+    if (deleteError && !deleting) {
+      showToast({ message: deleteError, type: 'error', title: 'Error' });
+    }
+  }, [adding, addError, updating, updateError, deleting, deleteError, showToast]);
+
   // Close modal and clear form after successful add or update
   const prevAdding = React.useRef(false);
   const prevUpdating = React.useRef(false);
+  const prevDeleting = React.useRef(false);
   useEffect(() => {
-    // Only close modal if we were adding/updating and now not, and it was successful
-    if ((prevAdding.current && !adding && modalOpen && !addError && !editMode) ||
-        (prevUpdating.current && !updating && modalOpen && !updateError && editMode)) {
+    // Only close modal if we were adding and now not, and it was successful (add)
+    if (prevAdding.current && !adding && modalOpen && !addError && !editMode) {
+      setModalOpen(false);
+      setCurrentFaq({ id: null, question: "", answer: "" });
+    }
+    // Only close modal if we were updating and now not, and it was successful (edit)
+    if (prevUpdating.current && !updating && modalOpen && !updateError && editMode) {
       setModalOpen(false);
       setCurrentFaq({ id: null, question: "", answer: "" });
     }
     prevAdding.current = adding;
     prevUpdating.current = updating;
-  }, [adding, addError, updating, updateError, modalOpen, editMode]);
+    prevDeleting.current = deleting;
+  }, [adding, addError, updating, updateError, modalOpen, editMode, deleting]);
 
   const openAddModal = () => {
     setEditMode(false);

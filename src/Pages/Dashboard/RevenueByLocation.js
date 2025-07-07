@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { VectorMap } from '@react-jvectormap/core';
 import { worldMill } from '@react-jvectormap/world';
 import {
@@ -17,6 +18,7 @@ const countryData = {
 };
 
 const RevenueByLocation = () => {
+    const stats = useSelector(state => state.stats.stats);
     return (
         <React.Fragment>
             <Col lg={4}>
@@ -68,8 +70,7 @@ const RevenueByLocation = () => {
                             <div className="d-flex justify-content-between mb-3">
                                 <div>
                                     <p className="text-muted mb-1">Total Patients</p>
-                                    {/* Updated total from countryData */}
-                                    <h5 className="mb-0">1,460</h5>
+                                    <h5 className="mb-0">{stats.patients ?? 0}</h5>
                                 </div>
                                 <div>
                                     <p className="text-muted mb-1">New This Month</p>
