@@ -1,4 +1,4 @@
-import { GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL_SUCCESS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL, GET_MONITORED_PATIENTS_SUCCESS, GET_NOT_MONITORED_PATIENTS_SUCCESS, GET_CONSENT_FORMS, GET_CONSENT_FORMS_SUCCESS, GET_CONSENT_FORMS_FAIL } from "./actionTypes";
+import { GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL_SUCCESS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL, GET_MONITORED_PATIENTS_SUCCESS, GET_NOT_MONITORED_PATIENTS_SUCCESS, GET_CONSENT_FORMS, GET_CONSENT_FORMS_SUCCESS, GET_CONSENT_FORMS_FAIL, CREATE_3D_PLAN, CREATE_3D_PLAN_SUCCESS, CREATE_3D_PLAN_FAIL, GET_3D_PLAN, GET_3D_PLAN_SUCCESS, GET_3D_PLAN_FAIL, UPDATE_3D_PLAN, UPDATE_3D_PLAN_SUCCESS, UPDATE_3D_PLAN_FAIL, DELETE_3D_PLAN, DELETE_3D_PLAN_SUCCESS, DELETE_3D_PLAN_FAIL } from "./actionTypes";
 
 const INIT_STATE = {
   patients: [],
@@ -14,6 +14,13 @@ const INIT_STATE = {
   consentForms: [],
   consentFormsLoading: false,
   consentFormsError: null,
+  // 3D Plans state
+  threeDPlan: null,
+  threeDPlanLoading: false,
+  threeDPlanError: null,
+  creating3DPlan: false,
+  updating3DPlan: false,
+  deleting3DPlan: false,
 };
 
 const patientsReducer = (state = INIT_STATE, action) => {
@@ -48,6 +55,36 @@ const patientsReducer = (state = INIT_STATE, action) => {
       return { ...state, consentForms: Array.isArray(action.payload) ? action.payload : [], consentFormsLoading: false };
     case GET_CONSENT_FORMS_FAIL:
       return { ...state, consentFormsLoading: false, consentFormsError: action.payload, consentForms: [] };
+    
+    // 3D Plans cases
+    case CREATE_3D_PLAN:
+      return { ...state, creating3DPlan: true, threeDPlanError: null };
+    case CREATE_3D_PLAN_SUCCESS:
+      return { ...state, threeDPlan: action.payload.data, creating3DPlan: false, threeDPlanError: null };
+    case CREATE_3D_PLAN_FAIL:
+      return { ...state, creating3DPlan: false, threeDPlanError: action.payload };
+    
+    case GET_3D_PLAN:
+      return { ...state, threeDPlanLoading: true, threeDPlanError: null };
+    case GET_3D_PLAN_SUCCESS:
+      return { ...state, threeDPlan: action.payload.data, threeDPlanLoading: false, threeDPlanError: null };
+    case GET_3D_PLAN_FAIL:
+      return { ...state, threeDPlanLoading: false, threeDPlanError: action.payload };
+    
+    case UPDATE_3D_PLAN:
+      return { ...state, updating3DPlan: true, threeDPlanError: null };
+    case UPDATE_3D_PLAN_SUCCESS:
+      return { ...state, threeDPlan: action.payload.data, updating3DPlan: false, threeDPlanError: null };
+    case UPDATE_3D_PLAN_FAIL:
+      return { ...state, updating3DPlan: false, threeDPlanError: action.payload };
+    
+    case DELETE_3D_PLAN:
+      return { ...state, deleting3DPlan: true, threeDPlanError: null };
+    case DELETE_3D_PLAN_SUCCESS:
+      return { ...state, threeDPlan: null, deleting3DPlan: false, threeDPlanError: null };
+    case DELETE_3D_PLAN_FAIL:
+      return { ...state, deleting3DPlan: false, threeDPlanError: action.payload };
+    
     case 'CLEAR_PATIENT_MESSAGES':
       return { ...state, successMessage: null, error: null };
     default:

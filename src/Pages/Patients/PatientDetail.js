@@ -1022,7 +1022,7 @@ const PatientDetail = () => {
             */}
           </Col>
           {/* Main content */}
-          <Col md={8} lg={9}>
+          <Col md={8} lg={9} style={{ height: "100%" }}>
             <Routes>
               <Route
                 path=""
@@ -1062,7 +1062,7 @@ const PatientDetail = () => {
               />
               <Route
                 path="treatment-plan-3d"
-                element={<TreatmentPlan3D patient={PATIENT_MOCK_DATA} />}
+                element={<TreatmentPlan3D patient={patientDetail} />}
               />
               <Route
                 path="guardians"

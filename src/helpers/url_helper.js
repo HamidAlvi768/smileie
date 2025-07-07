@@ -56,4 +56,10 @@ export const ADD_TUTORIAL_API = "/tutorials/create";
 export const UPDATE_TUTORIAL_API = "/tutorials/update";
 export const DELETE_TUTORIAL_API = "/tutorials/delete";
 
+//3d-plans
+export const CREATE_3D_PLAN_API = "/3d-plans/create";
+export const GET_3D_PLAN_API = "/3d-plans/view";
+export const UPDATE_3D_PLAN_API = "/3d-plans/update";
+export const DELETE_3D_PLAN_API = "/3d-plans/delete";
+
 

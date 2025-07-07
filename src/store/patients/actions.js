@@ -1,4 +1,4 @@
-import { GET_PATIENTS, GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL, GET_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL, GET_MONITORED_PATIENTS, GET_MONITORED_PATIENTS_SUCCESS, GET_NOT_MONITORED_PATIENTS, GET_NOT_MONITORED_PATIENTS_SUCCESS, GET_CONSENT_FORMS, GET_CONSENT_FORMS_SUCCESS, GET_CONSENT_FORMS_FAIL } from "./actionTypes";
+import { GET_PATIENTS, GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL, GET_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL, GET_MONITORED_PATIENTS, GET_MONITORED_PATIENTS_SUCCESS, GET_NOT_MONITORED_PATIENTS, GET_NOT_MONITORED_PATIENTS_SUCCESS, GET_CONSENT_FORMS, GET_CONSENT_FORMS_SUCCESS, GET_CONSENT_FORMS_FAIL, CREATE_3D_PLAN, CREATE_3D_PLAN_SUCCESS, CREATE_3D_PLAN_FAIL, GET_3D_PLAN, GET_3D_PLAN_SUCCESS, GET_3D_PLAN_FAIL, UPDATE_3D_PLAN, UPDATE_3D_PLAN_SUCCESS, UPDATE_3D_PLAN_FAIL, DELETE_3D_PLAN, DELETE_3D_PLAN_SUCCESS, DELETE_3D_PLAN_FAIL } from "./actionTypes";
 
 export const getPatients = () => ({ type: GET_PATIENTS });
 export const getPatientsSuccess = (patients) => ({ type: GET_PATIENTS_SUCCESS, payload: patients });
@@ -20,4 +20,21 @@ export const getNotMonitoredPatients = () => ({ type: GET_NOT_MONITORED_PATIENTS
 export const getNotMonitoredPatientsSuccess = (patients) => ({ type: GET_NOT_MONITORED_PATIENTS_SUCCESS, payload: patients });
 export const getConsentForms = (patientId) => ({ type: GET_CONSENT_FORMS, payload: patientId });
 export const getConsentFormsSuccess = (data) => ({ type: GET_CONSENT_FORMS_SUCCESS, payload: data });
-export const getConsentFormsFail = (error) => ({ type: GET_CONSENT_FORMS_FAIL, payload: error }); 
+export const getConsentFormsFail = (error) => ({ type: GET_CONSENT_FORMS_FAIL, payload: error });
+
+// 3D Plans Actions
+export const create3DPlan = (planData) => ({ type: CREATE_3D_PLAN, payload: planData });
+export const create3DPlanSuccess = (plan) => ({ type: CREATE_3D_PLAN_SUCCESS, payload: plan });
+export const create3DPlanFail = (error) => ({ type: CREATE_3D_PLAN_FAIL, payload: error });
+
+export const get3DPlan = (patientId) => ({ type: GET_3D_PLAN, payload: patientId });
+export const get3DPlanSuccess = (plan) => ({ type: GET_3D_PLAN_SUCCESS, payload: plan });
+export const get3DPlanFail = (error) => ({ type: GET_3D_PLAN_FAIL, payload: error });
+
+export const update3DPlan = (planData) => ({ type: UPDATE_3D_PLAN, payload: planData });
+export const update3DPlanSuccess = (plan) => ({ type: UPDATE_3D_PLAN_SUCCESS, payload: plan });
+export const update3DPlanFail = (error) => ({ type: UPDATE_3D_PLAN_FAIL, payload: error });
+
+export const delete3DPlan = (id) => ({ type: DELETE_3D_PLAN, payload: id });
+export const delete3DPlanSuccess = (id) => ({ type: DELETE_3D_PLAN_SUCCESS, payload: id });
+export const delete3DPlanFail = (error) => ({ type: DELETE_3D_PLAN_FAIL, payload: error }); 

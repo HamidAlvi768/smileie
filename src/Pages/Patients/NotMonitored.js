@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getNotMonitoredPatients, addPatient, clearPatientMessages } from "../../store/patients/actions";
 import { getDoctors } from "../../store/doctors/actions";
 import { useToast } from '../../components/Common/ToastContext';
+import Select from 'react-select';
 
 const columns = [
   {
@@ -140,6 +141,12 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     phone: "",
     dob: "",
     doctor_id: "",
+    gender: "",
+    address: "",
+    zip_code: "",
+    city: "",
+    state: "",
+    country: "",
   });
 
   // Add search and filter state
@@ -150,6 +157,60 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     alignerStatus: "All",
     appActivation: "All",
   });
+
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(false);
+  const [isLoadingStates, setIsLoadingStates] = useState(false);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
+
+  // Fetch countries on mount
+  useEffect(() => {
+    setIsLoadingCountries(true);
+    fetch('https://countriesnow.space/api/v0.1/countries/iso')
+      .then(res => res.json())
+      .then(data => setCountries(data.data.map(c => c.name)))
+      .finally(() => setIsLoadingCountries(false));
+  }, []);
+
+  // Fetch states when country changes
+  useEffect(() => {
+    if (patientForm.country) {
+      setIsLoadingStates(true);
+      fetch('https://countriesnow.space/api/v0.1/countries/states', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country: patientForm.country })
+      })
+        .then(res => res.json())
+        .then(data => setStates(data.data.states.map(s => s.name)))
+        .finally(() => setIsLoadingStates(false));
+      setPatientForm(prev => ({ ...prev, state: '', city: '' }));
+      setCities([]);
+    } else {
+      setStates([]);
+      setCities([]);
+    }
+  }, [patientForm.country]);
+
+  // Fetch cities when state changes
+  useEffect(() => {
+    if (patientForm.country && patientForm.state) {
+      setIsLoadingCities(true);
+      fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country: patientForm.country, state: patientForm.state })
+      })
+        .then(res => res.json())
+        .then(data => setCities(data.data))
+        .finally(() => setIsLoadingCities(false));
+      setPatientForm(prev => ({ ...prev, city: '' }));
+    } else {
+      setCities([]);
+    }
+  }, [patientForm.state, patientForm.country]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -212,6 +273,12 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
         phone: "",
         dob: "",
         doctor_id: "",
+        gender: "",
+        address: "",
+        zip_code: "",
+        city: "",
+        state: "",
+        country: "",
       });
       dispatch(clearPatientMessages());
     }
@@ -450,6 +517,64 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                         <option key={doc.id} value={doc.id}>{doc.full_name}</option>
                       ))}
                     </Input>
+                  </FormGroup>
+                </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="gender">Gender</Label>
+                    <Input type="select" id="gender" value={patientForm.gender} onChange={handlePatientFormChange}>
+                      <option value="">Select gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </Input>
+                  </FormGroup>
+                </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="country">Country</Label>
+                    <Select
+                      id="country"
+                      options={countries.map(c => ({ value: c, label: c }))}
+                      value={patientForm.country ? { value: patientForm.country, label: patientForm.country } : null}
+                      onChange={option => setPatientForm(prev => ({ ...prev, country: option ? option.value : '' }))}
+                      isClearable
+                      placeholder="Select country"
+                      isLoading={isLoadingCountries}
+                      loadingMessage={() => "Loading countries..."}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="state">State</Label>
+                    <Select
+                      id="state"
+                      options={states.map(s => ({ value: s, label: s }))}
+                      value={patientForm.state ? { value: patientForm.state, label: patientForm.state } : null}
+                      onChange={option => setPatientForm(prev => ({ ...prev, state: option ? option.value : '' }))}
+                      isClearable
+                      placeholder="Select state"
+                      isDisabled={!patientForm.country}
+                      isLoading={isLoadingStates}
+                      loadingMessage={() => "Loading states..."}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="city">City</Label>
+                    <Select
+                      id="city"
+                      options={cities.map(c => ({ value: c, label: c }))}
+                      value={patientForm.city ? { value: patientForm.city, label: patientForm.city } : null}
+                      onChange={option => setPatientForm(prev => ({ ...prev, city: option ? option.value : '' }))}
+                      isClearable
+                      placeholder="Select city"
+                      isDisabled={!patientForm.state}
+                      isLoading={isLoadingCities}
+                      loadingMessage={() => "Loading cities..."}
+                    />
                   </FormGroup>
                 </Col>
               </Row>

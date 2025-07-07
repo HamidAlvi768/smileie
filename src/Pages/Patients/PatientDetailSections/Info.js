@@ -29,6 +29,12 @@ const Info = ({ patient }) => {
     appActivation: 'Yes', // Not in API, keep as default or from patientDetail if available
     appActivationDate: '2024-06-01', // Hardcoded for now
     dateOfBirth: patientDetail.dob || '',
+    gender: patientDetail.gender || '',
+    address: patientDetail.address || '',
+    zip_code: patientDetail.zip_code || '',
+    city: patientDetail.city || '',
+    state: patientDetail.state || '',
+    country: patientDetail.country || '',
   };
 
   // When opening the modal, initialize editedInfo with current values
@@ -55,6 +61,12 @@ const Info = ({ patient }) => {
       email: editedInfo.email,
       phone: editedInfo.phone,
       dob: editedInfo.dateOfBirth,
+      gender: editedInfo.gender,
+      address: editedInfo.address,
+      zip_code: editedInfo.zip_code,
+      city: editedInfo.city,
+      state: editedInfo.state,
+      country: editedInfo.country,
     };
     dispatch(updatePatientDetail(patientDetail.id, data));
   };
@@ -100,6 +112,12 @@ const Info = ({ patient }) => {
     email: editedInfo.email,
     phone: editedInfo.phone,
     dateOfBirth: editedInfo.dateOfBirth,
+    gender: editedInfo.gender,
+    address: editedInfo.address,
+    zip_code: editedInfo.zip_code,
+    city: editedInfo.city,
+    state: editedInfo.state,
+    country: editedInfo.country,
   }).every(val => val && val.trim() !== "");
 
   const renderEditForm = () => (
@@ -154,6 +172,23 @@ const Info = ({ patient }) => {
             />
           </FormGroup>
         </div>
+        <div className="form-group-fourth">
+          <FormGroup>
+            <Label for="gender">Gender</Label>
+            <Input
+              type="select"
+              name="gender"
+              id="gender"
+              value={editedInfo.gender}
+              onChange={handleInputChange}
+            >
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </Input>
+          </FormGroup>
+        </div>
       </div>
       {/* Settings Group */}
       <div className="form-group-row">
@@ -182,6 +217,68 @@ const Info = ({ patient }) => {
               name="dateOfBirth"
               id="dateOfBirth"
               value={editedInfo.dateOfBirth}
+              onChange={handleInputChange}
+            />
+          </FormGroup>
+        </div>
+        <div className="form-group-fourth">
+          <FormGroup>
+            <Label for="address">Address</Label>
+            <Input
+              type="text"
+              name="address"
+              id="address"
+              value={editedInfo.address}
+              onChange={handleInputChange}
+            />
+          </FormGroup>
+        </div>
+        <div className="form-group-fourth">
+          <FormGroup>
+            <Label for="zip_code">Zip Code</Label>
+            <Input
+              type="text"
+              name="zip_code"
+              id="zip_code"
+              value={editedInfo.zip_code}
+              onChange={handleInputChange}
+            />
+          </FormGroup>
+        </div>
+      </div>
+      <div className="form-group-row">
+        <div className="form-group-fourth">
+          <FormGroup>
+            <Label for="city">City</Label>
+            <Input
+              type="text"
+              name="city"
+              id="city"
+              value={editedInfo.city}
+              onChange={handleInputChange}
+            />
+          </FormGroup>
+        </div>
+        <div className="form-group-fourth">
+          <FormGroup>
+            <Label for="state">State</Label>
+            <Input
+              type="text"
+              name="state"
+              id="state"
+              value={editedInfo.state}
+              onChange={handleInputChange}
+            />
+          </FormGroup>
+        </div>
+        <div className="form-group-fourth">
+          <FormGroup>
+            <Label for="country">Country</Label>
+            <Input
+              type="text"
+              name="country"
+              id="country"
+              value={editedInfo.country}
               onChange={handleInputChange}
             />
           </FormGroup>
@@ -218,6 +315,30 @@ const Info = ({ patient }) => {
             <div className="info-item">
               <label>Phone</label>
               <div>{patientInfo.phone}</div>
+            </div>
+            <div className="info-item">
+              <label>Gender</label>
+              <div>{patientInfo.gender}</div>
+            </div>
+            <div className="info-item">
+              <label>Address</label>
+              <div>{patientInfo.address}</div>
+            </div>
+            <div className="info-item">
+              <label>Zip Code</label>
+              <div>{patientInfo.zip_code}</div>
+            </div>
+            <div className="info-item">
+              <label>City</label>
+              <div>{patientInfo.city}</div>
+            </div>
+            <div className="info-item">
+              <label>State</label>
+              <div>{patientInfo.state}</div>
+            </div>
+            <div className="info-item">
+              <label>Country</label>
+              <div>{patientInfo.country}</div>
             </div>
             <div className="info-item">
               <label>App Activation</label>
