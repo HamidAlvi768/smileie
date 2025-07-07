@@ -12,6 +12,7 @@ import statsSaga from "./stats/saga";
 import messagesSaga from "./messages/sagas";
 import patientsSaga from "./patients/saga";
 import tutorialsSaga from "./tutorials/saga";
+import faqsSaga from './faqs/sagas';
 
 export default function* rootSaga() {
   yield all([
@@ -27,6 +28,7 @@ export default function* rootSaga() {
     fork(statsSaga),
     messagesSaga(),
     fork(patientsSaga),
-    fork(tutorialsSaga)
+    fork(tutorialsSaga),
+    faqsSaga()
   ]);
 }

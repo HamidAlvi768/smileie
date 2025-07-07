@@ -30,7 +30,6 @@ import StarterPage from "../Pages/Utility/Starter-Page";
 import Maintenance from "../Pages/Utility/Maintenance-Page";
 import ComingSoon from "../Pages/Utility/ComingSoon-Page";
 import TimeLine from "../Pages/Utility/TimeLine-Page";
-import FAQs from "../Pages/Utility/FAQs-Page";
 import Pricing from "../Pages/Utility/Pricing-Page";
 import Error404 from "../Pages/Utility/Error404-Page";
 import Error500 from "../Pages/Utility/Error500-Page";
@@ -122,6 +121,7 @@ import VideoTtutorials from "../Pages/Settings/VideoTtutorials";
 import DoctorsList from "../Pages/Doctors/DoctorsList";
 import OrderDetail from "../Pages/Orders/OrderDetail";
 import OrderList from "../Pages/Orders/OrderList";
+import FAQs from "../Pages/Settings/FAQs";
 
 function RedirectToMainPage() {
   return <Navigate to="/notifications/messages" />;
@@ -147,6 +147,7 @@ const authProtectedRoutes = [
   { path: "/settings/next-step-reminder", component: <NextStepReminder /> },
   { path: "/settings/treatment-plans", component: <TreatmentPlans /> },
   { path: "/settings/video-tutorials", component: <VideoTtutorials /> },
+  { path: "/settings/faqs", component: <FAQs /> },
 
   // Calender
   { path: "/calendar", component: <Calender /> },

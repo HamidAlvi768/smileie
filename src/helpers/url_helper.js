@@ -42,8 +42,8 @@ export const UPDATE_GENERAL_TYPE_API = "/generic-records/update";
 export const DELETE_GENERAL_TYPE_API = "/generic-records/delete";
 
 //patients
-export const GET_MONITORED_PATIENTS_API = `/patients`;
-export const GET_NOT_MONITORED_PATIENTS_API = `/patients`;
+export const GET_MONITORED_PATIENTS_API = `/patients?type=monitored`;
+export const GET_NOT_MONITORED_PATIENTS_API = `/patients?type=not_monitored`;
 export const ADD_PATIENT_API = "/patients/create";
 export const GET_RECENT_PATIENTS_API = "/patients/recent";
 export const GET_PATIENT_DETAIL_API = "/patients/view";
@@ -61,5 +61,11 @@ export const CREATE_3D_PLAN_API = "/3d-plans/create";
 export const GET_3D_PLAN_API = "/3d-plans/view";
 export const UPDATE_3D_PLAN_API = "/3d-plans/update";
 export const DELETE_3D_PLAN_API = "/3d-plans/delete";
+
+//faqs
+export const GET_FAQS_API = '/faqs';
+export const ADD_FAQ_API = '/faqs/create';
+export const UPDATE_FAQ_API = '/faqs/update';
+export const DELETE_FAQ_API = '/faqs/delete';
 
 

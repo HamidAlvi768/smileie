@@ -19,3 +19,10 @@ export * from "./stats/actions";
 
 // Patients module
 export * from "./patients/actions";
+
+export const GET_FAQS = 'GET_FAQS';
+export const GET_FAQS_SUCCESS = 'GET_FAQS_SUCCESS';
+export const GET_FAQS_FAIL = 'GET_FAQS_FAIL';
+export const ADD_FAQ = 'ADD_FAQ';
+export const ADD_FAQ_SUCCESS = 'ADD_FAQ_SUCCESS';
+export const ADD_FAQ_FAIL = 'ADD_FAQ_FAIL';

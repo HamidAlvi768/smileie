@@ -26,10 +26,16 @@ const settingsData = [
         icon: "ri-video-line",
         url: "/settings/video-tutorials",
       },
+      {
+        name: "FAQs",
+        description: "Manage frequently asked questions for users.",
+        icon: "ri-question-answer-line",
+        url: "/settings/faqs",
+      },
     ],
   },
   {
-    section: "Static Settings",
+    section: "Reminders & Plans",
     cards: [
       {
         name: "Scan Reminder",
@@ -43,11 +49,6 @@ const settingsData = [
         icon: "ri-arrow-right-circle-line",
         url: "/settings/next-step-reminder",
       },
-    ],
-  },
-  {
-    section: "Treatment Plans",
-    cards: [
       {
         name: "Manage Treatment Plans",
         description: "Create, edit, and organize treatment plans.",

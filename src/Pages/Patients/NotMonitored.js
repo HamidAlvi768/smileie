@@ -143,6 +143,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     doctor_id: "",
     gender: "",
     address: "",
+    address2: "",
     zip_code: "",
     city: "",
     state: "",
@@ -275,12 +276,14 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
         doctor_id: "",
         gender: "",
         address: "",
+        address2: "",
         zip_code: "",
         city: "",
         state: "",
         country: "",
       });
       dispatch(clearPatientMessages());
+      dispatch(getNotMonitoredPatients()); // Refresh the list after creation
     }
   }, [successMessage, showToast, dispatch]);
 
@@ -528,6 +531,24 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
                     </Input>
+                  </FormGroup>
+                </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="address">Address</Label>
+                    <Input type="text" id="address" value={patientForm.address} onChange={handlePatientFormChange} />
+                  </FormGroup>
+                </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="address2">Address Line 2</Label>
+                    <Input type="text" id="address2" value={patientForm.address2} onChange={handlePatientFormChange} />
+                  </FormGroup>
+                </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="zip_code">Zip Code</Label>
+                    <Input type="text" id="zip_code" value={patientForm.zip_code} onChange={handlePatientFormChange} />
                   </FormGroup>
                 </Col>
                 <Col md={4}>

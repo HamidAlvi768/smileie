@@ -1,6 +1,6 @@
 import axios from "axios";
 import config from "../config";
-import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API, GET_GENERAL_TYPES_API, ADD_GENERAL_TYPE_API, UPDATE_GENERAL_TYPE_API, DELETE_GENERAL_TYPE_API, GET_MONITORED_PATIENTS_API, GET_NOT_MONITORED_PATIENTS_API, ADD_PATIENT_API, GET_RECENT_PATIENTS_API, GET_PATIENT_DETAIL_API, GET_TUTORIALS_API, ADD_TUTORIAL_API, UPDATE_TUTORIAL_API, DELETE_TUTORIAL_API, UPDATE_PATIENT_DETAIL_API, GET_CONSENT_FORMS_API, CREATE_3D_PLAN_API, GET_3D_PLAN_API, UPDATE_3D_PLAN_API, DELETE_3D_PLAN_API } from "./url_helper";
+import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API, GET_GENERAL_TYPES_API, ADD_GENERAL_TYPE_API, UPDATE_GENERAL_TYPE_API, DELETE_GENERAL_TYPE_API, GET_MONITORED_PATIENTS_API, GET_NOT_MONITORED_PATIENTS_API, ADD_PATIENT_API, GET_RECENT_PATIENTS_API, GET_PATIENT_DETAIL_API, GET_TUTORIALS_API, ADD_TUTORIAL_API, UPDATE_TUTORIAL_API, DELETE_TUTORIAL_API, UPDATE_PATIENT_DETAIL_API, GET_CONSENT_FORMS_API, CREATE_3D_PLAN_API, GET_3D_PLAN_API, UPDATE_3D_PLAN_API, DELETE_3D_PLAN_API, GET_FAQS_API, ADD_FAQ_API, UPDATE_FAQ_API, DELETE_FAQ_API } from "./url_helper";
 
 // default
 axios.defaults.baseURL = config.API_URL;
@@ -64,7 +64,8 @@ class APIClient {
    * Fetches data from given url
    */
   get = (url, params) => {
-    return axios.get(`${url}?_=${Date.now()}`, params);
+     const currentTime=url.includes("?")?`&_=${Date.now()}`:`?_=${Date.now()}`;
+    return axios.get(`${url}${currentTime}`, params);
   };
 
   /**
@@ -204,3 +205,9 @@ export const create3DPlanAPI = (planData) => api.create(CREATE_3D_PLAN_API, plan
 export const get3DPlanAPI = (patientId) => api.get(`${GET_3D_PLAN_API}?id=${patientId}`);
 export const update3DPlanAPI = (planData) => api.update(`${UPDATE_3D_PLAN_API}?id=${planData.id}`, planData);
 export const delete3DPlanAPI = (id) => api.delete(`${DELETE_3D_PLAN_API}?id=${id}`);
+
+// FAQs API
+export const getFaqsAPI = () => api.get(GET_FAQS_API);
+export const addFaqAPI = (faq) => api.create(ADD_FAQ_API, faq);
+export const updateFaqAPI = (faq) => api.update(`${UPDATE_FAQ_API}?id=${faq.id}`, faq);
+export const deleteFaqAPI = (id) => api.delete(`${DELETE_FAQ_API}?id=${id}`);

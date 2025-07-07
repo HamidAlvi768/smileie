@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input } from 'reactstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { updatePatientDetail } from '../../../store/patients/actions';
 import { useToast } from '../../../components/Common/ToastContext';
+import Select from 'react-select';
 
 const Info = ({ patient }) => {
   const navigate = useNavigate();
@@ -20,6 +21,75 @@ const Info = ({ patient }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editedInfo, setEditedInfo] = useState(null);
 
+  // Add country/state/city options and loading states
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(false);
+  const [isLoadingStates, setIsLoadingStates] = useState(false);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
+
+  // Track previous country and state to only reset when they actually change
+  const prevCountry = React.useRef();
+  const prevState = React.useRef();
+
+  // Fetch countries when edit modal opens
+  useEffect(() => {
+    if (isEditModalOpen) {
+      setIsLoadingCountries(true);
+      fetch('https://countriesnow.space/api/v0.1/countries/iso')
+        .then(res => res.json())
+        .then(data => setCountries(data.data.map(c => c.name)))
+        .finally(() => setIsLoadingCountries(false));
+    }
+  }, [isEditModalOpen]);
+
+  // Fetch states when country changes (but not just on modal open)
+  useEffect(() => {
+    if (isEditModalOpen && editedInfo && editedInfo.country) {
+      setIsLoadingStates(true);
+      fetch('https://countriesnow.space/api/v0.1/countries/states', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country: editedInfo.country })
+      })
+        .then(res => res.json())
+        .then(data => setStates(data.data.states.map(s => s.name)))
+        .finally(() => setIsLoadingStates(false));
+      // Only reset state/city if country actually changed
+      if (prevCountry.current && prevCountry.current !== editedInfo.country) {
+        setEditedInfo(prev => ({ ...prev, state: '', city: '' }));
+        setCities([]);
+      }
+      prevCountry.current = editedInfo.country;
+    } else if (isEditModalOpen) {
+      setStates([]);
+      setCities([]);
+    }
+  }, [isEditModalOpen, editedInfo && editedInfo.country]);
+
+  // Fetch cities when state changes (but not just on modal open)
+  useEffect(() => {
+    if (isEditModalOpen && editedInfo && editedInfo.country && editedInfo.state) {
+      setIsLoadingCities(true);
+      fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country: editedInfo.country, state: editedInfo.state })
+      })
+        .then(res => res.json())
+        .then(data => setCities(data.data))
+        .finally(() => setIsLoadingCities(false));
+      // Only reset city if state actually changed
+      if (prevState.current && prevState.current !== editedInfo.state) {
+        setEditedInfo(prev => ({ ...prev, city: '' }));
+      }
+      prevState.current = editedInfo.state;
+    } else if (isEditModalOpen) {
+      setCities([]);
+    }
+  }, [isEditModalOpen, editedInfo && editedInfo.state, editedInfo && editedInfo.country]);
+
   // Map API fields to UI fields
   const patientInfo = {
     firstName: patientDetail.first_name || '',
@@ -31,6 +101,7 @@ const Info = ({ patient }) => {
     dateOfBirth: patientDetail.dob || '',
     gender: patientDetail.gender || '',
     address: patientDetail.address || '',
+    address2: patientDetail.address2 || '',
     zip_code: patientDetail.zip_code || '',
     city: patientDetail.city || '',
     state: patientDetail.state || '',
@@ -63,6 +134,7 @@ const Info = ({ patient }) => {
       dob: editedInfo.dateOfBirth,
       gender: editedInfo.gender,
       address: editedInfo.address,
+      address2: editedInfo.address2,
       zip_code: editedInfo.zip_code,
       city: editedInfo.city,
       state: editedInfo.state,
@@ -172,6 +244,9 @@ const Info = ({ patient }) => {
             />
           </FormGroup>
         </div>
+      </div>
+      {/* Settings Group */}
+      <div className="form-group-row">
         <div className="form-group-fourth">
           <FormGroup>
             <Label for="gender">Gender</Label>
@@ -189,9 +264,6 @@ const Info = ({ patient }) => {
             </Input>
           </FormGroup>
         </div>
-      </div>
-      {/* Settings Group */}
-      <div className="form-group-row">
         <div className="form-group-fourth">
           <FormGroup>
             <Label for="appActivation">App Activation</Label>
@@ -223,16 +295,21 @@ const Info = ({ patient }) => {
         </div>
         <div className="form-group-fourth">
           <FormGroup>
-            <Label for="address">Address</Label>
-            <Input
-              type="text"
-              name="address"
-              id="address"
-              value={editedInfo.address}
-              onChange={handleInputChange}
+            <Label for="country">Country</Label>
+            <Select
+              id="country"
+              options={countries.map(c => ({ value: c, label: c }))}
+              value={editedInfo.country ? { value: editedInfo.country, label: editedInfo.country } : null}
+              onChange={option => setEditedInfo(prev => ({ ...prev, country: option ? option.value : '' }))}
+              isClearable
+              placeholder="Select country"
+              isLoading={isLoadingCountries}
+              loadingMessage={() => "Loading countries..."}
             />
           </FormGroup>
         </div>
+      </div>
+      <div className="form-group-row">
         <div className="form-group-fourth">
           <FormGroup>
             <Label for="zip_code">Zip Code</Label>
@@ -245,40 +322,61 @@ const Info = ({ patient }) => {
             />
           </FormGroup>
         </div>
-      </div>
-      <div className="form-group-row">
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="city">City</Label>
-            <Input
-              type="text"
-              name="city"
-              id="city"
-              value={editedInfo.city}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-        </div>
         <div className="form-group-fourth">
           <FormGroup>
             <Label for="state">State</Label>
-            <Input
-              type="text"
-              name="state"
+            <Select
               id="state"
-              value={editedInfo.state}
-              onChange={handleInputChange}
+              options={states.map(s => ({ value: s, label: s }))}
+              value={editedInfo.state ? { value: editedInfo.state, label: editedInfo.state } : null}
+              onChange={option => setEditedInfo(prev => ({ ...prev, state: option ? option.value : '' }))}
+              isClearable
+              placeholder="Select state"
+              isDisabled={!editedInfo.country}
+              isLoading={isLoadingStates}
+              loadingMessage={() => "Loading states..."}
             />
           </FormGroup>
         </div>
         <div className="form-group-fourth">
           <FormGroup>
-            <Label for="country">Country</Label>
+            <Label for="city">City</Label>
+            <Select
+              id="city"
+              options={cities.map(c => ({ value: c, label: c }))}
+              value={editedInfo.city ? { value: editedInfo.city, label: editedInfo.city } : null}
+              onChange={option => setEditedInfo(prev => ({ ...prev, city: option ? option.value : '' }))}
+              isClearable
+              placeholder="Select city"
+              isDisabled={!editedInfo.state}
+              isLoading={isLoadingCities}
+              loadingMessage={() => "Loading cities..."}
+            />
+          </FormGroup>
+        </div>
+      </div>
+      {/* Dedicated row for address fields at the end */}
+      <div className="form-group-row">
+        <div className="form-group-half">
+          <FormGroup>
+            <Label for="address">Address</Label>
             <Input
               type="text"
-              name="country"
-              id="country"
-              value={editedInfo.country}
+              name="address"
+              id="address"
+              value={editedInfo.address}
+              onChange={handleInputChange}
+            />
+          </FormGroup>
+        </div>
+        <div className="form-group-half">
+          <FormGroup>
+            <Label for="address2">Address Line 2</Label>
+            <Input
+              type="text"
+              name="address2"
+              id="address2"
+              value={editedInfo.address2}
               onChange={handleInputChange}
             />
           </FormGroup>
@@ -321,10 +419,6 @@ const Info = ({ patient }) => {
               <div>{patientInfo.gender}</div>
             </div>
             <div className="info-item">
-              <label>Address</label>
-              <div>{patientInfo.address}</div>
-            </div>
-            <div className="info-item">
               <label>Zip Code</label>
               <div>{patientInfo.zip_code}</div>
             </div>
@@ -339,6 +433,15 @@ const Info = ({ patient }) => {
             <div className="info-item">
               <label>Country</label>
               <div>{patientInfo.country}</div>
+            </div>
+            {/* Dedicated row for address fields at the end */}
+            <div className="info-item">
+              <label>Address</label>
+              <div>{patientInfo.address}</div>
+            </div>
+            <div className="info-item">
+              <label>Address Line 2</label>
+              <div>{patientInfo.address2}</div>
             </div>
             <div className="info-item">
               <label>App Activation</label>

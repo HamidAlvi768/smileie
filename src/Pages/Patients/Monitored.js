@@ -139,14 +139,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   const toggleCreatePatient = () => {
     if (createPatientModal) {
       // Modal is being closed, reset form
-      setPatientForm({
-        first_name: "",
-        last_name: "",
-        email: "",
-        phone: "",
-        dob: "",
-        doctor_id: "",
-      });
+      setPatientForm(initialPatientForm);
     }
     setCreatePatientModal(!createPatientModal);
   };
@@ -178,6 +171,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     doctor_id: "",
     gender: "",
     address: "",
+    address2: "",
     zip_code: "",
     city: "",
     state: "",
@@ -443,6 +437,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
       setCreatePatientModal(false);
       setPatientForm(initialPatientForm);
       dispatch(clearPatientMessages());
+      dispatch(getMonitoredPatients()); // Refresh the list after creation
     }
   }, [successMessage, showToast, dispatch]);
 
@@ -754,6 +749,12 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                   <FormGroup className="mb-3">
                     <Label for="address">Address</Label>
                     <Input type="text" id="address" value={patientForm.address} onChange={handlePatientFormChange} />
+                  </FormGroup>
+                </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="address2">Address Line 2</Label>
+                    <Input type="text" id="address2" value={patientForm.address2} onChange={handlePatientFormChange} />
                   </FormGroup>
                 </Col>
                 <Col md={4}>
