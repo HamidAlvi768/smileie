@@ -636,7 +636,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                 <Col md={4}>
                   <FormGroup className="mb-3">
                     <Label for="dob">Date of Birth</Label>
-                    <Input type="date" id="dob" value={patientForm.dob} onChange={handlePatientFormChange} />
+                    <Input type="date" id="dob" value={patientForm.dob} onChange={handlePatientFormChange} max={new Date().toISOString().split('T')[0]} />
                   </FormGroup>
                 </Col>
                 <Col md={4}>

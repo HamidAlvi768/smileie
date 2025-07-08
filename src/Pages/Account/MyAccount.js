@@ -15,6 +15,7 @@ import {
   InputGroupText
 } from "reactstrap";
 import { API_URL } from "../../config";
+import { useToast } from '../../components/Common/ToastContext';
 
 const countryCodes = [
   { code: "+1", label: "US/Canada" },
@@ -38,6 +39,8 @@ function MyAccount() {
     confirmPassword: "",
     dentalNotation: "FDI",
   });
+  const showToast = useToast();
+  const [loading, setLoading] = useState(false);
 
   function getProfile() {
     console.log("Fetching profile data...");
@@ -95,6 +98,29 @@ function MyAccount() {
     }));
   };
 
+  // Dummy update handler
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(res => setTimeout(res, 1000));
+      showToast({
+        message: 'Profile updated successfully!',
+        type: 'success',
+        title: 'Success',
+      });
+    } catch (err) {
+      showToast({
+        message: 'Failed to update profile.',
+        type: 'error',
+        title: 'Error',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Container className="py-4">
       <Row>
@@ -123,60 +149,61 @@ function MyAccount() {
 
               <div>
                 {/* Name and Email Row */}
-                <Row>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="email">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={form.email}
-                        onChange={handleChange}
-                      />
-                    </FormGroup>
-                  </Col>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="phone">phone Phone</Label>
-                      <InputGroup>
+                <Form onSubmit={handleUpdate}>
+                  <Row>
+                    <Col md={6}>
+                      <FormGroup>
+                        <Label for="email">Email</Label>
                         <Input
-                          id="phone"
-                          name="phone"
-                          value={form.phone}
+                          id="email"
+                          name="email"
+                          type="email"
+                          value={form.email}
                           onChange={handleChange}
-                          placeholder="1234567890"
                         />
-                      </InputGroup>
-                    </FormGroup>
-                  </Col>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="firstName">First Name</Label>
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        value={form.firstName}
-                        onChange={handleChange}
-                      />
-                    </FormGroup>
-                  </Col>
-                  <Col md={6}>
-                    <FormGroup>
-                      <Label for="lastName">Last Name</Label>
-                      <Input
-                        id="lastName"
-                        name="lastName"
-                        value={form.lastName}
-                        onChange={handleChange}
-                      />
-                    </FormGroup>
-                  </Col>
-                </Row>
+                      </FormGroup>
+                    </Col>
+                    <Col md={6}>
+                      <FormGroup>
+                        <Label for="phone">Phone</Label>
+                        <InputGroup>
+                          <Input
+                            id="phone"
+                            name="phone"
+                            value={form.phone}
+                            onChange={handleChange}
+                            placeholder="1234567890"
+                          />
+                        </InputGroup>
+                      </FormGroup>
+                    </Col>
+                    <Col md={6}>
+                      <FormGroup>
+                        <Label for="firstName">First Name</Label>
+                        <Input
+                          id="firstName"
+                          name="firstName"
+                          value={form.firstName}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col md={6}>
+                      <FormGroup>
+                        <Label for="lastName">Last Name</Label>
+                        <Input
+                          id="lastName"
+                          name="lastName"
+                          value={form.lastName}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                    </Col>
+                  </Row>
 
-                {/* phone Phone and Settings Row */}
-                <Row>
-                  {/* <Col md={6}>
+                  {/* phone Phone and Settings Row */}
+                  <Row>
+                    {/* <Col md={6}>
                     <FormGroup>
                       <Label for="language">Language</Label>
                       <Input
@@ -194,11 +221,11 @@ function MyAccount() {
                       </Input>
                     </FormGroup>
                   </Col> */}
-                </Row>
+                  </Row>
 
-                {/* Checkboxes Row */}
-                <Row className="mb-3">
-                  {/* <Col md={6}>
+                  {/* Checkboxes Row */}
+                  <Row className="mb-3">
+                    {/* <Col md={6}>
                     <FormGroup check>
                       <Input
                         type="checkbox"
@@ -226,50 +253,50 @@ function MyAccount() {
                       </Label>
                     </FormGroup>
                   </Col> */}
-                </Row>
+                  </Row>
 
-                {/* Password Fields Row */}
-                <Row>
-                  <Col md={4}>
-                    <FormGroup>
-                      <Label for="currentPassword">Current Password</Label>
-                      <Input
-                        id="currentPassword"
-                        name="currentPassword"
-                        type="password"
-                        value={form.currentPassword}
-                        onChange={handleChange}
-                      />
-                    </FormGroup>
-                  </Col>
-                  <Col md={4}>
-                    <FormGroup>
-                      <Label for="newPassword">New Password</Label>
-                      <Input
-                        id="newPassword"
-                        name="newPassword"
-                        type="password"
-                        value={form.newPassword}
-                        onChange={handleChange}
-                      />
-                    </FormGroup>
-                  </Col>
-                  <Col md={4}>
-                    <FormGroup>
-                      <Label for="confirmPassword">Confirm New Password</Label>
-                      <Input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        value={form.confirmPassword}
-                        onChange={handleChange}
-                      />
-                    </FormGroup>
-                  </Col>
-                </Row>
+                  {/* Password Fields Row */}
+                  <Row>
+                    <Col md={4}>
+                      <FormGroup>
+                        <Label for="currentPassword">Current Password</Label>
+                        <Input
+                          id="currentPassword"
+                          name="currentPassword"
+                          type="password"
+                          value={form.currentPassword}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                      <FormGroup>
+                        <Label for="newPassword">New Password</Label>
+                        <Input
+                          id="newPassword"
+                          name="newPassword"
+                          type="password"
+                          value={form.newPassword}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                      <FormGroup>
+                        <Label for="confirmPassword">Confirm New Password</Label>
+                        <Input
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type="password"
+                          value={form.confirmPassword}
+                          onChange={handleChange}
+                        />
+                      </FormGroup>
+                    </Col>
+                  </Row>
 
-                {/* Dental Notation Row */}
-                {/* <Row>
+                  {/* Dental Notation Row */}
+                  {/* <Row>
                   <Col md={6}>
                     <FormGroup>
                       <Label for="dentalNotation">Dental Notation</Label>
@@ -290,14 +317,15 @@ function MyAccount() {
                   </Col>
                 </Row> */}
 
-                {/* Update Button */}
-                <Row>
-                  <Col>
-                    <Button color="primary" size="lg">
-                      Update
-                    </Button>
-                  </Col>
-                </Row>
+                  {/* Update Button */}
+                  <Row>
+                    <Col>
+                      <Button color="primary" size="lg" type="submit" disabled={loading}>
+                        {loading ? 'Updating...' : 'Update'}
+                      </Button>
+                    </Col>
+                  </Row>
+                </Form>
               </div>
             </CardBody>
           </Card>

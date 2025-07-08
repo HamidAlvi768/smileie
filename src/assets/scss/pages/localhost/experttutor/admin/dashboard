@@ -1,0 +1,1239 @@
+  
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>Admin Dashboard</title>
+    <meta name="csrf-param" content="_csrf">
+<meta name="csrf-token" content="yv3hpYa_zhHgK5HnTMbSvoQNEf-LvZwqxCI9tXccbLuIkIfS8_apRbVi1KZ_qrbw4FVUy-2F-m-Xdm7xJl883Q==">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link type="image/x-icon" href="/experttutor/favicon.ico" rel="icon">
+<link href="/experttutor/assets/2605c3dd/dist/css/bootstrap.css" rel="stylesheet">
+<link href="/experttutor/css/site.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="http://localhost/experttutor/assets/custom/theme/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="http://localhost/experttutor/assets/custom/theme/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="http://localhost/experttutor/assets/custom/theme/css/style.css">
+    <script src="http://localhost/experttutor/assets/custom/theme/js/jquery-3.2.1.min.js"></script>
+
+
+</head>
+
+<body class="" style="background-color: #fafafa;">
+
+
+    
+       <div class="header">
+     <div class="header-left">
+         <a href="http://localhost/experttutor/" class="logo">
+            <span>
+                    Assignment Tutors
+</span>
+             <!-- <img src="http://localhost/experttutor/assets/custom/images/logo.png" width="35" height="35" alt="">  -->
+         </a>
+     </div>
+     <a id="toggle_btn" href="javascript:void(0);"><i class="fa fa-bars"></i></a>
+     <a id="mobile_btn" class="mobile_btn float-left" href="#sidebar"><i class="fa fa-bars"></i></a>
+     <ul class="nav user-menu float-right">
+         <li class="nav-item dropdown d-none d-sm-block">
+             <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown"><i class="fa fa-bell-o"></i> <span
+                     class="badge badge-pill bg-danger float-right">3</span></a>
+             <div class="dropdown-menu notifications">
+                 <div class="topnav-dropdown-header">
+                     <span>Notifications</span>
+                 </div>
+                 <div class="drop-scroll">
+                     <ul class="notification-list">
+                         <li class="notification-message">
+                             <a href="activities.html">
+                                 <div class="media">
+                                     <span class="avatar">
+                                         <img alt="John Doe" src="http://localhost/experttutor/assets/custom/theme/img/user.jpg" class="img-fluid">
+                                     </span>
+                                     <div class="media-body">
+                                         <p class="noti-details"><span class="noti-title">John Doe</span> added new task
+                                             <span class="noti-title">Patient appointment booking</span></p>
+                                         <p class="noti-time"><span class="notification-time">4 mins ago</span></p>
+                                     </div>
+                                 </div>
+                             </a>
+                         </li>
+                         <li class="notification-message">
+                             <a href="activities.html">
+                                 <div class="media">
+                                     <span class="avatar">V</span>
+                                     <div class="media-body">
+                                         <p class="noti-details"><span class="noti-title">Tarah Shropshire</span>
+                                             changed the task name <span class="noti-title">Appointment booking with
+                                                 payment gateway</span></p>
+                                         <p class="noti-time"><span class="notification-time">6 mins ago</span></p>
+                                     </div>
+                                 </div>
+                             </a>
+                         </li>
+                         <li class="notification-message">
+                             <a href="activities.html">
+                                 <div class="media">
+                                     <span class="avatar">L</span>
+                                     <div class="media-body">
+                                         <p class="noti-details"><span class="noti-title">Misty Tison</span> added <span
+                                                 class="noti-title">Domenic Houston</span> and <span
+                                                 class="noti-title">Claire Mapes</span> to project <span
+                                                 class="noti-title">Doctor available module</span></p>
+                                         <p class="noti-time"><span class="notification-time">8 mins ago</span></p>
+                                     </div>
+                                 </div>
+                             </a>
+                         </li>
+                         <li class="notification-message">
+                             <a href="activities.html">
+                                 <div class="media">
+                                     <span class="avatar">G</span>
+                                     <div class="media-body">
+                                         <p class="noti-details"><span class="noti-title">Rolland Webber</span>
+                                             completed task <span class="noti-title">Patient and Doctor video
+                                                 conferencing</span></p>
+                                         <p class="noti-time"><span class="notification-time">12 mins ago</span></p>
+                                     </div>
+                                 </div>
+                             </a>
+                         </li>
+                         <li class="notification-message">
+                             <a href="activities.html">
+                                 <div class="media">
+                                     <span class="avatar">V</span>
+                                     <div class="media-body">
+                                         <p class="noti-details"><span class="noti-title">Bernardo Galaviz</span> added
+                                             new task <span class="noti-title">Private chat module</span></p>
+                                         <p class="noti-time"><span class="notification-time">2 days ago</span></p>
+                                     </div>
+                                 </div>
+                             </a>
+                         </li>
+                     </ul>
+                 </div>
+                 <div class="topnav-dropdown-footer">
+                     <a href="activities.html">View all Notifications</a>
+                 </div>
+             </div>
+         </li>
+         <!-- <li class="nav-item dropdown d-none d-sm-block">
+             <a href="javascript:void(0);" id="open_msg_box" class="hasnotifications nav-link"><i
+                     class="fa fa-comment-o"></i> <span class="badge badge-pill bg-danger float-right">8</span></a>
+         </li> -->
+         <li class="nav-item dropdown has-arrow">
+             <a href="#" class="dropdown-toggle nav-link user-link" data-toggle="dropdown">
+                 <span class="user-img">
+                     <img class="rounded-circle" src="http://localhost/experttutor/assets/custom/theme/img/user.jpg" width="24" alt="Admin">
+                     <span class="status online"></span>
+                 </span>
+                 <span>admin (<small class="text-white">superadmin</small>)</span>
+             </a>
+             <div class="dropdown-menu w-100">
+                 <a class="dropdown-item" href="http://localhost/experttutor/admin/dashboard">Dashboard</a>
+
+                 <!-- <a class="dropdown-item" href="settings.html">Settings</a> -->
+
+                 <form action="/experttutor/logout" method="post">
+<input type="hidden" name="_csrf" value="yv3hpYa_zhHgK5HnTMbSvoQNEf-LvZwqxCI9tXccbLuIkIfS8_apRbVi1KZ_qrbw4FVUy-2F-m-Xdm7xJl883Q=="><button type="submit" class="dropdown-item logout">Logout</button></form>             </div>
+         </li>
+     </ul>
+     <div class="dropdown mobile-user-menu float-right">
+         <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                 class="fa fa-ellipsis-v"></i></a>
+         <div class="dropdown-menu dropdown-menu-right">
+             <a class="dropdown-item" href="http://localhost/experttutor/admin/dashboard">Dashboard</a>
+
+             <!-- <a class="dropdown-item" href="settings.html">Settings</a> -->
+
+             <form action="/experttutor/logout" method="post">
+<input type="hidden" name="_csrf" value="yv3hpYa_zhHgK5HnTMbSvoQNEf-LvZwqxCI9tXccbLuIkIfS8_apRbVi1KZ_qrbw4FVUy-2F-m-Xdm7xJl883Q=="><button type="submit" class="dropdown-item logout">Logout</button></form>         </div>
+     </div>
+ </div>
+
+ <div class="sidebar" id="sidebar">
+     <div class="sidebar-inner slimscroll">
+         <div id="sidebar-menu" class="sidebar-menu">
+             <ul>
+                 <li class="menu-title">Main</li>
+                 <li class="active">
+
+                     <a href="http://localhost/experttutor/admin/dashboard"><i class="fa fa-dashboard"></i>
+                         <span>Dashboard</span></a>
+                 </li>
+                 <li class="admin/dashboard">
+                     <a href="http://localhost/experttutor/manageusers"><i class="fa fa-user-md"></i> <span>Manage
+                             Users</span></a>
+                 </li>
+                 <li class="">
+                     <a href="http://localhost/experttutor/admin/joblist"><i class="fa fa-wheelchair"></i>
+                         <span>Post Jobs</span></a>
+                 </li>
+                 <li  class="">
+                     <a  href="http://localhost/experttutor/coins"><i class="fa fa-calendar"></i> <span>Manage Coins</span></a>
+                 </li>
+                 <!-- 
+                 <li>
+                     <a href="schedule.html"><i class="fa fa-calendar-check-o"></i> <span>Doctor Schedule</span></a>
+                 </li>
+                 <li>
+                     <a href="departments.html"><i class="fa fa-hospital-o"></i> <span>Departments</span></a>
+                 </li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-user"></i> <span> Employees </span> <span
+                             class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="employees.html">Employees List</a></li>
+                         <li><a href="leaves.html">Leaves</a></li>
+                         <li><a href="holidays.html">Holidays</a></li>
+                         <li><a href="attendance.html">Attendance</a></li>
+                     </ul>
+                 </li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-money"></i> <span> Accounts </span> <span
+                             class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="invoices.html">Invoices</a></li>
+                         <li><a href="payments.html">Payments</a></li>
+                         <li><a href="expenses.html">Expenses</a></li>
+                         <li><a href="taxes.html">Taxes</a></li>
+                         <li><a href="provident-fund.html">Provident Fund</a></li>
+                     </ul>
+                 </li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-book"></i> <span> Payroll </span> <span class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="salary.html"> Employee Salary </a></li>
+                         <li><a href="salary-view.html"> Payslip </a></li>
+                     </ul>
+                 </li>
+                 <li>
+                     <a href="chat.html"><i class="fa fa-comments"></i> <span>Chat</span> <span
+                             class="badge badge-pill bg-primary float-right">5</span></a>
+                 </li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-video-camera camera"></i> <span> Calls</span> <span
+                             class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="voice-call.html">Voice Call</a></li>
+                         <li><a href="video-call.html">Video Call</a></li>
+                         <li><a href="incoming-call.html">Incoming Call</a></li>
+                     </ul>
+                 </li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-envelope"></i> <span> Email</span> <span class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="compose.html">Compose Mail</a></li>
+                         <li><a href="inbox.html">Inbox</a></li>
+                         <li><a href="mail-view.html">Mail View</a></li>
+                     </ul>
+                 </li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-commenting-o"></i> <span> Blog</span> <span
+                             class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="blog.html">Blog</a></li>
+                         <li><a href="blog-details.html">Blog View</a></li>
+                         <li><a href="add-blog.html">Add Blog</a></li>
+                         <li><a href="edit-blog.html">Edit Blog</a></li>
+                     </ul>
+                 </li>
+                 <li>
+                     <a href="http://localhost/experttutor/assets/custom/theme.html"><i class="fa fa-cube"></i> <span>http://localhost/experttutor/assets/custom/theme</span></a>
+                 </li>
+                 <li>
+                     <a href="activities.html"><i class="fa fa-bell-o"></i> <span>Activities</span></a>
+                 </li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-flag-o"></i> <span> Reports </span> <span
+                             class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="expense-reports.html"> Expense Report </a></li>
+                         <li><a href="invoice-reports.html"> Invoice Report </a></li>
+                     </ul>
+                 </li>
+                 <li>
+                     <a href="settings.html"><i class="fa fa-cog"></i> <span>Settings</span></a>
+                 </li>
+                 <li class="menu-title">UI Elements</li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-laptop"></i> <span> Components</span> <span
+                             class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="uikit.html">UI Kit</a></li>
+                         <li><a href="typography.html">Typography</a></li>
+                         <li><a href="tabs.html">Tabs</a></li>
+                     </ul>
+                 </li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-edit"></i> <span> Forms</span> <span class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="form-basic-inputs.html">Basic Inputs</a></li>
+                         <li><a href="form-input-groups.html">Input Groups</a></li>
+                         <li><a href="form-horizontal.html">Horizontal Form</a></li>
+                         <li><a href="form-vertical.html">Vertical Form</a></li>
+                     </ul>
+                 </li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-table"></i> <span> Tables</span> <span class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="tables-basic.html">Basic Tables</a></li>
+                         <li><a href="tables-datatables.html">Data Table</a></li>
+                     </ul>
+                 </li>
+                 <li>
+                     <a href="calendar.html"><i class="fa fa-calendar"></i> <span>Calendar</span></a>
+                 </li>
+                 <li class="menu-title">Extras</li>
+                 <li class="submenu">
+                     <a href="#"><i class="fa fa-columns"></i> <span>Pages</span> <span class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li><a href="login.html"> Login </a></li>
+                         <li><a href="register.html"> Register </a></li>
+                         <li><a href="forgot-password.html"> Forgot Password </a></li>
+                         <li><a href="change-password2.html"> Change Password </a></li>
+                         <li><a href="lock-screen.html"> Lock Screen </a></li>
+                         <li><a href="profile.html"> Profile </a></li>
+                         <li><a href="gallery.html"> Gallery </a></li>
+                         <li><a href="error-404.html">404 Error </a></li>
+                         <li><a href="error-500.html">500 Error </a></li>
+                         <li><a href="blank-page.html"> Blank Page </a></li>
+                     </ul>
+                 </li>
+                 <li class="submenu">
+                     <a href="javascript:void(0);"><i class="fa fa-share-alt"></i> <span>Multi Level</span> <span
+                             class="menu-arrow"></span></a>
+                     <ul style="display: none;">
+                         <li class="submenu">
+                             <a href="javascript:void(0);"><span>Level 1</span> <span class="menu-arrow"></span></a>
+                             <ul style="display: none;">
+                                 <li><a href="javascript:void(0);"><span>Level 2</span></a></li>
+                                 <li class="submenu">
+                                     <a href="javascript:void(0);"> <span> Level 2</span> <span
+                                             class="menu-arrow"></span></a>
+                                     <ul style="display: none;">
+                                         <li><a href="javascript:void(0);">Level 3</a></li>
+                                         <li><a href="javascript:void(0);">Level 3</a></li>
+                                     </ul>
+                                 </li>
+                                 <li><a href="javascript:void(0);"><span>Level 2</span></a></li>
+                             </ul>
+                         </li>
+                         <li>
+                             <a href="javascript:void(0);"><span>Level 1</span></a>
+                         </li>
+                     </ul>
+                 </li> -->
+             </ul>
+         </div>
+     </div>
+ </div>
+
+     <div class="main-wrapper">
+       
+    
+<style>
+    .bar-chart > .chart > .item > .bar {
+ 
+    background-color: #ffbc35a8;
+ 
+}
+    .stat-card {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 20px 24px;
+        min-width: 220px;
+        margin-bottom: 20px;
+    }
+    .stat-icon {
+        background: #f5f8fa;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+    }
+    .stat-icon i {
+        color: #2196f3;
+        font-size: 24px;
+    }
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .stat-title {
+        color: #7b8a99;
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+    .stat-value {
+        color: #222;
+        font-size: 20px;
+        font-weight: 500;
+    }
+</style>
+
+
+<div class="page-wrapper">
+    <div class="content">
+        <!-- Statistics Cards -->
+        <div class="row">
+            <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa fa-users"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-title">Total Users</div>
+                        <div class="stat-value">6</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa fa-graduation-cap"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-title">Students</div>
+                        <div class="stat-value">5</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa fa-id-badge"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-title">Tutors</div>
+                        <div class="stat-value">1</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa fa-briefcase"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-title">Total jobs</div>
+                        <div class="stat-value">3</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa fa-money"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-title">Total Coins</div>
+                        <div class="stat-value">550.00</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-lg-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa fa-check-circle"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-title">Coins spent</div>
+                        <div class="stat-value">130</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row">
+            <div class="col-12 col-md-6 col-lg-6 col-xl-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="chart-title">
+                            <h4>Recent Job Posts</h4>
+                            <span class="float-right"><i class="fa fa-caret-up"></i> Latest 3                                Jobs</span>
+                        </div>
+                        <canvas id="linegraph"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-6 col-xl-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="chart-title">
+                            <h4>Users Distribution</h4>
+                            <div class="float-right">
+                                <ul class="chat-user-total">
+                                    <li><i class="fa fa-circle current-users"></i> Students</li>
+                                    <li><i class="fa fa-circle old-users"></i> Tutors</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <canvas id="bargraph"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Job Posts & Top Tutors -->
+        <div class="row">
+            <div class="col-12 col-md-6 col-lg-8 col-xl-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title d-inline-block">Recent Job Activities</h4>
+                        <a href="http://localhost/experttutor/admin/joblist"
+                            class="btn btn-primary float-right">View all</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <tbody>
+                                                                                                            <tr>
+                                        <td style="min-width: 200px;">
+                                            <a class="avatar bg-primary text-white" href="#"><img
+                                                    src="https://ui-avatars.com/api/?name="></a>
+                                            <h2><a href="#"></a>
+                                            </h2>
+                                        </td>
+                                        <td>
+                                            <h5 class="time-title p-0">
+                                                I need an artificial intelligence tutor to teach m...</h5>
+                                        </td>
+                                        <td>
+                                            <h5 class="time-title p-0">Budget</h5>
+                                            <p>USD 5000</p>
+                                        </td>
+                                        <td class="text-right">
+                                            <a href="http://localhost/experttutor/post/view?id=1"
+                                                class="btn btn-outline-primary take-btn">View</a>
+                                        </td>
+                                    </tr>
+                                                                        <tr>
+                                        <td style="min-width: 200px;">
+                                            <a class="avatar bg-primary text-white" href="#"><img
+                                                    src="https://ui-avatars.com/api/?name="></a>
+                                            <h2><a href="#"></a>
+                                            </h2>
+                                        </td>
+                                        <td>
+                                            <h5 class="time-title p-0">
+                                                I need a mathematics tutor for my 10th class....</h5>
+                                        </td>
+                                        <td>
+                                            <h5 class="time-title p-0">Budget</h5>
+                                            <p>USD 3000</p>
+                                        </td>
+                                        <td class="text-right">
+                                            <a href="http://localhost/experttutor/post/view?id=2"
+                                                class="btn btn-outline-primary take-btn">View</a>
+                                        </td>
+                                    </tr>
+                                                                        <tr>
+                                        <td style="min-width: 200px;">
+                                            <a class="avatar bg-primary text-white" href="#"><img
+                                                    src="https://ui-avatars.com/api/?name=Shoaib Shokat"></a>
+                                            <h2><a href="#">Shoaib Shokat</a>
+                                            </h2>
+                                        </td>
+                                        <td>
+                                            <h5 class="time-title p-0">
+                                                This is details...</h5>
+                                        </td>
+                                        <td>
+                                            <h5 class="time-title p-0">Budget</h5>
+                                            <p>USD 4500</p>
+                                        </td>
+                                        <td class="text-right">
+                                            <a href="http://localhost/experttutor/post/view?id=3"
+                                                class="btn btn-outline-primary take-btn">View</a>
+                                        </td>
+                                    </tr>
+                                                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 col-xl-4">
+                <div class="card member-panel">
+                    <div class="card-header bg-white">
+                        <h4 class="card-title mb-0">Top Tutors</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="contact-list">
+                                                        <li>
+                                <div class="contact-cont">
+                                    <div class="float-left user-img m-r-10">
+                                        <a href="#" title="shoaibshokat6@gmail.com">
+                                            <img class="w-40 rounded-circle"
+                                                src="https://ui-avatars.com/api/?name=shoaibshokat6@gmail.com">
+                                                                                    </a>
+                                    </div>
+                                    <div class="contact-info">
+                                        <span
+                                            class="contact-name text-ellipsis">shoaibshokat6@gmail.com</span>
+                                        <span class="contact-date">
+                                            2025-03-21                                        </span>
+
+                                    </div>
+                                </div>
+                            </li>
+                                                    </ul>
+                    </div>
+                    <div class="card-footer text-center bg-white">
+                        <a href="http://localhost/experttutor/manageusers" class="text-muted">View all Tutors</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Students & User Distribution -->
+        <div class="row">
+            <div class="col-12 col-md-6 col-lg-8 col-xl-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title d-inline-block">New Students</h4>
+                        <a href="http://localhost/experttutor/manageusers" class="btn btn-primary float-right">View
+                            all</a>
+                    </div>
+                    <div class="card-block">
+                        <div class="table-responsive">
+                            <table class="table mb-0 new-patient-table">
+                                <tbody>
+                                                                        <tr>
+                                        <td>
+                                            <img width="28" height="28" class=" rounded-circle"
+                                                src="https://ui-avatars.com/api/?name=Shoaib Shokat">
+                                                                                        <h2>Shoaib Shokat</h2>
+                                        </td>
+                                        <td>shoaibshokat100@gmail.com</td>
+                                        <td></td>
+                                                                            </tr>
+                                                                        <tr>
+                                        <td>
+                                            <img width="28" height="28" class=" rounded-circle"
+                                                src="https://ui-avatars.com/api/?name=Hamid">
+                                                                                        <h2>Hamid</h2>
+                                        </td>
+                                        <td>hamidawan768@gmail.com</td>
+                                        <td></td>
+                                                                            </tr>
+                                                                        <tr>
+                                        <td>
+                                            <img width="28" height="28" class=" rounded-circle"
+                                                src="https://ui-avatars.com/api/?name=Hamid768">
+                                                                                        <h2>Hamid768</h2>
+                                        </td>
+                                        <td>hamidalvi768@gmail.com</td>
+                                        <td></td>
+                                                                            </tr>
+                                                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 col-xl-4">
+                <div class="hospital-barchart">
+                    <h4 class="card-title d-inline-block">User Statistics</h4>
+                </div>
+                <div class="bar-chart">
+                    <div class="legend">
+                        <div class="item">
+                            <h4>Total</h4>
+                        </div>
+                        <div class="item">
+                            <h4>Tutors</h4>
+                        </div>
+                        <div class="item text-right">
+                            <h4>Students</h4>
+                        </div>
+                        <div class="item text-right">
+                            <h4>Verified</h4>
+                        </div>
+                    </div>
+                    <div class="chart clearfix">
+                        <!-- Total Users -->
+                        <div class="item">
+                            <div class="bar">
+                                <span class="percent">100%</span>
+                                <div class="item-progress" data-percent="100">
+                                    <span class="title">Total Users</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tutors -->
+                        <div class="item">
+                            <div class="bar">
+                                <span
+                                    class="percent">17%</span>
+                                <div class="item-progress"
+                                    data-percent="17">
+                                    <span class="title">Tutors</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Students -->
+                        <div class="item">
+                            <div class="bar">
+                                <span
+                                    class="percent">83%</span>
+                                <div class="item-progress"
+                                    data-percent="83">
+                                    <span class="title">Students</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Verified Users -->
+                        <div class="item">
+                            <div class="bar">
+                                <span
+                                    class="percent">67%</span>
+                                <div class="item-progress"
+                                    data-percent="67">
+                                    <span class="title">Verified Users</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function () {
+    // Bar Chart - Student/Tutor Distribution
+    const barCtx = document.getElementById('bargraph').getContext('2d');
+    const barChartData = {
+
+    
+		labels: ["Feb 2025","Mar 2025","Apr 2025","May 2025","Jun 2025","Jul 2025"],
+		datasets: [{
+			label: 'Students',
+			backgroundColor: 'rgba(0, 158, 251, 0.5)',
+			borderColor: 'rgba(0, 158, 251, 1)',
+			borderWidth: 1,
+			data: [0,3,0,0,1,1]		}, {
+			label: 'Tutors',
+			backgroundColor: 'rgba(255, 188, 53, 0.5)',
+			borderColor: 'rgba(255, 188, 53, 1)',
+			borderWidth: 1,
+			data: [0,1,0,0,0,0]		}]
+	
+
+    };
+
+    new Chart(barCtx, {
+        type: 'bar',
+        data: barChartData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+
+    // Line Chart - Job Posts Over Time
+    const lineCtx = document.getElementById('linegraph').getContext('2d');
+    const lineChartData = {
+        labels: ["Feb 2025","Mar 2025","Apr 2025","May 2025","Jun 2025","Jul 2025"],
+        datasets: [{
+            label: 'Job Posts',
+            backgroundColor: 'rgba(35, 96, 131, 0.2)',
+            borderColor: 'rgb(162, 226, 43)',
+            borderWidth: 2,
+            pointBackgroundColor: 'rgb(132, 147, 156)',
+            pointRadius: 4,
+            fill: true,
+            tension: 0.3,
+            data: [0,3,0,0,0,0]        }]
+    };
+
+    new Chart(lineCtx, {
+        type: 'line',
+        data: lineChartData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+
+    // Progress Bars
+    barChart();
+
+    $(window).resize(function () {
+        barChart();
+    });
+
+    function barChart() {
+        $('.bar-chart').find('.item-progress').each(function () {
+            const itemProgress = $(this);
+            const parentWidth = itemProgress.parent().width();
+            const percent = itemProgress.data('percent');
+            const itemProgressWidth = parentWidth * (percent / 100);
+            itemProgress.css('width', itemProgressWidth);
+        });
+    }
+});
+</script>
+
+<style>
+.chart-container {
+    position: relative;
+    height: 250px;
+}
+
+.bar-chart .item-progress {
+    transition: width 1s ease-in-out;
+}
+</style>    </div>
+
+    <div id="yii-debug-toolbar" data-url="/experttutor/debug/default/toolbar?tag=686ce52749d9b" data-skip-urls="[]" style="display:none" class="yii-debug-toolbar-bottom"></div><style>#yii-debug-toolbar-logo{position:fixed;right:31px;bottom:4px}@media print{.yii-debug-toolbar{display:none !important}}.yii-debug-toolbar{font:11px Verdana, Arial, sans-serif;text-align:left;width:96px;transition:width .3s ease;z-index:1000000}.yii-debug-toolbar.yii-debug-toolbar_active:not(.yii-debug-toolbar_animating) .yii-debug-toolbar__bar{overflow:visible;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.yii-debug-toolbar.yii-debug-toolbar_iframe_active:not(.yii-debug-toolbar_animating) .yii-debug-toolbar__resize-handle{display:block;height:4px;cursor:ns-resize;margin-bottom:0;z-index:1000001;position:absolute;left:0;right:0}.yii-debug-toolbar:not(.yii-debug-toolbar_active) .yii-debug-toolbar__bar,.yii-debug-toolbar.yii-debug-toolbar_animating .yii-debug-toolbar__bar{height:40px}.yii-debug-toolbar_active{width:100%}.yii-debug-toolbar_active .yii-debug-toolbar__toggle-icon{-webkit-transform:rotate(0);transform:rotate(0)}.yii-debug-toolbar_position_top{margin:0 0 20px 0;width:100%}.yii-debug-toolbar_position_bottom{position:fixed;right:0;bottom:0;margin:0}.yii-debug-toolbar__bar{position:relative;padding:0;font:11px Verdana, Arial, sans-serif;text-align:left;overflow:hidden;box-sizing:content-box;display:flex;flex-wrap:wrap;background:#fff;background:-moz-linear-gradient(top, #fff 0%, #f7f7f7 100%);background:-webkit-linear-gradient(top, #fff 0%, #f7f7f7 100%);background:linear-gradient(to bottom, #fff 0%, #f7f7f7 100%);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f7f7f7', GradientType=0);border:1px solid rgba(0,0,0,0.11);direction:ltr}.yii-debug-toolbar__bar::after{content:'';display:table;clear:both}.yii-debug-toolbar__view{height:0;overflow:hidden;background:white}.yii-debug-toolbar__view iframe{margin:0;padding:10px 0 0;height:100%;width:100%;border:0}.yii-debug-toolbar_iframe_active .yii-debug-toolbar__view{height:100%}.yii-debug-toolbar_iframe_active .yii-debug-toolbar__toggle-icon{-webkit-transform:rotate(90deg);transform:rotate(90deg)}.yii-debug-toolbar_iframe_active .yii-debug-toolbar__external{display:block}.yii-debug-toolbar_iframe_animating .yii-debug-toolbar__view{transition:height .3s ease}.yii-debug-toolbar__block{margin:0;border-right:1px solid rgba(0,0,0,0.11);border-bottom:1px solid rgba(0,0,0,0.11);padding:4px 8px;line-height:32px;white-space:nowrap}@media (max-width: 767.98px){.yii-debug-toolbar__block{flex-grow:1;text-align:center}}.yii-debug-toolbar__block a{display:inline-block;text-decoration:none;color:black}.yii-debug-toolbar__block img{vertical-align:middle;width:30px;height:30px}.yii-debug-toolbar__block_active,.yii-debug-toolbar__ajax:hover{background:#f7f7f7;background:-moz-linear-gradient(top, #f7f7f7 0%, #e0e0e0 100%);background:-webkit-linear-gradient(top, #f7f7f7 0%, #e0e0e0 100%);background:linear-gradient(to bottom, #f7f7f7 0%, #e0e0e0 100%);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f7f7f7', endColorstr='#e0e0e0', GradientType=0)}.yii-debug-toolbar__label{display:inline-block;padding:2px 4px;font-size:12px;font-weight:normal;line-height:14px;white-space:nowrap;vertical-align:middle;max-width:100px;overflow-x:hidden;text-overflow:ellipsis;color:#ffffff;text-shadow:0 -1px 0 rgba(0,0,0,0.25);background-color:#737373;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px}.yii-debug-toolbar__label:empty{display:none}a.yii-debug-toolbar__label:hover,a.yii-debug-toolbar__label:focus{color:#ffffff;text-decoration:none;cursor:pointer}.yii-debug-toolbar__label_important,.yii-debug-toolbar__label_error{background-color:#b94a48}.yii-debug-toolbar__label_important[href]{background-color:#953b39}.yii-debug-toolbar__label_warning,.yii-debug-toolbar__badge_warning{background-color:#f89406}.yii-debug-toolbar__label_warning[href]{background-color:#c67605}.yii-debug-toolbar__label_success{background-color:#217822}.yii-debug-toolbar__label_success[href]{background-color:#356635}.yii-debug-toolbar__label_info{background-color:#0b72b8}.yii-debug-toolbar__label_info[href]{background-color:#2d6987}.yii-debug-toolbar__label_inverse,.yii-debug-toolbar__badge_inverse{background-color:#333333}.yii-debug-toolbar__label_inverse[href],.yii-debug-toolbar__badge_inverse[href]{background-color:#1a1a1a}.yii-debug-toolbar__title{background:#f7f7f7;background:-moz-linear-gradient(top, #f7f7f7 0%, #e0e0e0 100%);background:-webkit-linear-gradient(top, #f7f7f7 0%, #e0e0e0 100%);background:linear-gradient(to bottom, #f7f7f7 0%, #e0e0e0 100%);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f7f7f7', endColorstr='#e0e0e0', GradientType=0)}.yii-debug-toolbar__block_last{width:80px;height:40px;float:left}.yii-debug-toolbar__toggle,.yii-debug-toolbar__external{cursor:pointer;position:absolute;width:30px;height:30px;font-size:25px;font-weight:100;line-height:28px;color:#ffffff;text-align:center;opacity:0.5;filter:alpha(opacity=50);transition:opacity .3s ease}.yii-debug-toolbar__toggle:hover,.yii-debug-toolbar__toggle:focus,.yii-debug-toolbar__external:hover,.yii-debug-toolbar__external:focus{color:#ffffff;text-decoration:none;opacity:0.9;filter:alpha(opacity=90)}.yii-debug-toolbar__toggle-icon,.yii-debug-toolbar__external-icon{display:inline-block;background-position:50% 50%;background-repeat:no-repeat}.yii-debug-toolbar__toggle{right:10px;bottom:4px}.yii-debug-toolbar__toggle-icon{padding:7px 0;width:10px;height:16px;background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNSIgaGVpZ2h0PSIxNSIgdmlld0JveD0iMCAwIDUwIDUwIj48cGF0aCBmaWxsPSIjNDQ0IiBkPSJNMTUuNTYzIDQwLjgzNmEuOTk3Ljk5NyAwIDAgMCAxLjQxNCAwbDE1LTE1YTEgMSAwIDAgMCAwLTEuNDE0bC0xNS0xNWExIDEgMCAwIDAtMS40MTQgMS40MTRMMjkuODU2IDI1LjEzIDE1LjU2MyAzOS40MmExIDEgMCAwIDAgMCAxLjQxNHoiLz48L3N2Zz4=");transition:-webkit-transform .3s ease-out;transition:transform .3s ease-out;-webkit-transform:rotate(180deg);transform:rotate(180deg)}.yii-debug-toolbar__external{display:none;right:50px;bottom:4px}.yii-debug-toolbar__external-icon{padding:8px 0;width:14px;height:14px;background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNSIgaGVpZ2h0PSIxNSIgdmlld0JveD0iMCAwIDUwIDUwIj48cGF0aCBmaWxsPSIjNDQ0IiBkPSJNMzkuNjQyIDkuNzIyYTEuMDEgMS4wMSAwIDAgMC0uMzgyLS4wNzdIMjguMTAzYTEgMSAwIDAgMCAwIDJoOC43NDNMMjEuNyAyNi43OWExIDEgMCAwIDAgMS40MTQgMS40MTVMMzguMjYgMTMuMDZ2OC43NDNhMSAxIDAgMCAwIDIgMFYxMC42NDZhMS4wMDUgMS4wMDUgMCAwIDAtLjYxOC0uOTI0eiIvPjxwYXRoIGQ9Ik0zOS4yNiAyNy45ODVhMSAxIDAgMCAwLTEgMXYxMC42NmgtMjh2LTI4aDEwLjY4M2ExIDEgMCAwIDAgMC0ySDkuMjZhMSAxIDAgMCAwLTEgMXYzMGExIDEgMCAwIDAgMSAxaDMwYTEgMSAwIDAgMCAxLTF2LTExLjY2YTEgMSAwIDAgMC0xLTF6Ii8+PC9zdmc+")}.yii-debug-toolbar__switch-icon{margin-left:10px;padding:5px 10px;width:18px;height:18px;background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDUwIDUwIiB2ZXJzaW9uPSIxLjEiPjxwYXRoIGQ9Im00MS4xIDIzYy0wLjYgMC0xIDAuNC0xIDF2MTAuN2wtMjUuNi0wLjFjMCAwIDAtMiAwLTIuOCAwLTAuOC0wLjctMS0xLTAuNmwtMy41IDMuNWMtMC42IDAuNi0wLjYgMS4zIDAgMmwzLjQgMy40YzAuNCAwLjQgMS4xIDAuMiAxLTAuNmwwLTIuOWMwIDAgMjAuOCAwLjEgMjYuNiAwIDAuNiAwIDEtMC40IDEtMXYtMTEuN2MwLTAuNi0wLjQtMS0xLTF6TTkgMjYuOSA5IDI2LjkgOSAyNi45IDkgMjYuOSIvPjxwYXRoIGQ9Im05IDI2LjljMC42IDAgMS0wLjQgMS0xdi0xMC43bDI1LjYgMC4xYzAgMCAwIDIgMCAyLjggMCAwLjggMC43IDEgMSAwLjZsMy41LTMuNWMwLjYtMC42IDAuNi0xLjMgMC0ybC0zLjQtMy40Yy0wLjQtMC40LTEuMS0wLjItMSAwLjZsMCAyLjljMCAwLTIwLjgtMC4xLTI2LjYgMC0wLjYgMC0xIDAuNC0xIDF2MTEuN2MwIDAuNiAwLjQgMSAxIDF6Ii8+PC9zdmc+")}.yii-debug-toolbar__ajax{position:relative}.yii-debug-toolbar__ajax:hover .yii-debug-toolbar__ajax_info,.yii-debug-toolbar__ajax:focus .yii-debug-toolbar__ajax_info{visibility:visible}.yii-debug-toolbar__ajax a{color:#337ab7}.yii-debug-toolbar__ajax table{width:100%;table-layout:auto;border-spacing:0;border-collapse:collapse}.yii-debug-toolbar__ajax table td{padding:4px;font-size:12px;line-height:normal;vertical-align:top;border-top:1px solid #ddd}.yii-debug-toolbar__ajax table th{padding:4px;font-size:11px;line-height:normal;vertical-align:bottom;border-bottom:2px solid #ddd}.yii-debug-toolbar__ajax_info{visibility:hidden;transition:visibility .2s linear;background-color:white;box-shadow:inset 0 -10px 10px -10px #e1e1e1;position:absolute;bottom:40px;left:-1px;padding:10px;max-width:480px;max-height:480px;word-wrap:break-word;overflow:hidden;overflow-y:auto;box-sizing:border-box;border:1px solid rgba(0,0,0,0.11);z-index:1000001}.yii-debug-toolbar__ajax_request_status{color:white;padding:2px 5px}.yii-debug-toolbar__ajax_request_url{max-width:170px;overflow:hidden;text-overflow:ellipsis}
+</style><script>(function () {
+    'use strict';
+
+    var findToolbar = function () {
+            return document.querySelector('#yii-debug-toolbar');
+        },
+        ajax = function (url, settings) {
+            var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+            settings = settings || {};
+            xhr.open(settings.method || 'GET', url, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.setRequestHeader('Accept', 'text/html');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200 && settings.success) {
+                        settings.success(xhr);
+                    } else if (xhr.status !== 200 && settings.error) {
+                        settings.error(xhr);
+                    }
+                }
+            };
+            xhr.send(settings.data || '');
+        },
+        url,
+        div,
+        toolbarEl = findToolbar(),
+        toolbarAnimatingClass = 'yii-debug-toolbar_animating',
+        barSelector = '.yii-debug-toolbar__bar',
+        viewSelector = '.yii-debug-toolbar__view',
+        blockSelector = '.yii-debug-toolbar__block',
+        toggleSelector = '.yii-debug-toolbar__toggle',
+        externalSelector = '.yii-debug-toolbar__external',
+
+        CACHE_KEY = 'yii-debug-toolbar',
+        ACTIVE_STATE = 'active',
+
+        animationTime = 300,
+
+        activeClass = 'yii-debug-toolbar_active',
+        iframeActiveClass = 'yii-debug-toolbar_iframe_active',
+        iframeAnimatingClass = 'yii-debug-toolbar_iframe_animating',
+        titleClass = 'yii-debug-toolbar__title',
+        blockClass = 'yii-debug-toolbar__block',
+        ignoreClickClass = 'yii-debug-toolbar__ignore_click',
+        blockActiveClass = 'yii-debug-toolbar__block_active',
+        requestStack = [];
+
+    if (toolbarEl) {
+        url = toolbarEl.getAttribute('data-url');
+
+        ajax(url, {
+            success: function (xhr) {
+                div = document.createElement('div');
+                div.innerHTML = xhr.responseText;
+
+                toolbarEl.parentNode && toolbarEl.parentNode.replaceChild(div, toolbarEl);
+
+                showToolbar(findToolbar());
+
+                var event;
+                if (typeof(Event) === 'function') {
+                    event = new Event('yii.debug.toolbar_attached', {'bubbles': true});
+                } else {
+                    event = document.createEvent('Event');
+                    event.initEvent('yii.debug.toolbar_attached', true, true);
+                }
+
+                div.dispatchEvent(event);
+            },
+            error: function (xhr) {
+                toolbarEl.innerText = xhr.responseText;
+            }
+        });
+    }
+
+    function showToolbar(toolbarEl) {
+        var barEl = toolbarEl.querySelector(barSelector),
+            viewEl = toolbarEl.querySelector(viewSelector),
+            toggleEl = toolbarEl.querySelector(toggleSelector),
+            externalEl = toolbarEl.querySelector(externalSelector),
+            blockEls = barEl.querySelectorAll(blockSelector),
+            blockLinksEls = document.querySelectorAll(blockSelector + ':not(.' + titleClass + ') a'),
+            iframeEl = viewEl.querySelector('iframe'),
+            iframeHeight = function () {
+                return (window.innerHeight * (toolbarEl.dataset.height / 100) - barEl.clientHeight) + 'px';
+            },
+            isIframeActive = function () {
+                return toolbarEl.classList.contains(iframeActiveClass);
+            },
+            resizeIframe = function(mouse) {
+                var availableHeight = window.innerHeight - barEl.clientHeight;
+                viewEl.style.height = Math.min(availableHeight, availableHeight - mouse.y) + "px";
+            },
+            showIframe = function (href) {
+                toolbarEl.classList.add(iframeAnimatingClass);
+                toolbarEl.classList.add(iframeActiveClass);
+
+                iframeEl.src = externalEl.href = href;
+                iframeEl.removeAttribute('tabindex');
+
+                viewEl.style.height = iframeHeight();
+                setTimeout(function () {
+                    toolbarEl.classList.remove(iframeAnimatingClass);
+                }, animationTime);
+            },
+            hideIframe = function () {
+                toolbarEl.classList.add(iframeAnimatingClass);
+                toolbarEl.classList.remove(iframeActiveClass);
+                iframeEl.setAttribute("tabindex", "-1");
+                removeActiveBlocksCls();
+
+                externalEl.href = '#';
+                viewEl.style.height = '';
+                setTimeout(function () {
+                    toolbarEl.classList.remove(iframeAnimatingClass);
+                }, animationTime);
+            },
+            removeActiveBlocksCls = function () {
+                [].forEach.call(blockEls, function (el) {
+                    el.classList.remove(blockActiveClass);
+                });
+            },
+            toggleToolbarClass = function (className) {
+                toolbarEl.classList.add(toolbarAnimatingClass);
+                if (toolbarEl.classList.contains(className)) {
+                    toolbarEl.classList.remove(className);
+                    [].forEach.call(blockLinksEls, function (el) {
+                        el.setAttribute('tabindex', "-1");
+                    });
+                } else {
+                    [].forEach.call(blockLinksEls, function (el) {
+                        el.removeAttribute('tabindex');
+                    });
+                    toolbarEl.classList.add(className);
+                }
+                setTimeout(function () {
+                    toolbarEl.classList.remove(toolbarAnimatingClass);
+                }, animationTime);
+            },
+            toggleStorageState = function (key, value) {
+                if (window.localStorage) {
+                    var item = localStorage.getItem(key);
+
+                    if (item) {
+                        localStorage.removeItem(key);
+                    } else {
+                        localStorage.setItem(key, value);
+                    }
+                }
+            },
+            restoreStorageState = function (key) {
+                if (window.localStorage) {
+                    return localStorage.getItem(key);
+                }
+            },
+            togglePosition = function () {
+                if (isIframeActive()) {
+                    hideIframe();
+                } else {
+                    toggleToolbarClass(activeClass);
+                    toggleStorageState(CACHE_KEY, ACTIVE_STATE);
+                }
+            };
+
+        if (restoreStorageState(CACHE_KEY) === ACTIVE_STATE) {
+            var transition = toolbarEl.style.transition;
+            toolbarEl.style.transition = 'none';
+            toolbarEl.classList.add(activeClass);
+            setTimeout(function () {
+                toolbarEl.style.transition = transition;
+            }, animationTime);
+        } else {
+            [].forEach.call(blockLinksEls, function (el) {
+                el.setAttribute('tabindex', "-1");
+            });
+        }
+
+        toolbarEl.style.display = 'block';
+
+        window.onresize = function () {
+            if (toolbarEl.classList.contains(iframeActiveClass)) {
+                viewEl.style.height = iframeHeight();
+            }
+        };
+
+        toolbarEl.addEventListener("mousedown", function(e) {
+            if (isIframeActive() && (e.y - toolbarEl.offsetTop < 4 /* 4px click zone */)) {
+                document.addEventListener("mousemove", resizeIframe, false);
+            }
+        }, false);
+
+        document.addEventListener("mouseup", function(){
+            if (isIframeActive()) {
+                document.removeEventListener("mousemove", resizeIframe, false);
+            }
+        }, false);
+
+        barEl.onclick = function (e) {
+            var target = e.target,
+                block = findAncestor(target, blockClass);
+
+            if (block
+                && !block.classList.contains(titleClass)
+                && !block.classList.contains(ignoreClickClass)
+                && e.which !== 2 && !e.ctrlKey // not mouse wheel and not ctrl+click
+            ) {
+                while (target !== this) {
+                    if (target.href) {
+                        removeActiveBlocksCls();
+                        block.classList.add(blockActiveClass);
+                        showIframe(target.href);
+                    }
+                    target = target.parentNode;
+                }
+
+                e.preventDefault();
+            }
+        };
+
+        toggleEl.onclick = togglePosition;
+    }
+
+    function findAncestor(el, cls) {
+        while ((el = el.parentElement) && !el.classList.contains(cls)) ;
+        return el;
+    }
+
+    function renderAjaxRequests() {
+        var requestCounter = document.getElementsByClassName('yii-debug-toolbar__ajax_counter');
+        if (!requestCounter.length) {
+            return;
+        }
+        var ajaxToolbarPanel = document.querySelector('.yii-debug-toolbar__ajax');
+        var tbodies = document.getElementsByClassName('yii-debug-toolbar__ajax_requests');
+        var state = 'ok';
+        if (tbodies.length) {
+            var tbody = tbodies[0];
+            var rows = document.createDocumentFragment();
+            if (requestStack.length) {
+                var firstItem = requestStack.length > 20 ? requestStack.length - 20 : 0;
+                for (var i = firstItem; i < requestStack.length; i++) {
+                    var request = requestStack[i];
+                    var row = document.createElement('tr');
+                    rows.appendChild(row);
+
+                    var methodCell = document.createElement('td');
+                    methodCell.innerHTML = request.method;
+                    row.appendChild(methodCell);
+
+                    var statusCodeCell = document.createElement('td');
+                    var statusCode = document.createElement('span');
+                    if (request.statusCode < 300) {
+                        statusCode.setAttribute('class', 'yii-debug-toolbar__ajax_request_status yii-debug-toolbar__label_success');
+                    } else if (request.statusCode < 400) {
+                        statusCode.setAttribute('class', 'yii-debug-toolbar__ajax_request_status yii-debug-toolbar__label_warning');
+                    } else {
+                        statusCode.setAttribute('class', 'yii-debug-toolbar__ajax_request_status yii-debug-toolbar__label_error');
+                    }
+                    statusCode.textContent = request.statusCode || '-';
+                    statusCodeCell.appendChild(statusCode);
+                    row.appendChild(statusCodeCell);
+
+                    var pathCell = document.createElement('td');
+                    pathCell.className = 'yii-debug-toolbar__ajax_request_url';
+                    pathCell.innerHTML = request.url;
+                    pathCell.setAttribute('title', request.url);
+                    row.appendChild(pathCell);
+
+                    var durationCell = document.createElement('td');
+                    durationCell.className = 'yii-debug-toolbar__ajax_request_duration';
+                    if (request.duration) {
+                        durationCell.innerText = request.duration + " ms";
+                    } else {
+                        durationCell.innerText = '-';
+                    }
+                    row.appendChild(durationCell);
+                    row.appendChild(document.createTextNode(' '));
+
+                    var profilerCell = document.createElement('td');
+                    if (request.profilerUrl) {
+                        var profilerLink = document.createElement('a');
+                        profilerLink.setAttribute('href', request.profilerUrl);
+                        profilerLink.innerText = request.profile;
+                        profilerCell.appendChild(profilerLink);
+                    } else {
+                        profilerCell.innerText = 'n/a';
+                    }
+                    row.appendChild(profilerCell);
+
+                    if (request.error) {
+                        if (state !== "loading" && i > requestStack.length - 4) {
+                            state = 'error';
+                        }
+                    } else if (request.loading) {
+                        state = 'loading'
+                    }
+                    row.className = 'yii-debug-toolbar__ajax_request';
+                }
+                while (tbody.firstChild) {
+                    tbody.removeChild(tbody.firstChild);
+                }
+                tbody.appendChild(rows);
+            }
+            ajaxToolbarPanel.style.display = 'block';
+        }
+        requestCounter[0].innerText = requestStack.length;
+        var className = 'yii-debug-toolbar__label yii-debug-toolbar__ajax_counter';
+        if (state === 'ok') {
+            className += ' yii-debug-toolbar__label_success';
+        } else if (state === 'error') {
+            className += ' yii-debug-toolbar__label_error';
+        }
+        requestCounter[0].className = className;
+    }
+
+    /**
+     * Should AJAX request to be logged in debug panel
+     *
+     * @param requestUrl
+     * @returns {boolean}
+     */
+    function shouldTrackRequest(requestUrl) {
+        if (!toolbarEl) {
+            return false;
+        }
+        var a = document.createElement('a');
+        a.href = requestUrl;
+        var skipAjaxRequestUrls = JSON.parse(toolbarEl.getAttribute('data-skip-urls'));
+        if (Array.isArray(skipAjaxRequestUrls) && skipAjaxRequestUrls.length && skipAjaxRequestUrls.includes(requestUrl)) {
+            return false;
+        }
+        return a.host === location.host;
+    }
+
+    var proxied = XMLHttpRequest.prototype.open;
+
+    XMLHttpRequest.prototype.open = function (method, url, async, user, pass) {
+        var self = this;
+
+        if (shouldTrackRequest(url)) {
+            var stackElement = {
+                loading: true,
+                error: false,
+                url: url,
+                method: method,
+                start: new Date()
+            };
+            requestStack.push(stackElement);
+            this.addEventListener('readystatechange', function () {
+                if (self.readyState === 4) {
+                    stackElement.duration = self.getResponseHeader('X-Debug-Duration') || new Date() - stackElement.start;
+                    stackElement.loading = false;
+                    stackElement.statusCode = self.status;
+                    stackElement.error = self.status < 200 || self.status >= 400;
+                    stackElement.profile = self.getResponseHeader('X-Debug-Tag');
+                    stackElement.profilerUrl = self.getResponseHeader('X-Debug-Link');
+                    renderAjaxRequests();
+                }
+            }, false);
+            renderAjaxRequests();
+        }
+        proxied.apply(this, Array.prototype.slice.call(arguments));
+    };
+
+    // catch fetch AJAX requests
+    if (window.fetch) {
+        var originalFetch = window.fetch;
+
+        window.fetch = function (input, init) {
+            var method;
+            var url;
+            if (typeof input === 'string') {
+                method = (init && init.method) || 'GET';
+                url = input;
+            } else if (window.URL && input instanceof URL) { // fix https://github.com/yiisoft/yii2-debug/issues/296
+                method = (init && init.method) || 'GET';
+                url = input.href;
+            } else if (window.Request && input instanceof Request) {
+                method = input.method;
+                url = input.url;
+            }
+            var promise = originalFetch(input, init);
+
+            if (shouldTrackRequest(url)) {
+                var stackElement = {
+                    loading: true,
+                    error: false,
+                    url: url,
+                    method: method,
+                    start: new Date()
+                };
+                requestStack.push(stackElement);
+                promise.then(function (response) {
+                    stackElement.duration = response.headers.get('X-Debug-Duration') || new Date() - stackElement.start;
+                    stackElement.loading = false;
+                    stackElement.statusCode = response.status;
+                    stackElement.error = response.status < 200 || response.status >= 400;
+                    stackElement.profile = response.headers.get('X-Debug-Tag');
+                    stackElement.profilerUrl = response.headers.get('X-Debug-Link');
+                    renderAjaxRequests();
+
+                    return response;
+                }).catch(function (error) {
+                    stackElement.loading = false;
+                    stackElement.error = true;
+                    renderAjaxRequests();
+
+                    throw error;
+                });
+                renderAjaxRequests();
+            }
+
+            return promise;
+        };
+    }
+
+})();
+</script><script src="/experttutor/assets/9e8be8b0/jquery.js"></script>
+<script src="/experttutor/assets/8f6d097a/yii.js"></script>    	<script src="http://localhost/experttutor/assets/custom/theme/js/popper.min.js"></script>
+    <script src="http://localhost/experttutor/assets/custom/theme/js/bootstrap.min.js"></script>
+    <script src="http://localhost/experttutor/assets/custom/theme/js/jquery.slimscroll.js"></script>
+    <script src="http://localhost/experttutor/assets/custom/theme/js/Chart.bundle.js"></script>
+    <!-- <script src="http://localhost/experttutor/assets/custom/theme/js/chart.js"></script> -->
+    <script src="http://localhost/experttutor/assets/custom/theme/js/app.js"></script>
+</body>
+
+</html>
