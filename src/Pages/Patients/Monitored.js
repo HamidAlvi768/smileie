@@ -555,12 +555,8 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                   <Row>
                     <Col md={6}>
                       <FormGroup className="mb-3">
-                        <Label
-                          for="firstName"
-                          className="fw-semibold text-uppercase"
-                          style={{ letterSpacing: "0.03em" }}
-                        >
-                          First Name *
+                        <Label for="firstName" className="fw-semibold text-uppercase" style={{ letterSpacing: "0.03em" }}>
+                          First Name
                         </Label>
                         <Input
                           type="text"
@@ -568,18 +564,13 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                           placeholder="Enter first name"
                           value={patientForm.first_name}
                           onChange={handlePatientFormChange}
-                          required
                         />
                       </FormGroup>
                     </Col>
                     <Col md={6}>
                       <FormGroup className="mb-3">
-                        <Label
-                          for="lastName"
-                          className="fw-semibold text-uppercase"
-                          style={{ letterSpacing: "0.03em" }}
-                        >
-                          Last Name *
+                        <Label for="lastName" className="fw-semibold text-uppercase" style={{ letterSpacing: "0.03em" }}>
+                          Last Name
                         </Label>
                         <Input
                           type="text"
@@ -587,14 +578,13 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                           placeholder="Enter last name"
                           value={patientForm.last_name}
                           onChange={handlePatientFormChange}
-                          required
                         />
                       </FormGroup>
                     </Col>
                     <Col md={6}>
                       <FormGroup className="mb-3">
                         <Label for="email">
-                          Email <span className="text-muted">(optional)</span>
+                          Email *
                         </Label>
                         <Input
                           type="email"
@@ -607,24 +597,20 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                     </Col>
                     <Col md={6}>
                       <FormGroup className="mb-3">
-                        <Label for="mobile">Mobile Phone *</Label>
+                        <Label for="mobile">Mobile Phone</Label>
                         <Input
                           type="tel"
                           id="mobile"
                           placeholder="Enter mobile number"
                           value={patientForm.phone}
                           onChange={handlePatientFormChange}
-                          required
                         />
                       </FormGroup>
                     </Col>
                   </Row>
                 </Col>
                 <Col md={3} className="text-center">
-                  <Label
-                    className="fw-semibold text-uppercase"
-                    style={{ letterSpacing: "0.03em" }}
-                  >
+                  <Label className="fw-semibold text-uppercase" style={{ letterSpacing: "0.03em" }}>
                     Photo
                   </Label>
                   <div
@@ -638,18 +624,8 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                       position: "relative",
                     }}
                   >
-                    <i
-                      className="mdi mdi-account-circle-outline"
-                      style={{ fontSize: "48px", color: "#8ca0b3" }}
-                    ></i>
-                    <div
-                      className="mt-2"
-                      style={{
-                        color: "#8ca0b3",
-                        fontSize: "15px",
-                        lineHeight: "1.2",
-                      }}
-                    >
+                    <i className="mdi mdi-account-circle-outline" style={{ fontSize: "48px", color: "#8ca0b3" }}></i>
+                    <div className="mt-2" style={{ color: "#8ca0b3", fontSize: "15px", lineHeight: "1.2" }}>
                       Click to browse or
                       <br />
                       drag a picture
@@ -660,29 +636,16 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                 <Col md={4}>
                   <FormGroup className="mb-3">
                     <Label for="dob">Date of Birth</Label>
-                    <Input
-                      type="date"
-                      id="dob"
-                      value={patientForm.dob}
-                      onChange={handlePatientFormChange}
-                    />
+                    <Input type="date" id="dob" value={patientForm.dob} onChange={handlePatientFormChange} />
                   </FormGroup>
                 </Col>
-
                 <Col md={4}>
                   <FormGroup className="mb-3">
                     <Label for="doctor">Doctor</Label>
-                    <Input
-                      type="select"
-                      id="doctor_id"
-                      value={patientForm.doctor_id}
-                      onChange={handlePatientFormChange}
-                    >
+                    <Input type="select" id="doctor" value={patientForm.doctor_id} onChange={handlePatientFormChange}>
                       <option value="">Select doctor</option>
                       {doctors.map((doc) => (
-                        <option key={doc.id} value={doc.id}>
-                          {doc.full_name}
-                        </option>
+                        <option key={doc.id} value={doc.id}>{doc.full_name}</option>
                       ))}
                     </Input>
                   </FormGroup>
@@ -745,13 +708,13 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                     />
                   </FormGroup>
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="address">Address</Label>
                     <Input type="text" id="address" value={patientForm.address} onChange={handlePatientFormChange} />
                   </FormGroup>
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="address2">Address Line 2</Label>
                     <Input type="text" id="address2" value={patientForm.address2} onChange={handlePatientFormChange} />
@@ -763,6 +726,22 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                     <Input type="text" id="zip_code" value={patientForm.zip_code} onChange={handlePatientFormChange} />
                   </FormGroup>
                 </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="aligner_type">Aligner Type</Label>
+                    <Input 
+                      type="select" 
+                      id="aligner_type" 
+                      value={patientForm.aligner_type} 
+                      onChange={handlePatientFormChange}
+                    >
+                      <option value="">Select aligner type</option>
+                      <option value="Day Aligner">Day Aligner</option>
+                      <option value="Night Aligner">Night Aligner</option>
+                    </Input>
+                  </FormGroup>
+                </Col>
+                
               </Row>
               {/* Second row: Last Name */}
               <div className="text-end mt-4">

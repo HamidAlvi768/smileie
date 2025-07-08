@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Card, CardBody, Table } from 'reactstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { getConsentForms } from '../../../store/patients/actions';
+import { WEB_APP_URL } from '../../../config';
 
 // Mock data for consent forms
 const mockConsentForms = [
@@ -58,7 +59,7 @@ const ConsentForms = ({ patientId = null }) => {
                     <tr key={form.id}>
                       <td>{idx + 1}</td>
                       <td>
-                        <a href={form.file_url} target="_blank" rel="noopener noreferrer">
+                        <a href={WEB_APP_URL+form.file_url} target="_blank" rel="noopener noreferrer">
                           {form.file_url.split('/').pop()}
                         </a>
                       </td>

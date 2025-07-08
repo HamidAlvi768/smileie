@@ -148,6 +148,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     city: "",
     state: "",
     country: "",
+    aligner_type: "",
   });
 
   // Add search and filter state
@@ -281,6 +282,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
         city: "",
         state: "",
         country: "",
+        aligner_type: "",
       });
       dispatch(clearPatientMessages());
       dispatch(getNotMonitoredPatients()); // Refresh the list after creation
@@ -456,7 +458,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                     <Col md={6}>
                       <FormGroup className="mb-3">
                         <Label for="email">
-                          Email <span className="text-muted">(optional)</span>
+                          Email *
                         </Label>
                         <Input
                           type="email"
@@ -535,24 +537,6 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                 </Col>
                 <Col md={4}>
                   <FormGroup className="mb-3">
-                    <Label for="address">Address</Label>
-                    <Input type="text" id="address" value={patientForm.address} onChange={handlePatientFormChange} />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="address2">Address Line 2</Label>
-                    <Input type="text" id="address2" value={patientForm.address2} onChange={handlePatientFormChange} />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="zip_code">Zip Code</Label>
-                    <Input type="text" id="zip_code" value={patientForm.zip_code} onChange={handlePatientFormChange} />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
                     <Label for="country">Country</Label>
                     <Select
                       id="country"
@@ -598,6 +582,40 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                     />
                   </FormGroup>
                 </Col>
+                <Col md={6}>
+                  <FormGroup className="mb-3">
+                    <Label for="address">Address</Label>
+                    <Input type="text" id="address" value={patientForm.address} onChange={handlePatientFormChange} />
+                  </FormGroup>
+                </Col>
+                <Col md={6}>
+                  <FormGroup className="mb-3">
+                    <Label for="address2">Address Line 2</Label>
+                    <Input type="text" id="address2" value={patientForm.address2} onChange={handlePatientFormChange} />
+                  </FormGroup>
+                </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="zip_code">Zip Code</Label>
+                    <Input type="text" id="zip_code" value={patientForm.zip_code} onChange={handlePatientFormChange} />
+                  </FormGroup>
+                </Col>
+                <Col md={4}>
+                  <FormGroup className="mb-3">
+                    <Label for="aligner_type">Aligner Type</Label>
+                    <Input 
+                      type="select" 
+                      id="aligner_type" 
+                      value={patientForm.aligner_type} 
+                      onChange={handlePatientFormChange}
+                    >
+                      <option value="">Select aligner type</option>
+                      <option value="Day Aligner">Day Aligner</option>
+                      <option value="Night Aligner">Night Aligner</option>
+                    </Input>
+                  </FormGroup>
+                </Col>
+                
               </Row>
               <div className="text-end mt-4">
                 <Button color="light" className="me-2" onClick={toggleCreatePatient} type="button">

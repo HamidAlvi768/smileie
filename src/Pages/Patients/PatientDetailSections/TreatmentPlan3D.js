@@ -2,6 +2,53 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardBody, Button, Input, FormGroup, Label, Form, Badge, Spinner, Alert } from 'reactstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { create3DPlan, get3DPlan, update3DPlan, delete3DPlan } from '../../../store/patients/actions';
+// import './TreatmentPlan3DStepper.css'; // (optional: for custom stepper styling)
+
+const getCurrentStep = (threeDPlan, editing) => {
+  if (editing || !threeDPlan) return 1;
+  if (threeDPlan && threeDPlan.approved !== 1) return 2;
+  if (threeDPlan && threeDPlan.approved === 1) return 3;
+  return 1;
+};
+
+const Stepper = ({ currentStep, maxStepReached, onStepClick }) => (
+  <div className="treatment-stepper d-flex align-items-center mb-4">
+    {[1, 2, 3].map((step, idx) => (
+      <React.Fragment key={step}>
+        <div
+          className={`step-circle${currentStep === step ? ' active' : ''}${currentStep > step ? ' completed' : ''}${step <= maxStepReached ? ' clickable' : ''}`}
+          onClick={() => step <= maxStepReached && onStepClick && onStepClick(step)}
+          style={{ cursor: step <= maxStepReached ? 'pointer' : 'default' }}
+        >
+          {step}
+        </div>
+        <div className={`step-label${currentStep === step ? ' active' : ''}`}>{
+          step === 1 ? 'URL & Description' : step === 2 ? 'Approval & 3D View' : 'Arch Type & Aligners'
+        }</div>
+        {step < 3 && <div className={`step-bar${currentStep > step ? ' completed' : ''}`}></div>}
+      </React.Fragment>
+    ))}
+  </div>
+);
+
+const ARCH_TYPE_OPTIONS = [
+  { value: 'day_dual', label: 'Day time dual arch' },
+  { value: 'night_dual', label: 'Night time dual arch' },
+  { value: 'day_upper', label: 'Day time upper arch' },
+  { value: 'day_lower', label: 'Day time lower arch' },
+  { value: 'night_upper', label: 'Night time upper arch' },
+  { value: 'night_lower', label: 'Night time lower arch' },
+];
+
+function getArchTypeLabel(value) {
+  const found = ARCH_TYPE_OPTIONS.find(opt => opt.value === value);
+  return found ? found.label : value;
+}
+
+function getArchTypeValue(label) {
+  const found = ARCH_TYPE_OPTIONS.find(opt => opt.label === label);
+  return found ? found.value : label;
+}
 
 const TreatmentPlan3D = ({ patient }) => {
   const dispatch = useDispatch();
@@ -21,6 +68,30 @@ const TreatmentPlan3D = ({ patient }) => {
   const [totalAligners, setTotalAligners] = useState(0);
   const [editing, setEditing] = useState(false);
 
+  // Local state for 3rd step fields
+  const [archTypeStep3, setArchTypeStep3] = useState('day_dual');
+  const [upperAligners, setUpperAligners] = useState(0);
+  const [lowerAligners, setLowerAligners] = useState(0);
+
+  // Track current step in local state for navigation
+  const [currentStep, setCurrentStep] = useState(getCurrentStep(threeDPlan, editing));
+  // Compute maxStepReached based on data
+  let maxStepReached = 1;
+  if (threeDPlan) {
+    maxStepReached = threeDPlan.approved === 1 ? 3 : 2;
+  }
+  // Keep currentStep in sync with data/logic
+  useEffect(() => {
+    const logicalStep = getCurrentStep(threeDPlan, editing);
+    if (currentStep > logicalStep) {
+      setCurrentStep(logicalStep);
+    }
+    // If we just advanced, auto-advance
+    if (currentStep < logicalStep) {
+      setCurrentStep(logicalStep);
+    }
+  }, [threeDPlan, editing]);
+
   // Load existing 3D plan when component mounts
   useEffect(() => {
     if (patient?.id) {
@@ -38,6 +109,23 @@ const TreatmentPlan3D = ({ patient }) => {
       setEditing(false);
     }
   }, [threeDPlan]);
+
+  // When threeDPlan changes, update local state for step 3
+  useEffect(() => {
+    if (threeDPlan) {
+      setArchTypeStep3(threeDPlan.arch_type || 'day_dual');
+      setUpperAligners(threeDPlan.upper_aligners || 0);
+      setLowerAligners(threeDPlan.lower_aligners || 0);
+    }
+  }, [threeDPlan]);
+
+  // Automatically go to step 2 after successful save in step 1
+  useEffect(() => {
+    // If we were editing, and now not creating/updating, and threeDPlan exists, exit editing mode
+    if ((creating3DPlan === false && updating3DPlan === false) && editing && threeDPlan) {
+      setEditing(false);
+    }
+  }, [creating3DPlan, updating3DPlan, editing, threeDPlan]);
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -71,6 +159,7 @@ const TreatmentPlan3D = ({ patient }) => {
 
   return (
     <div className="treatment-plan-3d-section">
+      <Stepper currentStep={currentStep} maxStepReached={maxStepReached} onStepClick={setCurrentStep} />
       <div className="d-flex align-items-center gap-3 mb-3">
         <h4 className="mb-0">3D Treatment Plan</h4>
         {threeDPlan && (
@@ -93,141 +182,163 @@ const TreatmentPlan3D = ({ patient }) => {
               <Spinner color="primary" />
               <p className="mt-2">Loading 3D treatment plan...</p>
             </div>
-          ) : editing || !threeDPlan ? (
-            <Form onSubmit={handleSave} className="d-flex flex-column gap-3">
-              <div className="row">
-                <div className="col-md-4">
-                  <FormGroup className="mb-0">
-                    <Label for="reelLink">3D Reel Link</Label>
-                    <Input
-                      id="reelLink"
-                      type="url"
-                      placeholder="Paste the 3D treatment plan link here..."
-                      value={reelLink}
-                      onChange={e => setReelLink(e.target.value)}
-                      required
-                    />
-                  </FormGroup>
-                </div>
-                <div className="col-md-4">
-                  <FormGroup className="mb-0">
-                    <Label for="archType">Arch Type</Label>
-                    <Input
-                      id="archType"
-                      type="select"
-                      value={archType}
-                      onChange={e => setArchType(e.target.value)}
-                    >
-                      <option value="both">Both</option>
-                      <option value="upper">Upper</option>
-                      <option value="lower">Lower</option>
-                    </Input>
-                  </FormGroup>
-                </div>
-                <div className="col-md-4">
-                  <FormGroup className="mb-0">
-                    <Label for="totalAligners">Total Aligners</Label>
-                    <Input
-                      id="totalAligners"
-                      type="number"
-                      min="0"
-                      placeholder="Enter total number of aligners..."
-                      value={totalAligners}
-                      onChange={e => setTotalAligners(e.target.value)}
-                    />
-                  </FormGroup>
-                </div>
-              </div>
-
-              <div className="row">
-                <div className="col-md-12">
-                  <FormGroup className="mb-0">
-                    <Label for="reelDescription">Description</Label>
-                    <Input
-                      id="reelDescription"
-                      type="textarea"
-                      placeholder="Add a description for the 3D treatment plan..."
-                      value={description}
-                      onChange={e => setDescription(e.target.value)}
-                      rows={3}
-                    />
-                  </FormGroup>
-                </div>
-              </div>
-
-              <div className="d-flex justify-content-end gap-2">
-                {threeDPlan && (
-                  <Button 
-                    color="secondary" 
-                    onClick={() => setEditing(false)}
-                    disabled={creating3DPlan || updating3DPlan}
-                  >
-                    Cancel
-                  </Button>
-                )}
-                <Button 
-                  color="primary" 
-                  type="submit" 
-                  size="lg"
-                  disabled={creating3DPlan || updating3DPlan}
-                >
-                  {creating3DPlan || updating3DPlan ? (
-                    <>
-                      <Spinner size="sm" className="me-2" />
-                      {creating3DPlan ? 'Creating...' : 'Updating...'}
-                    </>
-                  ) : (
-                    threeDPlan ? 'Update Plan' : 'Save Plan'
-                  )}
-                </Button>
-              </div>
-            </Form>
           ) : (
-            <div className="d-flex flex-column gap-3">
-
-              {threeDPlan.plan_url && (
-                <div>
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h5 className="mb-0">3D Plan Viewer</h5>
-                    <a 
-                      href={threeDPlan.plan_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="fw-bold btn btn-link p-0"
-                      style={{textDecoration: 'none'}}
+            <>
+              {currentStep === 1 && (
+                <Form onSubmit={handleSave} className="d-flex flex-column gap-3">
+                  <div className="row">
+                    <div className="col-md-12">
+                      <FormGroup className="mb-0">
+                        <Label for="reelLink">3D Reel Link</Label>
+                        <Input
+                          id="reelLink"
+                          type="url"
+                          placeholder="Paste the 3D treatment plan link here..."
+                          value={reelLink}
+                          onChange={e => setReelLink(e.target.value)}
+                          required
+                        />
+                      </FormGroup>
+                    </div>
+                    <div className="col-md-12">
+                      <FormGroup className="mb-0">
+                        <Label for="reelDescription">Description</Label>
+                        <Input
+                          id="reelDescription"
+                          type="textarea"
+                          placeholder="Add a description for the 3D treatment plan..."
+                          value={description}
+                          onChange={e => setDescription(e.target.value)}
+                          rows={3}
+                        />
+                      </FormGroup>
+                    </div>
+                  </div>
+                  <div className="d-flex justify-content-end gap-2">
+                    {threeDPlan && (
+                      <Button 
+                        color="secondary" 
+                        onClick={() => setEditing(false)}
+                        disabled={creating3DPlan || updating3DPlan}
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                    <Button 
+                      color="primary" 
+                      type="submit" 
+                      size="lg"
+                      disabled={creating3DPlan || updating3DPlan}
                     >
-                      View 3D Treatment Plan
-                    </a>
+                      {creating3DPlan || updating3DPlan ? (
+                        <>
+                          <Spinner size="sm" className="me-2" />
+                          {creating3DPlan ? 'Creating...' : 'Updating...'}
+                        </>
+                      ) : (
+                        threeDPlan ? 'Update Plan' : 'Save Plan'
+                      )}
+                    </Button>
                   </div>
-                  <div style={{width: '100%', minHeight: 400, border: '1px solid #eee', borderRadius: 8, overflow: 'hidden'}}>
-                    <iframe
-                      src={threeDPlan.plan_url}
-                      title="3D Plan Viewer"
-                      width="100%"
-                      height="400"
-                      style={{border: 'none'}}
-                      allowFullScreen
-                    />
+                </Form>
+              )}
+              {currentStep === 2 && threeDPlan && (
+                <div className="d-flex flex-column gap-3">
+                  {threeDPlan.plan_url && (
+                    <div>
+                      <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h5 className="mb-0">3D Plan Viewer</h5>
+                        <a 
+                          href={threeDPlan.plan_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="fw-bold btn btn-link p-0"
+                          style={{textDecoration: 'none'}}>
+                          View 3D Treatment Plan
+                        </a>
+                      </div>
+                      <div style={{width: '100%', minHeight: 400, border: '1px solid #eee', borderRadius: 8, overflow: 'hidden'}}>
+                        <iframe
+                          src={threeDPlan.plan_url}
+                          title="3D Plan Viewer"
+                          width="100%"
+                          height="400"
+                          style={{border: 'none'}}
+                          allowFullScreen
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div className="row mt-2">
+                    <div className="col-md-12">
+                      <strong>Description:</strong> {threeDPlan.description}
+                    </div>
                   </div>
+                  {/* No Edit/Delete buttons in step 2 */}
                 </div>
               )}
-
-              <div className="row mt-2">
-                <div className="col-md-6">
-                  <strong>Arch Type:</strong> {threeDPlan.arch_type}
-                </div>
-                <div className="col-md-6">
-                  <strong>Total Aligners:</strong> {threeDPlan.total_aligners}
-                </div>
-              </div>
-
-              {threeDPlan.description && (
-                <div className="mt-2 text-muted">
-                  <strong>Description:</strong>
-                  <div>{threeDPlan.description}</div>
-                </div>
+              {currentStep === 3 && threeDPlan && (
+                <Form onSubmit={e => {
+                  e.preventDefault();
+                  dispatch(update3DPlan({
+                    ...threeDPlan,
+                    arch_type: archTypeStep3,
+                    upper_aligners: upperAligners,
+                    lower_aligners: lowerAligners,
+                    patient_id: patient.id,
+                  }));
+                }} className="d-flex flex-column gap-3">
+                  <div className="row mt-2">
+                    <div className="col-md-4">
+                      <FormGroup>
+                        <Label for="archTypeStep3">Arch Type</Label>
+                        <Input
+                          id="archTypeStep3"
+                          type="select"
+                          value={archTypeStep3}
+                          onChange={e => setArchTypeStep3(e.target.value)}
+                        >
+                          {ARCH_TYPE_OPTIONS.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </Input>
+                      </FormGroup>
+                    </div>
+                    <div className="col-md-4">
+                      <FormGroup>
+                        <Label for="upperAligners">Upper Aligners</Label>
+                        <Input
+                          id="upperAligners"
+                          type="number"
+                          min="0"
+                          value={upperAligners}
+                          onChange={e => setUpperAligners(Number(e.target.value))}
+                          disabled={!(archTypeStep3.includes('dual') || archTypeStep3.includes('upper'))}
+                        />
+                      </FormGroup>
+                    </div>
+                    <div className="col-md-4">
+                      <FormGroup>
+                        <Label for="lowerAligners">Lower Aligners</Label>
+                        <Input
+                          id="lowerAligners"
+                          type="number"
+                          min="0"
+                          value={lowerAligners}
+                          onChange={e => setLowerAligners(Number(e.target.value))}
+                          disabled={!(archTypeStep3.includes('dual') || archTypeStep3.includes('lower'))}
+                        />
+                      </FormGroup>
+                    </div>
+                  </div>
+                  <div className="d-flex justify-content-end gap-2">
+                    <Button color="primary" type="submit" size="lg" disabled={updating3DPlan}>
+                      {updating3DPlan ? <><Spinner size="sm" className="me-2" />Saving...</> : 'Save'}
+                    </Button>
+                  </div>
+                </Form>
               )}
-            </div>
+            </>
           )}
         </CardBody>
       </Card>

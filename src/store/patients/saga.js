@@ -1,7 +1,7 @@
 import { call, put, takeEvery } from "redux-saga/effects";
 import { addPatientAPI, getRecentPatientsAPI, getPatientDetailAPI, updatePatientDetailAPI, getMonitoredPatientsAPI, getNotMonitoredPatientsAPI, getConsentFormsAPI, create3DPlanAPI, get3DPlanAPI, update3DPlanAPI, delete3DPlanAPI } from "../../helpers/api_helper";
 import { ADD_PATIENT, GET_RECENT_PATIENTS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, GET_MONITORED_PATIENTS, GET_NOT_MONITORED_PATIENTS, GET_CONSENT_FORMS, CREATE_3D_PLAN, GET_3D_PLAN, UPDATE_3D_PLAN, DELETE_3D_PLAN } from "./actionTypes";
-import { addPatientSuccess, addPatientMessage, getPatients, getRecentPatientsSuccess, getPatientDetailSuccess, updatePatientDetailSuccess, updatePatientDetailFail, getPatientDetail, getMonitoredPatientsSuccess, getNotMonitoredPatientsSuccess, patientsApiFail, getConsentFormsSuccess, getConsentFormsFail, create3DPlanSuccess, create3DPlanFail, get3DPlanSuccess, get3DPlanFail, update3DPlanSuccess, update3DPlanFail, delete3DPlanSuccess, delete3DPlanFail } from "./actions";
+import { addPatientSuccess, addPatientMessage, getPatients, getRecentPatientsSuccess, getPatientDetailSuccess, updatePatientDetailSuccess, updatePatientDetailFail, getPatientDetail, getMonitoredPatientsSuccess, getNotMonitoredPatientsSuccess, patientsApiFail, getConsentFormsSuccess, getConsentFormsFail, create3DPlanSuccess, create3DPlanFail, get3DPlanSuccess, get3DPlanFail, update3DPlanSuccess, update3DPlanFail, delete3DPlanSuccess, delete3DPlanFail, get3DPlan } from "./actions";
 
 function* addPatientSaga({ payload }) {
   try {
@@ -90,6 +90,10 @@ function* create3DPlanSaga({ payload }) {
       throw response.message || "Failed to create 3D plan";
     }
     yield put(create3DPlanSuccess(response));
+    // Fetch the latest plan after creation
+    if (payload.patient_id) {
+      yield put(get3DPlan(payload.patient_id));
+    }
   } catch (error) {
     console.error('Create 3D plan error:', error);
     yield put(create3DPlanFail(error));
@@ -112,6 +116,10 @@ function* update3DPlanSaga({ payload }) {
       throw response.message || "Failed to update 3D plan";
     }
     yield put(update3DPlanSuccess(response));
+    // Fetch the latest plan after update
+    if (payload.patient_id) {
+      yield put(get3DPlan(payload.patient_id));
+    }
   } catch (error) {
     yield put(update3DPlanFail(error));
   }

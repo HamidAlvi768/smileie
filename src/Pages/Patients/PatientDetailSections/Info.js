@@ -96,8 +96,7 @@ const Info = ({ patient }) => {
     lastName: patientDetail.last_name || '',
     email: patientDetail.email || '',
     phone: patientDetail.phone || '',
-    appActivation: 'Yes', // Not in API, keep as default or from patientDetail if available
-    appActivationDate: '2024-06-01', // Hardcoded for now
+    alignerType: patientDetail.aligner_type || patient?.aligner_type || '',
     dateOfBirth: patientDetail.dob || '',
     gender: patientDetail.gender || '',
     address: patientDetail.address || '',
@@ -139,6 +138,7 @@ const Info = ({ patient }) => {
       city: editedInfo.city,
       state: editedInfo.state,
       country: editedInfo.country,
+      aligner_type: editedInfo.alignerType, // send aligner_type to payload
     };
     dispatch(updatePatientDetail(patientDetail.id, data));
   };
@@ -266,19 +266,18 @@ const Info = ({ patient }) => {
         </div>
         <div className="form-group-fourth">
           <FormGroup>
-            <Label for="appActivation">App Activation</Label>
-            <div className="d-flex align-items-center gap-2">
-              <Input
-                type="select"
-                name="appActivation"
-                id="appActivation"
-                value={editedInfo.appActivation}
-                onChange={handleInputChange}
-              >
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </Input>
-            </div>
+            <Label for="alignerType">Aligner Type</Label>
+            <Input
+              type="select"
+              name="alignerType"
+              id="alignerType"
+              value={editedInfo.alignerType}
+              onChange={handleInputChange}
+            >
+              <option value="">Select aligner type</option>
+              <option value="Day Aligner">Day Aligner</option>
+              <option value="Night Aligner">Night Aligner</option>
+            </Input>
           </FormGroup>
         </div>
         <div className="form-group-fourth">
@@ -419,6 +418,10 @@ const Info = ({ patient }) => {
               <div>{patientInfo.gender}</div>
             </div>
             <div className="info-item">
+              <label>Aligner Type</label>
+              <div>{patientInfo.alignerType}</div>
+            </div>
+            <div className="info-item">
               <label>Zip Code</label>
               <div>{patientInfo.zip_code}</div>
             </div>
@@ -442,17 +445,6 @@ const Info = ({ patient }) => {
             <div className="info-item">
               <label>Address Line 2</label>
               <div>{patientInfo.address2}</div>
-            </div>
-            <div className="info-item">
-              <label>App Activation</label>
-              <div>
-                <span className={`status-badge ${patientInfo.appActivation === 'Yes' ? 'active' : 'inactive'}`}>
-                  {patientInfo.appActivation}
-                </span>
-                <span className="ms-2 text-muted" style={{ fontSize: '0.95em' }}>
-                  {patientInfo.appActivationDate}
-                </span>
-              </div>
             </div>
             <div className="info-item">
               <label>Date of Birth</label>
