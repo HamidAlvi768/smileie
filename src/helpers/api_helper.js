@@ -120,7 +120,10 @@ export const getMessagesAPI = async (patientId) => {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      // Add auth headers if needed
+      // no cache
+      "Cache-Control": "no-cache",
+      Pragma: "no-cache",
+      Expires: "0",
     },
   });
   if (!response.ok) throw new Error("Failed to fetch messages");
