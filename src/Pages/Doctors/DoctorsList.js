@@ -31,13 +31,11 @@ const filterOptions = {
     "Prosthodontist",
   ],
   practice: ["All practices", "Smileie UK", "Smileie US", "Smileie AU"],
-  status: ["All", "Active", "Inactive"],
 };
 
 const filterLabels = {
   specialty: "Specialty",
   practice: "Practice",
-  status: "Status",
 };
 
 const columns = [
@@ -135,7 +133,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
   const [filters, setFilters] = useState({
     specialty: "All specialties",
     practice: "All practices",
-    status: "All",
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -145,7 +142,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     email: "",
     phone: "",
     practice: "",
-    status: "Active",
   };
   const [form, setForm] = useState(initialFormState);
 
@@ -173,11 +169,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     // Apply practice filter
     if (filters.practice !== "All practices") {
       filtered = filtered.filter((doctor) => doctor.practice === filters.practice);
-    }
-
-    // Apply status filter
-    if (filters.status !== "All") {
-      filtered = filtered.filter((doctor) => doctor.status === filters.status);
     }
 
     // Apply search filter
@@ -368,7 +359,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     setFilters({
       specialty: "All specialties",
       practice: "All practices",
-      status: "All",
     });
     setSearchTerm("");
     setDebouncedSearchTerm("");
@@ -379,7 +369,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     return (
       filters.specialty !== "All specialties" ||
       filters.practice !== "All practices" ||
-      filters.status !== "All" ||
       debouncedSearchTerm.trim() !== ""
     );
   }, [filters, debouncedSearchTerm]);
@@ -520,24 +509,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                         {formErrors.practice}
                       </div>
                     )}
-                  </FormGroup>
-                </Col>
-                <Col md={6}>
-                  <FormGroup className="mb-3">
-                    <Label for="status">Status</Label>
-                    <Input
-                      type="select"
-                      id="status"
-                      value={form.status}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      {filterOptions.status.slice(1).map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </Input>
                   </FormGroup>
                 </Col>
               </Row>

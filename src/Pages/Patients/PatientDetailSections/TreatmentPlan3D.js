@@ -185,95 +185,95 @@ const TreatmentPlan3D = ({ patient }) => {
           ) : (
             <>
               {currentStep === 1 && (
-                <Form onSubmit={handleSave} className="d-flex flex-column gap-3">
-                  <div className="row">
+            <Form onSubmit={handleSave} className="d-flex flex-column gap-3">
+              <div className="row">
                     <div className="col-md-12">
-                      <FormGroup className="mb-0">
-                        <Label for="reelLink">3D Reel Link</Label>
-                        <Input
-                          id="reelLink"
-                          type="url"
-                          placeholder="Paste the 3D treatment plan link here..."
-                          value={reelLink}
-                          onChange={e => setReelLink(e.target.value)}
-                          required
-                        />
-                      </FormGroup>
-                    </div>
-                    <div className="col-md-12">
-                      <FormGroup className="mb-0">
-                        <Label for="reelDescription">Description</Label>
-                        <Input
-                          id="reelDescription"
-                          type="textarea"
-                          placeholder="Add a description for the 3D treatment plan..."
-                          value={description}
-                          onChange={e => setDescription(e.target.value)}
-                          rows={3}
-                        />
-                      </FormGroup>
-                    </div>
-                  </div>
-                  <div className="d-flex justify-content-end gap-2">
-                    {threeDPlan && (
-                      <Button 
-                        color="secondary" 
-                        onClick={() => setEditing(false)}
-                        disabled={creating3DPlan || updating3DPlan}
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                    <Button 
-                      color="primary" 
-                      type="submit" 
-                      size="lg"
-                      disabled={creating3DPlan || updating3DPlan}
-                    >
-                      {creating3DPlan || updating3DPlan ? (
-                        <>
-                          <Spinner size="sm" className="me-2" />
-                          {creating3DPlan ? 'Creating...' : 'Updating...'}
-                        </>
-                      ) : (
-                        threeDPlan ? 'Update Plan' : 'Save Plan'
-                      )}
-                    </Button>
-                  </div>
-                </Form>
+                  <FormGroup className="mb-0">
+                    <Label for="reelLink">3D Reel Link</Label>
+                    <Input
+                      id="reelLink"
+                      type="url"
+                      placeholder="Paste the 3D treatment plan link here..."
+                      value={reelLink}
+                      onChange={e => setReelLink(e.target.value)}
+                      required
+                    />
+                  </FormGroup>
+                </div>
+                <div className="col-md-12">
+                  <FormGroup className="mb-0">
+                    <Label for="reelDescription">Description</Label>
+                    <Input
+                      id="reelDescription"
+                      type="textarea"
+                      placeholder="Add a description for the 3D treatment plan..."
+                      value={description}
+                      onChange={e => setDescription(e.target.value)}
+                      rows={3}
+                    />
+                  </FormGroup>
+                </div>
+              </div>
+              <div className="d-flex justify-content-end gap-2">
+                {threeDPlan && (
+                  <Button 
+                    color="secondary" 
+                    onClick={() => setEditing(false)}
+                    disabled={creating3DPlan || updating3DPlan}
+                  >
+                    Cancel
+                  </Button>
+                )}
+                <Button 
+                  color="primary" 
+                  type="submit" 
+                  size="lg"
+                  disabled={creating3DPlan || updating3DPlan}
+                >
+                  {creating3DPlan || updating3DPlan ? (
+                    <>
+                      <Spinner size="sm" className="me-2" />
+                      {creating3DPlan ? 'Creating...' : 'Updating...'}
+                    </>
+                  ) : (
+                    threeDPlan ? 'Update Plan' : 'Save Plan'
+                  )}
+                </Button>
+              </div>
+            </Form>
               )}
               {currentStep === 2 && threeDPlan && (
-                <div className="d-flex flex-column gap-3">
-                  {threeDPlan.plan_url && (
-                    <div>
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="mb-0">3D Plan Viewer</h5>
-                        <a 
-                          href={threeDPlan.plan_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="fw-bold btn btn-link p-0"
+            <div className="d-flex flex-column gap-3">
+              {threeDPlan.plan_url && (
+                <div>
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h5 className="mb-0">3D Plan Viewer</h5>
+                    <a 
+                      href={threeDPlan.plan_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="fw-bold btn btn-link p-0"
                           style={{textDecoration: 'none'}}>
-                          View 3D Treatment Plan
-                        </a>
-                      </div>
-                      <div style={{width: '100%', minHeight: 400, border: '1px solid #eee', borderRadius: 8, overflow: 'hidden'}}>
-                        <iframe
-                          src={threeDPlan.plan_url}
-                          title="3D Plan Viewer"
-                          width="100%"
-                          height="400"
-                          style={{border: 'none'}}
-                          allowFullScreen
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div className="row mt-2">
+                      View 3D Treatment Plan
+                    </a>
+                  </div>
+                  <div style={{width: '100%', minHeight: 400, border: '1px solid #eee', borderRadius: 8, overflow: 'hidden'}}>
+                    <iframe
+                      src={threeDPlan.plan_url}
+                      title="3D Plan Viewer"
+                      width="100%"
+                      height="400"
+                      style={{border: 'none'}}
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              )}
+              <div className="row mt-2">
                     <div className="col-md-12">
                       <strong>Description:</strong> {threeDPlan.description}
-                    </div>
-                  </div>
+                </div>
+              </div>
                   {/* No Edit/Delete buttons in step 2 */}
                 </div>
               )}
@@ -335,7 +335,7 @@ const TreatmentPlan3D = ({ patient }) => {
                     <Button color="primary" type="submit" size="lg" disabled={updating3DPlan}>
                       {updating3DPlan ? <><Spinner size="sm" className="me-2" />Saving...</> : 'Save'}
                     </Button>
-                  </div>
+            </div>
                 </Form>
               )}
             </>
