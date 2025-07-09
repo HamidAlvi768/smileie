@@ -161,6 +161,16 @@ const TreatmentPlan3D = ({ patient }) => {
 
   const isApproved = threeDPlan?.approved === 1;
 
+  // Helper to format approved_at date
+  function formatApprovedAt(dateStr) {
+    if (!dateStr) return '';
+    // Convert 'YYYY-MM-DD HH:mm:ss' to 'YYYY-MM-DDTHH:mm:ss'
+    const isoString = dateStr.replace(' ', 'T');
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
   return (
     <div className="treatment-plan-3d-section">
       <Stepper currentStep={currentStep} maxStepReached={maxStepReached} onStepClick={setCurrentStep} />
@@ -171,9 +181,9 @@ const TreatmentPlan3D = ({ patient }) => {
             <Badge color={isApproved ? 'success' : 'secondary'} pill className="approval-badge">
               {isApproved ? 'Approved' : 'Not Approved'}
             </Badge>
-            {isApproved && (
+            {isApproved && threeDPlan.approved_at && (
               <span className="approved-on text-muted" style={{ fontSize: '0.98rem', marginLeft: 8 }}>
-                Approved on: 2024-06-01 14:30
+                Approved on: {formatApprovedAt(threeDPlan.approved_at)}
               </span>
             )}
           </>
@@ -291,11 +301,11 @@ const TreatmentPlan3D = ({ patient }) => {
               {currentStep === 3 && threeDPlan && (
                 <>
                   <div className="mb-2">
-                    {isApproved && (
-                      <span className="approved-on text-muted" style={{ fontSize: '1rem' }}>
-                        Approved on: 2024-06-01 14:30
-                      </span>
-                    )}
+                   {isApproved && threeDPlan.approved_at && (
+                     <span className="approved-on text-muted" style={{ fontSize: '1rem' }}>
+                       Approved on: {formatApprovedAt(threeDPlan.approved_at)}
+                     </span>
+                   )}
                   </div>
                   <Form onSubmit={e => {
                     e.preventDefault();

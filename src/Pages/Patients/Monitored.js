@@ -21,6 +21,7 @@ import { getMonitoredPatients, addPatient, clearPatientMessages } from "../../st
 import { useToast } from "../../components/Common/ToastContext";
 import { getDoctors } from "../../store/doctors/actions";
 import Select from 'react-select';
+import PatientForm from './PatientForm';
 
 const filterOptions = {
   compliance: [
@@ -507,6 +508,18 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     }
   }, [patientForm.state, patientForm.country]);
 
+  // Shared aligner type options (from Orders.js main concern)
+  const alignerTypeOptions = [
+    'Impression Kit',
+    'Day time dual arch',
+    'Night time dual arch',
+    'Day time upper arch',
+    'Day time lower arch',
+    'Night time upper arch',
+    'Night time lower arch',
+    'Refinement Aligners',
+  ];
+
   return (
     <div className="page-content">
       <Container fluid>
@@ -550,202 +563,17 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
           </ModalHeader>
           <ModalBody>
             <Form onSubmit={handleCreatePatient}>
-              <Row>
-                <Col md={6}>
-                  <FormGroup className="mb-3">
-                    <Label for="first_name" className="fw-semibold text-uppercase" style={{ letterSpacing: "0.03em" }}>
-                      First Name *
-                    </Label>
-                    <Input
-                      type="text"
-                      id="first_name"
-                      placeholder="Enter first name"
-                      value={patientForm.first_name}
-                      onChange={handlePatientFormChange}
-                      required
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={6}>
-                  <FormGroup className="mb-3">
-                    <Label for="last_name" className="fw-semibold text-uppercase" style={{ letterSpacing: "0.03em" }}>
-                      Last Name *
-                    </Label>
-                    <Input
-                      type="text"
-                      id="last_name"
-                      placeholder="Enter last name"
-                      value={patientForm.last_name}
-                      onChange={handlePatientFormChange}
-                      required
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={6}>
-                  <FormGroup className="mb-3">
-                    <Label for="email">Email <span className="text-muted">(optional)</span></Label>
-                    <Input
-                      type="email"
-                      id="email"
-                      placeholder="Enter email address"
-                      value={patientForm.email}
-                      onChange={handlePatientFormChange}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={6}>
-                  <FormGroup className="mb-3">
-                    <Label for="mobile">Mobile Phone *</Label>
-                    <Input
-                      type="tel"
-                      id="mobile"
-                      placeholder="Enter mobile number"
-                      value={patientForm.phone}
-                      onChange={handlePatientFormChange}
-                      required
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="dob">Date of Birth</Label>
-                    <Input
-                      type="date"
-                      id="dob"
-                      value={patientForm.dob}
-                      onChange={handlePatientFormChange}
-                      max={new Date().toISOString().split('T')[0]}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="doctor_id">Doctor</Label>
-                    <Input
-                      type="select"
-                      id="doctor_id"
-                      value={patientForm.doctor_id}
-                      onChange={handlePatientFormChange}
-                    >
-                      <option value="">Select doctor</option>
-                      {doctors.map((doc) => (
-                        <option key={doc.id} value={doc.id}>{doc.full_name}</option>
-                      ))}
-                    </Input>
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="gender">Gender</Label>
-                    <Input
-                      type="select"
-                      id="gender"
-                      value={patientForm.gender}
-                      onChange={handlePatientFormChange}
-                    >
-                      <option value="">Select gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                    </Input>
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="country">Country</Label>
-                    <Select
-                      id="country"
-                      options={countries.map(c => ({ value: c, label: c }))}
-                      value={patientForm.country ? { value: patientForm.country, label: patientForm.country } : null}
-                      onChange={option => setPatientForm(prev => ({ ...prev, country: option ? option.value : '' }))}
-                      isClearable
-                      placeholder="Select country"
-                      isLoading={isLoadingCountries}
-                      loadingMessage={() => "Loading countries..."}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="state">State</Label>
-                    <Select
-                      id="state"
-                      options={states.map(s => ({ value: s, label: s }))}
-                      value={patientForm.state ? { value: patientForm.state, label: patientForm.state } : null}
-                      onChange={option => setPatientForm(prev => ({ ...prev, state: option ? option.value : '' }))}
-                      isClearable
-                      placeholder="Select state"
-                      isDisabled={!patientForm.country}
-                      isLoading={isLoadingStates}
-                      loadingMessage={() => "Loading states..."}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="city">City</Label>
-                    <Select
-                      id="city"
-                      options={cities.map(c => ({ value: c, label: c }))}
-                      value={patientForm.city ? { value: patientForm.city, label: patientForm.city } : null}
-                      onChange={option => setPatientForm(prev => ({ ...prev, city: option ? option.value : '' }))}
-                      isClearable
-                      placeholder="Select city"
-                      isDisabled={!patientForm.state}
-                      isLoading={isLoadingCities}
-                      loadingMessage={() => "Loading cities..."}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={6}>
-                  <FormGroup className="mb-3">
-                    <Label for="address">Address</Label>
-                    <Input
-                      type="text"
-                      id="address"
-                      value={patientForm.address}
-                      onChange={handlePatientFormChange}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={6}>
-                  <FormGroup className="mb-3">
-                    <Label for="address2">Address Line 2</Label>
-                    <Input
-                      type="text"
-                      id="address2"
-                      value={patientForm.address2}
-                      onChange={handlePatientFormChange}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="zip_code">Zip Code</Label>
-                    <Input
-                      type="text"
-                      id="zip_code"
-                      value={patientForm.zip_code}
-                      onChange={handlePatientFormChange}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col md={4}>
-                  <FormGroup className="mb-3">
-                    <Label for="aligner_type">Aligner Type</Label>
-                    <Input
-                      type="select"
-                      id="aligner_type"
-                      value={patientForm.aligner_type}
-                      onChange={handlePatientFormChange}
-                    >
-                      <option value="">Select aligner type</option>
-                      <option value="Day Aligner">Day Aligner</option>
-                      <option value="Night Aligner">Night Aligner</option>
-                    </Input>
-                  </FormGroup>
-                </Col>
-              </Row>
+              <PatientForm
+                formState={patientForm}
+                onChange={handlePatientFormChange}
+                doctors={doctors}
+                countries={countries}
+                states={states}
+                cities={cities}
+                isLoadingCountries={isLoadingCountries}
+                isLoadingStates={isLoadingStates}
+                isLoadingCities={isLoadingCities}
+              />
               <div className="text-end mt-4">
                 <Button color="light" className="me-2" onClick={toggleCreatePatient} type="button" disabled={isLoading}>
                   Cancel

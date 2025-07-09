@@ -61,7 +61,7 @@ const Scans = ({ patient }) => {
         <h4 className="mb-0">Scans</h4>
         <span className="text-muted small">8 result(s)</span>
       </div>
-      <Card className="bg-transparent border-0">
+      <Card className="bg-transparent border-0 shadow-none">
         <CardBody className='pt-1'>
           <h5 className="mb-3">Upper</h5>
           {/* Upper Section with arrows */}
@@ -105,7 +105,7 @@ const Scans = ({ patient }) => {
               <i className="mdi mdi-chevron-right"></i>
             </button>
           </div>
-          <hr className="my-4" />
+          <hr className="my-2" />
           <h5 className="mb-3">Lower</h5>
           {/* Lower Section with arrows */}
           <div className="scan-cards-slider-wrapper">

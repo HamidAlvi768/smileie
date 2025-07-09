@@ -59,32 +59,6 @@ const mockScan = {
         },
       ],
     },
-    {
-      name: 'Upper Jaw',
-      subsections: [
-        {
-          name: 'With Aligner',
-          images: [upperJawImg, lowerJawImg],
-        },
-        {
-          name: 'Without Aligner',
-          images: [upperJawImg2, lowerJawImg2],
-        },
-      ],
-    },
-    {
-      name: 'Lower Jaw',
-      subsections: [
-        {
-          name: 'With Aligner',
-          images: [lowerJawImg, upperJawImg],
-        },
-        {
-          name: 'Without Aligner',
-          images: [lowerJawImg2, upperJawImg2],
-        },
-      ],
-    },
   ],
 };
 
