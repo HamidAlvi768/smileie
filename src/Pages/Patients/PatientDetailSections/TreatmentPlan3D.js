@@ -22,7 +22,11 @@ const Stepper = ({ currentStep, maxStepReached, onStepClick }) => (
         >
           {step}
         </div>
-        <div className={`step-label${currentStep === step ? ' active' : ''}`}>{
+        <div
+          className={`step-label${currentStep === step ? ' active' : ''}${step <= maxStepReached ? ' clickable' : ''}`}
+          onClick={() => step <= maxStepReached && onStepClick && onStepClick(step)}
+          style={{ cursor: step <= maxStepReached ? 'pointer' : 'default' }}
+        >{
           step === 1 ? 'URL & Description' : step === 2 ? 'Approval & 3D View' : 'Arch Type & Aligners'
         }</div>
         {step < 3 && <div className={`step-bar${currentStep > step ? ' completed' : ''}`}></div>}
@@ -163,9 +167,16 @@ const TreatmentPlan3D = ({ patient }) => {
       <div className="d-flex align-items-center gap-3 mb-3">
         <h4 className="mb-0">3D Treatment Plan</h4>
         {threeDPlan && (
-          <Badge color={isApproved ? 'success' : 'secondary'} pill className="approval-badge">
-            {isApproved ? 'Approved' : 'Not Approved'}
-          </Badge>
+          <>
+            <Badge color={isApproved ? 'success' : 'secondary'} pill className="approval-badge">
+              {isApproved ? 'Approved' : 'Not Approved'}
+            </Badge>
+            {isApproved && (
+              <span className="approved-on text-muted" style={{ fontSize: '0.98rem', marginLeft: 8 }}>
+                Approved on: 2024-06-01 14:30
+              </span>
+            )}
+          </>
         )}
       </div>
 
@@ -278,65 +289,74 @@ const TreatmentPlan3D = ({ patient }) => {
                 </div>
               )}
               {currentStep === 3 && threeDPlan && (
-                <Form onSubmit={e => {
-                  e.preventDefault();
-                  dispatch(update3DPlan({
-                    ...threeDPlan,
-                    arch_type: archTypeStep3,
-                    upper_aligners: upperAligners,
-                    lower_aligners: lowerAligners,
-                    patient_id: patient.id,
-                  }));
-                }} className="d-flex flex-column gap-3">
-                  <div className="row mt-2">
-                    <div className="col-md-4">
-                      <FormGroup>
-                        <Label for="archTypeStep3">Arch Type</Label>
-                        <Input
-                          id="archTypeStep3"
-                          type="select"
-                          value={archTypeStep3}
-                          onChange={e => setArchTypeStep3(e.target.value)}
-                        >
-                          {ARCH_TYPE_OPTIONS.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                          ))}
-                        </Input>
-                      </FormGroup>
-                    </div>
-                    <div className="col-md-4">
-                      <FormGroup>
-                        <Label for="upperAligners">Upper Aligners</Label>
-                        <Input
-                          id="upperAligners"
-                          type="number"
-                          min="0"
-                          value={upperAligners}
-                          onChange={e => setUpperAligners(Number(e.target.value))}
-                          disabled={!(archTypeStep3.includes('dual') || archTypeStep3.includes('upper'))}
-                        />
-                      </FormGroup>
-                    </div>
-                    <div className="col-md-4">
-                      <FormGroup>
-                        <Label for="lowerAligners">Lower Aligners</Label>
-                        <Input
-                          id="lowerAligners"
-                          type="number"
-                          min="0"
-                          value={lowerAligners}
-                          onChange={e => setLowerAligners(Number(e.target.value))}
-                          disabled={!(archTypeStep3.includes('dual') || archTypeStep3.includes('lower'))}
-                        />
-                      </FormGroup>
-                    </div>
+                <>
+                  <div className="mb-2">
+                    {isApproved && (
+                      <span className="approved-on text-muted" style={{ fontSize: '1rem' }}>
+                        Approved on: 2024-06-01 14:30
+                      </span>
+                    )}
                   </div>
-                  <div className="d-flex justify-content-end gap-2">
-                    <Button color="primary" type="submit" size="lg" disabled={updating3DPlan}>
-                      {updating3DPlan ? <><Spinner size="sm" className="me-2" />Saving...</> : 'Save'}
-                    </Button>
-            </div>
-                </Form>
+                  <Form onSubmit={e => {
+                    e.preventDefault();
+                    dispatch(update3DPlan({
+                      ...threeDPlan,
+                      arch_type: archTypeStep3,
+                      upper_aligners: upperAligners,
+                      lower_aligners: lowerAligners,
+                      patient_id: patient.id,
+                    }));
+                  }} className="d-flex flex-column gap-3">
+                    <div className="row mt-2">
+                      <div className="col-md-4">
+                        <FormGroup>
+                          <Label for="archTypeStep3">Arch Type</Label>
+                          <Input
+                            id="archTypeStep3"
+                            type="select"
+                            value={archTypeStep3}
+                            onChange={e => setArchTypeStep3(e.target.value)}
+                          >
+                            {ARCH_TYPE_OPTIONS.map(opt => (
+                              <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                          </Input>
+                        </FormGroup>
+                      </div>
+                      <div className="col-md-4">
+                        <FormGroup>
+                          <Label for="upperAligners">Upper Aligners</Label>
+                          <Input
+                            id="upperAligners"
+                            type="number"
+                            min="0"
+                            value={upperAligners}
+                            onChange={e => setUpperAligners(Number(e.target.value))}
+                            disabled={!(archTypeStep3.includes('dual') || archTypeStep3.includes('upper'))}
+                          />
+                        </FormGroup>
+                      </div>
+                      <div className="col-md-4">
+                        <FormGroup>
+                          <Label for="lowerAligners">Lower Aligners</Label>
+                          <Input
+                            id="lowerAligners"
+                            type="number"
+                            min="0"
+                            value={lowerAligners}
+                            onChange={e => setLowerAligners(Number(e.target.value))}
+                            disabled={!(archTypeStep3.includes('dual') || archTypeStep3.includes('lower'))}
+                          />
+                        </FormGroup>
+                      </div>
+                    </div>
+                    <div className="d-flex justify-content-end gap-2">
+                      <Button color="primary" type="submit" size="lg" disabled={updating3DPlan}>
+                        {updating3DPlan ? <><Spinner size="sm" className="me-2" />Saving...</> : 'Save'}
+                      </Button>
+                    </div>
+                  </Form>
+                </>
               )}
             </>
           )}
