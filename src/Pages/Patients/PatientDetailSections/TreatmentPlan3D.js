@@ -72,10 +72,15 @@ const TreatmentPlan3D = ({ patient }) => {
   const [totalAligners, setTotalAligners] = useState(0);
   const [editing, setEditing] = useState(false);
 
+  // Validation state for URL
+  const [urlError, setUrlError] = useState('');
+
   // Local state for 3rd step fields
   const [archTypeStep3, setArchTypeStep3] = useState('day_dual');
   const [upperAligners, setUpperAligners] = useState(0);
   const [lowerAligners, setLowerAligners] = useState(0);
+  // Track if step 3 was saved successfully
+  const [isStep3Saved, setIsStep3Saved] = useState(false);
 
   // Track current step in local state for navigation
   const [currentStep, setCurrentStep] = useState(getCurrentStep(threeDPlan, editing));
@@ -123,6 +128,20 @@ const TreatmentPlan3D = ({ patient }) => {
     }
   }, [threeDPlan]);
 
+  // Add after the useEffect that updates local state from threeDPlan
+  useEffect(() => {
+    if (!threeDPlan && patient?.id) {
+      setReelLink('');
+      setDescription('');
+      setArchType('both');
+      setTotalAligners(0);
+      setArchTypeStep3('day_dual');
+      setUpperAligners(0);
+      setLowerAligners(0);
+      setEditing(false);
+    }
+  }, [threeDPlan, patient?.id]);
+
   // Automatically go to step 2 after successful save in step 1
   useEffect(() => {
     // If we were editing, and now not creating/updating, and threeDPlan exists, exit editing mode
@@ -131,9 +150,28 @@ const TreatmentPlan3D = ({ patient }) => {
     }
   }, [creating3DPlan, updating3DPlan, editing, threeDPlan]);
 
+  // Track successful save for step 3
+  useEffect(() => {
+    if (!updating3DPlan && !threeDPlanError) {
+      setIsStep3Saved(true);
+    }
+  }, [updating3DPlan, threeDPlanError]);
+
+  // Reset isStep3Saved if user changes any step 3 field
+  useEffect(() => {
+    setIsStep3Saved(false);
+  }, [archTypeStep3, upperAligners, lowerAligners]);
+
   const handleSave = (e) => {
     e.preventDefault();
-    
+    // Validate URL
+    const urlPattern = /^https:\/\/doctor\.smileie\.com\/\/access\/[a-zA-Z0-9]+$/;
+    if (!urlPattern.test(reelLink)) {
+      setUrlError('Please enter a valid Smileie 3D plan URL');
+      return;
+    } else {
+      setUrlError('');
+    }
     const planData = {
       patient_id: patient.id,
       plan_url: reelLink,
@@ -141,7 +179,6 @@ const TreatmentPlan3D = ({ patient }) => {
       arch_type: archType,
       total_aligners: parseInt(totalAligners) || 0
     };
-
     if (threeDPlan?.id) {
       // Update existing plan
       dispatch(update3DPlan({ ...planData, id: threeDPlan.id }));
@@ -218,7 +255,11 @@ const TreatmentPlan3D = ({ patient }) => {
                       value={reelLink}
                       onChange={e => setReelLink(e.target.value)}
                       required
+                      invalid={!!urlError}
                     />
+                    {urlError && (
+                      <div className="invalid-feedback d-block">{urlError}</div>
+                    )}
                   </FormGroup>
                 </div>
                 <div className="col-md-12">
@@ -249,7 +290,7 @@ const TreatmentPlan3D = ({ patient }) => {
                   color="primary" 
                   type="submit" 
                   size="lg"
-                  disabled={creating3DPlan || updating3DPlan}
+                  disabled={creating3DPlan || updating3DPlan || (threeDPlan && !editing)}
                 >
                   {creating3DPlan || updating3DPlan ? (
                     <>
@@ -300,13 +341,6 @@ const TreatmentPlan3D = ({ patient }) => {
               )}
               {currentStep === 3 && threeDPlan && (
                 <>
-                  <div className="mb-2">
-                   {isApproved && threeDPlan.approved_at && (
-                     <span className="approved-on text-muted" style={{ fontSize: '1rem' }}>
-                       Approved on: {formatApprovedAt(threeDPlan.approved_at)}
-                     </span>
-                   )}
-                  </div>
                   <Form onSubmit={e => {
                     e.preventDefault();
                     dispatch(update3DPlan({
@@ -361,8 +395,8 @@ const TreatmentPlan3D = ({ patient }) => {
                       </div>
                     </div>
                     <div className="d-flex justify-content-end gap-2">
-                      <Button color="primary" type="submit" size="lg" disabled={updating3DPlan}>
-                        {updating3DPlan ? <><Spinner size="sm" className="me-2" />Saving...</> : 'Save'}
+                      <Button color="primary" type="submit" size="lg" disabled={updating3DPlan || isStep3Saved}>
+                        {updating3DPlan ? <><Spinner size="sm" className="me-2" />Saving...</> : isStep3Saved ? 'Saved' : 'Save'}
                       </Button>
                     </div>
                   </Form>

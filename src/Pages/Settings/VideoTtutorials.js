@@ -38,12 +38,14 @@ const VideoTtutorials = () => {
   const handleAdd = () => {
     setEditingTutorial(null);
     setFormData({ title: "", url: "", description: "" });
+    setUrlError("");
     setModal(true);
   };
 
   const handleEdit = (tutorial) => {
     setEditingTutorial(tutorial);
     setFormData({ title: tutorial.title, url: tutorial.link, description: tutorial.description });
+    setUrlError("");
     setModal(true);
   };
 
@@ -53,18 +55,15 @@ const VideoTtutorials = () => {
   };
 
   const validateUrl = (url) => {
-    try {
-      new URL(url);
-      return true;
-    } catch (e) {
-      return false;
-    }
+    // Accept only YouTube video URLs (allow extra query params)
+    const youtubePattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/)[\w-]{11}([?&].*)?$/;
+    return youtubePattern.test(url);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validateUrl(formData.url)) {
-      setUrlError("Please enter a valid URL.");
+      setUrlError("Please enter a valid YouTube video URL.");
       return;
     } else {
       setUrlError("");

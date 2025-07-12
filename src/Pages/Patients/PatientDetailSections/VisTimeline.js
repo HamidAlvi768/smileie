@@ -251,6 +251,7 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
             {renderBar('hygiene', bars.hygiene, BAR_ICONS.hygiene, showTooltip, setShowTooltip, hygieneBarRef)}
             {renderBar('scan', bars.scan, BAR_ICONS.scan, showTooltip, setShowTooltip, scanBarRef)}
           </div>
+          {/*
           <button
             style={{
               background: 'none',
@@ -270,6 +271,7 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
           >
             See stats details
           </button>
+          */}
         </div>
       )}
       <div ref={containerRef} style={{ height: `${height || 500}px` }} />

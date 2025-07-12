@@ -48,46 +48,11 @@ import {
   sendMessage,
   receiveMessage,
 } from "../../store/messages/actions";
-import config from '../../config.js';
+import config, { WEB_APP_URL } from "../../config.js";
 import OrderDetail from "./PatientDetailSections/OrderDetail";
 import PatientOrders from "./PatientDetailSections/Orders.js";
 import ConsentForms from "./PatientDetailSections/ConsentForms";
 import TreatmentPlan3D from "./PatientDetailSections/TreatmentPlan3D";
-
-// Mock data moved outside the component
-const PATIENT_MOCK_DATA = {
-  name: "Stephen Dyos",
-  id: "P-00123",
-  plan: "Photo Monitoring Full",
-  alignerType: "Day Aligner",
-  status: "Active",
-  nextScan: "2025-06-01",
-  alignerNumber: 21,
-  excludedTeeth: "Not Set",
-  started: "2024-01-01",
-  app_activation: 1, // 1 = Activated, 0 = Not Activated
-  scanBox: "Assigned",
-  frequency: "Every week (3 day(s) NO-GO)",
-  upperLower: "Both",
-  notificationsPanel: {
-    date: "2024-03-15",
-    title: "New scan received",
-    patientInstruction: "Please continue wearing aligners as prescribed",
-    teamInstruction: "Review scan for proper aligner fit",
-    todo: "Review new scan",
-    instruction: "Remind patient to use chewies daily.",
-    forceGo: "Enabled",
-  },
-  goals: {
-    "General Goals": ["Closure of all anterior space(s)", "Retention phase"],
-    Anteroposterior: ["Class I canine – RIGHT", "Class I canine – LEFT"],
-    Vertical: ["Normal overjet [1.0 ; 3.0] mm", "Correction of open bite"],
-    Transverse: [
-      "Correction of crossbite – RIGHT",
-      "Correction of crossbite – LEFT",
-    ],
-  },
-};
 
 const OBSERVATION_SUB_OBSERVATIONS_DATA = {
   Tracking: [
@@ -117,8 +82,16 @@ const NAVBAR_ITEMS_TEMPLATE = [
   { id: "notes", label: "Notes", url: "/patients/:id/notes" },
   */
   // { id: "files", label: "Files", url: "/patients/:id/files" },
-  { id: "consent-forms", label: "Consent Forms", url: "/patients/:id/consent-forms" },
-  { id: "treatment-plan-3d", label: "3D Treatment Plan", url: "/patients/:id/treatment-plan-3d" },
+  {
+    id: "consent-forms",
+    label: "Consent Forms",
+    url: "/patients/:id/consent-forms",
+  },
+  {
+    id: "treatment-plan-3d",
+    label: "3D Treatment Plan",
+    url: "/patients/:id/treatment-plan-3d",
+  },
   // { id: "guardians", label: "Guardians", url: "/patients/:id/guardians" },
   /* Temporarily commented out Scheduled Actions
   {
@@ -127,7 +100,7 @@ const NAVBAR_ITEMS_TEMPLATE = [
     url: "/patients/:id/scheduled-actions",
   },
   */
-  { id: "scans", label: "Scans", url: "/patients/:id/scans" },
+  { id: "scans", label: "Treatment Process", url: "/patients/:id/scans" },
   { id: "order", label: "Orders", url: "/patients/:id/order" },
   { id: "history", label: "History", url: "/patients/:id/history" },
   { id: "alerts", label: "Alerts", url: "/patients/:id/alerts" },
@@ -213,7 +186,17 @@ const SIDEBAR_SECTIONS_DATA = [
 ];
 
 // Move Message to a separate component and pass openSaveQuickReplyModal as a prop
-function Message({ sender, content, date, time, index, onSaveQuickReply, myId }) {
+function Message({
+  sender,
+  imagepath,
+  content,
+  date,
+  time,
+  index,
+  onSaveQuickReply,
+  myId,
+  onImageClick,
+}) {
   const [hovered, setHovered] = React.useState(false);
   // Determine if this message is sent by the current user
   const isSent = String(sender) === String(myId);
@@ -227,17 +210,39 @@ function Message({ sender, content, date, time, index, onSaveQuickReply, myId })
         <small className="text-muted">{date}</small>
       </div>
       <div
-        className={`p-2 rounded ${isSent ? 'bg-primary text-white' : 'bg-light'}`}
-        style={isSent ? { backgroundColor: '#17c3b2', color: 'white' } : {}}
+        className={`p-2 rounded ${
+          isSent ? "bg-primary text-white" : "bg-light"
+        }`}
+        style={isSent ? { backgroundColor: "#17c3b2", color: "white" } : {}}
       >
-        {content}
+        {imagepath && imagepath !== "" && imagepath !== null && (
+          <>
+            <div
+              style={{
+                display: "flex",
+                objectFit: "cover",
+                height: "200px",
+                width: "100%",
+                cursor: "pointer"
+              }}
+              onClick={() => onImageClick && onImageClick(imagepath)}
+            >
+              <img
+                src={imagepath}
+                style={{ width: "100%", height: "auto", borderRadius: "20px" }}
+                alt="message attachment"
+              />
+            </div>
+          </>
+        )}
+        <p style={{ margin: "0px",padding:"3px" }}>{content}</p>
       </div>
       <div
         className="d-flex justify-content-between align-items-center mt-1"
         style={{ position: "relative" }}
       >
         <small className="text-muted">{time}</small>
-        {hovered && (null)}
+        {hovered && null}
       </div>
     </div>
   );
@@ -250,7 +255,9 @@ const PatientDetail = () => {
   const dispatch = useDispatch();
 
   // Redux state selectors
-  const { patientDetail, loadingDetail, error } = useSelector((state) => state.patients);
+  const { patientDetail, loadingDetail, error } = useSelector(
+    (state) => state.patients
+  );
 
   // Static patient data (all fields except name)
   const staticPatientData = {
@@ -290,19 +297,22 @@ const PatientDetail = () => {
   const patient = {
     ...staticPatientData,
     name: patientDetail?.full_name || "Loading...",
-    app_activation: typeof patientDetail?.app_activation !== 'undefined' ? patientDetail.app_activation : staticPatientData.app_activation,
+    app_activation:
+      typeof patientDetail?.app_activation !== "undefined"
+        ? patientDetail.app_activation
+        : staticPatientData.app_activation,
   };
 
   // Scroll to top on mount or when patient ID changes
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
-  
+
   // Fetch patient details when component mounts or ID changes
   useEffect(() => {
     if (id) {
       dispatch(getPatientDetail(id));
-      console.log(patient)
+      console.log(patient);
     }
   }, [id, dispatch]);
 
@@ -341,6 +351,13 @@ const PatientDetail = () => {
   const [hoveredMessage, setHoveredMessage] = useState(null);
   const [communicationPanelMessage, setCommunicationPanelMessage] =
     useState(""); // Renamed from 'message' to avoid conflict
+  // Add after communicationPanelMessage state
+  const [communicationPanelFile, setCommunicationPanelFile] = useState(null);
+  const [communicationPanelFileBase64, setCommunicationPanelFileBase64] =
+    useState(null);
+  const [communicationPanelFileLoading, setCommunicationPanelFileLoading] =
+    useState(false);
+  const fileInputRef = useRef();
 
   // Centralized modal visibility state
   const [modalStates, setModalStates] = useState({
@@ -652,7 +669,10 @@ const PatientDetail = () => {
   useEffect(() => {
     if (!isCommunicationOpen || !id) return;
     const eventSource = new window.EventSource(
-      `${config.API_URL.replace(/\/$/, '')}/chat/stream?myid=${myId}&otherid=${otherId}`
+      `${config.API_URL.replace(
+        /\/$/,
+        ""
+      )}/chat/stream?myid=${myId}&otherid=${otherId}`
     );
     eventSource.onmessage = (event) => {
       try {
@@ -664,11 +684,11 @@ const PatientDetail = () => {
           dispatch(receiveMessage(data));
         }
       } catch (err) {
-        console.error('Failed to parse SSE message', err, event.data);
+        console.error("Failed to parse SSE message", err, event.data);
       }
     };
     eventSource.onerror = (err) => {
-      console.error('SSE error', err);
+      console.error("SSE error", err);
       // Optionally: eventSource.close();
     };
     return () => {
@@ -685,21 +705,30 @@ const PatientDetail = () => {
 
   // Send message handler
   const handleSendMessage = () => {
-    if (communicationPanelMessage.trim()) {
-      dispatch(sendMessage(id, communicationPanelMessage));
+    if (
+      (communicationPanelMessage && communicationPanelMessage.trim()) ||
+      communicationPanelFileBase64
+    ) {
+      dispatch(
+        sendMessage(id, communicationPanelMessage, communicationPanelFileBase64)
+      );
       setCommunicationPanelMessage("");
+      setCommunicationPanelFile(null);
+      setCommunicationPanelFileBase64(null);
+      setCommunicationPanelFileLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = null;
     }
   };
 
   // Debug: log messages from Redux
-  console.log('Messages from Redux:', messages);
+  console.log("Messages from Redux:", messages);
 
   const messagesEndRef = useRef(null);
 
   // Scroll to bottom when messages change or panel opens
   useEffect(() => {
     if (isCommunicationOpen && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isCommunicationOpen]);
 
@@ -726,11 +755,78 @@ const PatientDetail = () => {
       amount: 109,
       method: "Credit Card",
       plan: "Installments",
-      receipts: [
-        { id: "RCPT-001", date: "2025-05-28", amount: 109, url: "#" },
+      receipts: [{ id: "RCPT-001", date: "2025-05-28", amount: 109, url: "#" }],
+    },
+  };
+
+  // Mock data now inside the component so it can use patientDetail
+  const PATIENT_MOCK_DATA = {
+    name: patientDetail?.full_name || "Stephen Dyos",
+    id: patientDetail?.public_id || "P-00123",
+    plan: "Photo Monitoring Full",
+    alignerType: "Day Aligner",
+    status: "Active",
+    nextScan: "2025-06-01",
+    alignerNumber: 21,
+    excludedTeeth: "Not Set",
+    started: "2024-01-01",
+    app_activation: 1, // 1 = Activated, 0 = Not Activated
+    scanBox: "Assigned",
+    frequency: "Every week (3 day(s) NO-GO)",
+    upperLower: "Both",
+    notificationsPanel: {
+      date: "2024-03-15",
+      title: "New scan received",
+      patientInstruction: "Please continue wearing aligners as prescribed",
+      teamInstruction: "Review scan for proper aligner fit",
+      todo: "Review new scan",
+      instruction: "Remind patient to use chewies daily.",
+      forceGo: "Enabled",
+    },
+    goals: {
+      "General Goals": ["Closure of all anterior space(s)", "Retention phase"],
+      Anteroposterior: ["Class I canine – RIGHT", "Class I canine – LEFT"],
+      Vertical: ["Normal overjet [1.0 ; 3.0] mm", "Correction of open bite"],
+      Transverse: [
+        "Correction of crossbite – RIGHT",
+        "Correction of crossbite – LEFT",
       ],
     },
   };
+
+  const handleFileButtonClick = () => {
+    if (fileInputRef.current) fileInputRef.current.value = null; // reset
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      setCommunicationPanelFile(file);
+      setCommunicationPanelFileLoading(true);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setCommunicationPanelFileBase64(event.target.result);
+        setCommunicationPanelFileLoading(false);
+      };
+      reader.onerror = () => {
+        setCommunicationPanelFileBase64(null);
+        setCommunicationPanelFileLoading(false);
+      };
+      reader.readAsDataURL(file); // base64 with data:... prefix
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setCommunicationPanelFile(null);
+    setCommunicationPanelFileBase64(null);
+    setCommunicationPanelFileLoading(false);
+    if (fileInputRef.current) fileInputRef.current.value = null;
+  };
+
+  // Add state for image modal
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [imageModalSrc, setImageModalSrc] = useState("");
 
   return (
     <div className="page-content">
@@ -773,7 +869,7 @@ const PatientDetail = () => {
           <Button
             color="link"
             className="back-button"
-            onClick={() => navigate('/patients/monitored')}
+            onClick={() => navigate("/patients/monitored")}
           >
             <i className="mdi mdi-chevron-left"></i>
           </Button>
@@ -785,7 +881,9 @@ const PatientDetail = () => {
               <span className="patient-name">
                 {loadingDetail ? "Loading..." : patient.name}
               </span>
-              <span className="patient-id">(A78B-58F2-W)</span>
+              <span className="patient-id">
+                ({patientDetail?.public_id || "A78B-58F2-W"})
+              </span>
             </div>
             <a
               href="#"
@@ -852,7 +950,11 @@ const PatientDetail = () => {
                   </div>
                   <div className="mb-2 d-flex align-items-center justify-content-between">
                     <strong>Patient app:</strong>
-                    <span>{patient.app_activation === 1 ? "Activated" : "Not Activated"}</span>
+                    <span>
+                      {patient.app_activation === 1
+                        ? "Activated"
+                        : "Not Activated"}
+                    </span>
                   </div>
                   <div className="mb-2 d-flex align-items-center justify-content-between">
                     <strong>Aligner #:</strong>
@@ -1076,8 +1178,14 @@ const PatientDetail = () => {
                 path="scans"
                 element={<Scans patient={PATIENT_MOCK_DATA} />}
               />
-              <Route path="scans/:scanId" element={<ScanDetail />} />
-              <Route path="order" element={<PatientOrders order={SAMPLE_ORDER} />} />
+              <Route
+                path="scans/:arch/:scanId"
+                element={<ScanDetail />}
+              />
+              <Route
+                path="order"
+                element={<PatientOrders order={SAMPLE_ORDER} />}
+              />
               <Route path="history" element={<History patient={patient} />} />
               <Route
                 path="*"
@@ -1087,10 +1195,15 @@ const PatientDetail = () => {
           </Col>
           {/* Communication Panel */}
           {isCommunicationOpen && (
-            <div className="communication-backdrop" onClick={() => setIsCommunicationOpen(false)}></div>
+            <div
+              className="communication-backdrop"
+              onClick={() => setIsCommunicationOpen(false)}
+            ></div>
           )}
           <div
-            className={`communication-panel${isCommunicationOpen ? ' open' : ' closed'}`}
+            className={`communication-panel${
+              isCommunicationOpen ? " open" : " closed"
+            }`}
           >
             <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
               <h5 className="mb-0">Communication</h5>
@@ -1105,7 +1218,9 @@ const PatientDetail = () => {
             <div className="messages-container">
               <div className="messages">
                 {loading ? (
-                  <div className="text-center text-muted py-3">Loading messages...</div>
+                  <div className="text-center text-muted py-3">
+                    Loading messages...
+                  </div>
                 ) : error ? (
                   <div className="text-center text-danger py-3">{error}</div>
                 ) : messages && messages.length > 0 ? (
@@ -1113,16 +1228,20 @@ const PatientDetail = () => {
                     <Message
                       key={msg.id || idx}
                       sender={msg.sender_id || "Unknown"}
+                      imagepath={msg.attachment_url?WEB_APP_URL + msg.attachment_url:""}
                       content={msg.message || msg.content}
-                      date={msg.created_at ? msg.created_at.split(' ')[0] : ""}
-                      time={msg.created_at ? msg.created_at.split(' ')[1] : ""}
+                      date={msg.created_at ? msg.created_at.split(" ")[0] : ""}
+                      time={msg.created_at ? msg.created_at.split(" ")[1] : ""}
                       index={idx}
                       onSaveQuickReply={openSaveQuickReplyModal}
                       myId={myId}
+                      onImageClick={src => { setImageModalSrc(src); setImageModalOpen(true); }}
                     />
                   ))
                 ) : (
-                  <div className="text-center text-muted py-3">No messages yet.</div>
+                  <div className="text-center text-muted py-3">
+                    No messages yet.
+                  </div>
                 )}
                 {/* Dummy div for auto-scroll */}
                 <div ref={messagesEndRef} />
@@ -1150,22 +1269,67 @@ const PatientDetail = () => {
                 placeholder="Type a message..."
                 rows="3"
                 className="mb-2"
-                disabled={sending}
+                disabled={sending || communicationPanelFileLoading}
               />
+              {/* Show selected file name if present */}
+              {communicationPanelFile && (
+                <div className="mb-2 d-flex align-items-center gap-2">
+                  <span className="badge bg-info text-white">
+                    {communicationPanelFile.name}
+                  </span>
+                  {communicationPanelFileLoading && (
+                    <span className="text-muted small">Loading...</span>
+                  )}
+                  <Button
+                    close
+                    aria-label="Remove file"
+                    onClick={handleRemoveFile}
+                    size="sm"
+                  />
+                </div>
+              )}
               <div className="d-flex justify-content-between align-items-center">
                 <div className="d-flex gap-2">
-                  <Button color="link" size="sm" className="p-0">
+                  <Button
+                    color="link"
+                    size="sm"
+                    className="p-0"
+                    onClick={handleFileButtonClick}
+                  >
                     <i className="mdi mdi-paperclip"></i>
                   </Button>
+                  <input
+                    type="file"
+                    style={{ display: "none" }}
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="*"
+                  />
                 </div>
-                <Button color="primary" size="sm" onClick={handleSendMessage} disabled={sending || !communicationPanelMessage.trim()}>
-                  {sending ? <span className="spinner-border spinner-border-sm"></span> : <i className="mdi mdi-send"></i>}
+                <Button
+                  color="primary"
+                  size="sm"
+                  onClick={handleSendMessage}
+                  disabled={
+                    sending ||
+                    communicationPanelFileLoading ||
+                    (!communicationPanelMessage.trim() &&
+                      !communicationPanelFileBase64)
+                  }
+                >
+                  {sending ? (
+                    <span className="spinner-border spinner-border-sm"></span>
+                  ) : (
+                    <i className="mdi mdi-send"></i>
+                  )}
                 </Button>
               </div>
             </div>
           </div>
           <div
-            className={`communication-fab${isCommunicationOpen ? ' communication-fab--hidden' : ''}`}
+            className={`communication-fab${
+              isCommunicationOpen ? " communication-fab--hidden" : ""
+            }`}
             onClick={() => setIsCommunicationOpen(!isCommunicationOpen)}
           >
             <i className="mdi mdi-message-text-outline"></i>
@@ -1207,10 +1371,11 @@ const PatientDetail = () => {
             {filteredReplies.map((reply) => (
               <div
                 key={reply.id}
-                className={`p-3 mb-2 rounded quick-reply-item ${selectedQuickReplyId === reply.id
-                  ? "bg-light border border-primary"
-                  : "border hover:border-primary"
-                  }`}
+                className={`p-3 mb-2 rounded quick-reply-item ${
+                  selectedQuickReplyId === reply.id
+                    ? "bg-light border border-primary"
+                    : "border hover:border-primary"
+                }`}
                 onClick={() => setSelectedQuickReplyId(reply.id)}
               >
                 <div className="d-flex justify-content-between align-items-center">
@@ -1250,9 +1415,8 @@ const PatientDetail = () => {
       >
         <div className="modal-header">
           <h5 className="modal-title">
-            Send an instruction to the team regarding {patient.name} ({
-              patient.id
-            })
+            Send an instruction to the team regarding {patient.name} (
+            {patient.id})
           </h5>
           <button
             type="button"
@@ -1605,20 +1769,22 @@ const PatientDetail = () => {
         <div className="modal-body">
           <div className="d-flex gap-3">
             <div
-              className={`flex-grow-1 p-4 border rounded text-center cursor-pointer ${scanBoxModalData.selectedBox === "scanbox"
-                ? "border-primary"
-                : ""
-                }`}
+              className={`flex-grow-1 p-4 border rounded text-center cursor-pointer ${
+                scanBoxModalData.selectedBox === "scanbox"
+                  ? "border-primary"
+                  : ""
+              }`}
               onClick={() => setScanBoxModalData({ selectedBox: "scanbox" })}
             >
               <i className="mdi mdi-cube-outline mb-3 large-icon"></i>
               <h6>ScanBox</h6>
             </div>
             <div
-              className={`flex-grow-1 p-4 border rounded text-center cursor-pointer ${scanBoxModalData.selectedBox === "scanbox-pro"
-                ? "border-primary"
-                : ""
-                }`}
+              className={`flex-grow-1 p-4 border rounded text-center cursor-pointer ${
+                scanBoxModalData.selectedBox === "scanbox-pro"
+                  ? "border-primary"
+                  : ""
+              }`}
               onClick={() =>
                 setScanBoxModalData({ selectedBox: "scanbox-pro" })
               }
@@ -1753,7 +1919,11 @@ const PatientDetail = () => {
                 />
               </div>
               <span
-                className={`adaptive-status-label ${adaptiveIntervalSettings.go.enabled ? 'adaptive-status-label--enabled' : 'adaptive-status-label--disabled'}`}
+                className={`adaptive-status-label ${
+                  adaptiveIntervalSettings.go.enabled
+                    ? "adaptive-status-label--enabled"
+                    : "adaptive-status-label--disabled"
+                }`}
               >
                 GO
               </span>
@@ -2082,10 +2252,11 @@ const PatientDetail = () => {
                   {/* Navigation or Search section */}
                   {section.type === "nav" && (
                     <div
-                      className={`nav-item ${selectedExcludedTeethSection === section.id
-                        ? "selected"
-                        : ""
-                        }`}
+                      className={`nav-item ${
+                        selectedExcludedTeethSection === section.id
+                          ? "selected"
+                          : ""
+                      }`}
                       onClick={() =>
                         setSelectedExcludedTeethSection(section.id)
                       }
@@ -2098,10 +2269,11 @@ const PatientDetail = () => {
                   )}
                   {section.type === "search" && (
                     <div
-                      className={`search-section ${selectedExcludedTeethSection === section.id
-                        ? "selected"
-                        : ""
-                        }`}
+                      className={`search-section ${
+                        selectedExcludedTeethSection === section.id
+                          ? "selected"
+                          : ""
+                      }`}
                       onClick={() =>
                         setSelectedExcludedTeethSection(section.id)
                       }
@@ -2124,10 +2296,11 @@ const PatientDetail = () => {
                   {section.type === "expandable" && (
                     <div className="expandable-section">
                       <div
-                        className={`header ${expandedExcludedTeethSidebarSection === section.id
-                          ? "expanded"
-                          : ""
-                          }`}
+                        className={`header ${
+                          expandedExcludedTeethSidebarSection === section.id
+                            ? "expanded"
+                            : ""
+                        }`}
                         onClick={() =>
                           setExpandedExcludedTeethSidebarSection(
                             expandedExcludedTeethSidebarSection === section.id
@@ -2138,10 +2311,11 @@ const PatientDetail = () => {
                       >
                         {section.label}
                         <i
-                          className={`mdi ms-1 ${expandedExcludedTeethSidebarSection === section.id
-                            ? "mdi-chevron-up"
-                            : "mdi-chevron-down"
-                            }`}
+                          className={`mdi ms-1 ${
+                            expandedExcludedTeethSidebarSection === section.id
+                              ? "mdi-chevron-up"
+                              : "mdi-chevron-down"
+                          }`}
                           style={{ float: "right" }}
                         ></i>
                       </div>
@@ -2150,10 +2324,11 @@ const PatientDetail = () => {
                           {section.observations.map((obs) => (
                             <div
                               key={obs}
-                              className={`observation-item ${selectedExcludedTeethObservation === obs
-                                ? "selected"
-                                : ""
-                                }`}
+                              className={`observation-item ${
+                                selectedExcludedTeethObservation === obs
+                                  ? "selected"
+                                  : ""
+                              }`}
                               onClick={() =>
                                 setSelectedExcludedTeethObservation(obs)
                               }
@@ -2177,8 +2352,8 @@ const PatientDetail = () => {
                   {observationSubObservations[
                     selectedExcludedTeethObservation
                   ] &&
-                    observationSubObservations[selectedExcludedTeethObservation]
-                      .length > 0 ? (
+                  observationSubObservations[selectedExcludedTeethObservation]
+                    .length > 0 ? (
                     observationSubObservations[
                       selectedExcludedTeethObservation
                     ].map((sub) => (
@@ -2763,7 +2938,11 @@ const PatientDetail = () => {
             style={{ borderBottom: "1px solid #e0e0e0" }}
           >
             <div
-              className={`me-4 scan-modal-tab ${intraoralScanTab === 'upload' ? 'scan-modal-tab--active' : 'scan-modal-tab--inactive'}`}
+              className={`me-4 scan-modal-tab ${
+                intraoralScanTab === "upload"
+                  ? "scan-modal-tab--active"
+                  : "scan-modal-tab--inactive"
+              }`}
               style={{
                 cursor: "pointer",
                 color: intraoralScanTab === "upload" ? "#16b1c7" : "#607181",
@@ -2774,7 +2953,11 @@ const PatientDetail = () => {
               Upload from my computer
             </div>
             <div
-              className={`scan-modal-tab ${intraoralScanTab === 'scanner' ? 'scan-modal-tab--active' : 'scan-modal-tab--inactive'}`}
+              className={`scan-modal-tab ${
+                intraoralScanTab === "scanner"
+                  ? "scan-modal-tab--active"
+                  : "scan-modal-tab--inactive"
+              }`}
               style={{
                 cursor: "pointer",
                 color: intraoralScanTab === "scanner" ? "#16b1c7" : "#607181",
@@ -2797,21 +2980,37 @@ const PatientDetail = () => {
                 <div className="col-md-6 text-center">
                   <div className="fw-bold mb-1">
                     Upper arch{" "}
-                    <span className="text-muted scan-upload-arch-label">(maxillary)</span>
+                    <span className="text-muted scan-upload-arch-label">
+                      (maxillary)
+                    </span>
                   </div>
                   <div className="file-drop-zone file-drop-zone--upper">
                     <i className="mdi mdi-upload drop-zone-icon-upload"></i>
-                    <div className="drop-zone-text">Import<br />or<br />drag & drop your file</div>
+                    <div className="drop-zone-text">
+                      Import
+                      <br />
+                      or
+                      <br />
+                      drag & drop your file
+                    </div>
                   </div>
                 </div>
                 <div className="col-md-6 text-center">
                   <div className="fw-bold mb-1">
                     Lower arch{" "}
-                    <span className="text-muted scan-upload-arch-label">(mandibular)</span>
+                    <span className="text-muted scan-upload-arch-label">
+                      (mandibular)
+                    </span>
                   </div>
                   <div className="file-drop-zone file-drop-zone--lower">
                     <i className="mdi mdi-upload drop-zone-icon-upload"></i>
-                    <div className="drop-zone-text">Import<br />or<br />drag & drop your file</div>
+                    <div className="drop-zone-text">
+                      Import
+                      <br />
+                      or
+                      <br />
+                      drag & drop your file
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2842,7 +3041,11 @@ const PatientDetail = () => {
             <div className="row mb-4 justify-content-center align-items-center">
               <div className="col-md-4 text-center">
                 <div className="bg-light rounded p-4 mb-2 d-flex align-items-center justify-content-center scanner-logo-wrapper">
-                  <img src={threeShapeLogo} alt="3shape" className="scanner-logo-img" />
+                  <img
+                    src={threeShapeLogo}
+                    alt="3shape"
+                    className="scanner-logo-img"
+                  />
                 </div>
               </div>
               <div className="col-md-4 text-center">
@@ -2871,8 +3074,9 @@ const PatientDetail = () => {
         centered
       >
         <ModalHeader toggle={() => toggleModal("loginLink", false)}>
-          Login link for {patient.name} (to be copied and sent manually to
-          patient!)
+          Login link for {patient.name} (
+          {patientDetail?.public_id || patient.id}) (to be copied and sent
+          manually to patient!)
         </ModalHeader>
         <ModalBody>
           <div className="mb-2">
@@ -3176,7 +3380,8 @@ const PatientDetail = () => {
       >
         <div className="modal-header">
           <h5 className="modal-title">
-            Watch the before/after of {patient.name} ({patient.id})
+            Watch the before/after of {patient.name} (
+            {patientDetail?.public_id || patient.id})
           </h5>
           <button
             type="button"
@@ -3222,7 +3427,7 @@ const PatientDetail = () => {
           </div>
           <div
             className={`upload-zone`}
-          // Add drag/drop handlers if needed
+            // Add drag/drop handlers if needed
           >
             <input
               type="file"
@@ -3249,8 +3454,14 @@ const PatientDetail = () => {
       </Modal>
 
       {/* Save as a new quick reply Modal */}
-      <Modal isOpen={saveQuickReplyModalOpen} toggle={closeSaveQuickReplyModal} centered>
-        <ModalHeader toggle={closeSaveQuickReplyModal}>Save as a new quick reply</ModalHeader>
+      <Modal
+        isOpen={saveQuickReplyModalOpen}
+        toggle={closeSaveQuickReplyModal}
+        centered
+      >
+        <ModalHeader toggle={closeSaveQuickReplyModal}>
+          Save as a new quick reply
+        </ModalHeader>
         <ModalBody>
           <Form>
             <FormGroup className="mb-3">
@@ -3259,7 +3470,7 @@ const PatientDetail = () => {
                 id="saveQuickReplyTitle"
                 type="text"
                 value={saveQuickReplyTitle}
-                onChange={e => setSaveQuickReplyTitle(e.target.value)}
+                onChange={(e) => setSaveQuickReplyTitle(e.target.value)}
               />
             </FormGroup>
             <FormGroup className="mb-3">
@@ -3269,7 +3480,7 @@ const PatientDetail = () => {
                 type="textarea"
                 rows={4}
                 value={saveQuickReplyContent}
-                onChange={e => setSaveQuickReplyContent(e.target.value)}
+                onChange={(e) => setSaveQuickReplyContent(e.target.value)}
               />
               <div className="mt-2">
                 <Input
@@ -3279,8 +3490,10 @@ const PatientDetail = () => {
                   style={{ maxWidth: 220, display: "inline-block" }}
                 >
                   <option value="">Select a variable</option>
-                  {variableOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  {variableOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
                   ))}
                 </Input>
               </div>
@@ -3288,9 +3501,18 @@ const PatientDetail = () => {
           </Form>
         </ModalBody>
         <ModalFooter>
-          <Button color="light" onClick={closeSaveQuickReplyModal}>Cancel</Button>
+          <Button color="light" onClick={closeSaveQuickReplyModal}>
+            Cancel
+          </Button>
           <Button color="primary">Save</Button>
         </ModalFooter>
+      </Modal>
+
+      {/* Image Modal */}
+      <Modal isOpen={imageModalOpen} toggle={() => setImageModalOpen(false)} centered size="lg">
+        <ModalBody style={{ padding: 0, background: "#222" }}>
+          <img src={imageModalSrc} alt="Enlarged" style={{ width: "100%", height: "auto", display: "block", maxHeight: "80vh", margin: "0 auto" }} />
+        </ModalBody>
       </Modal>
     </div>
   );
@@ -3303,7 +3525,10 @@ function ActionItem({ icon, label, iconColor, onClick }) {
       className="action-button-item d-flex align-items-center p-2 text-start w-100"
       onClick={onClick}
     >
-      <i className={`mdi ${icon} me-2 action-button-item__icon`} style={{ color: iconColor || undefined }}></i>
+      <i
+        className={`mdi ${icon} me-2 action-button-item__icon`}
+        style={{ color: iconColor || undefined }}
+      ></i>
       <span className="action-button-item__label">{label}</span>
     </Button>
   );

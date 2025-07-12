@@ -1,6 +1,6 @@
 import axios from "axios";
 import config from "../config";
-import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API, GET_GENERAL_TYPES_API, ADD_GENERAL_TYPE_API, UPDATE_GENERAL_TYPE_API, DELETE_GENERAL_TYPE_API, GET_MONITORED_PATIENTS_API, GET_NOT_MONITORED_PATIENTS_API, ADD_PATIENT_API, GET_RECENT_PATIENTS_API, GET_PATIENT_DETAIL_API, GET_TUTORIALS_API, ADD_TUTORIAL_API, UPDATE_TUTORIAL_API, DELETE_TUTORIAL_API, UPDATE_PATIENT_DETAIL_API, GET_CONSENT_FORMS_API, CREATE_3D_PLAN_API, GET_3D_PLAN_API, UPDATE_3D_PLAN_API, DELETE_3D_PLAN_API, GET_FAQS_API, ADD_FAQ_API, UPDATE_FAQ_API, DELETE_FAQ_API } from "./url_helper";
+import { GET_DOCTOR_API, ADD_DOCTOR_API, GET_PLANS_API, ADD_PLAN_API, GET_STATS_API, DELETE_PLAN_API, UPDATE_PLAN_API, SEND_MESSAGE_API, GET_GENERAL_TYPES_API, ADD_GENERAL_TYPE_API, UPDATE_GENERAL_TYPE_API, DELETE_GENERAL_TYPE_API, GET_MONITORED_PATIENTS_API, GET_NOT_MONITORED_PATIENTS_API, ADD_PATIENT_API, GET_RECENT_PATIENTS_API, GET_PATIENT_DETAIL_API, GET_TUTORIALS_API, ADD_TUTORIAL_API, UPDATE_TUTORIAL_API, DELETE_TUTORIAL_API, UPDATE_PATIENT_DETAIL_API, GET_CONSENT_FORMS_API, CREATE_3D_PLAN_API, GET_3D_PLAN_API, UPDATE_3D_PLAN_API, DELETE_3D_PLAN_API, GET_FAQS_API, ADD_FAQ_API, UPDATE_FAQ_API, DELETE_FAQ_API, GET_TREATMENT_STEPS_API } from "./url_helper";
 
 // default
 axios.defaults.baseURL = config.API_URL;
@@ -136,33 +136,23 @@ export const sendMessageAPI = async (patientId, message, file) => {
   const sender_id = user?.id || user?.uid;
   if (!sender_id) throw new Error("No sender_id found in authUser");
 
-  if (!file) {
-    // Send as JSON
-    const response = await fetch(`${config.API_URL}chat/messages/send`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Add auth headers if needed
-      },
-      body: JSON.stringify({ sender_id: myId, receiver_id: patientId, message }),
-    });
-    if (!response.ok) throw new Error("Failed to send message");
-    return response.json();
-  } else {
-    // Send as FormData if file is present
-    const formData = new FormData();
-    formData.append("sender_id", myId);
-    formData.append("receiver_id", patientId);
-    formData.append("message", message);
-    formData.append("file", file);
-    const response = await fetch(`${config.API_URL}chat/messages/send`, {
-      method: "POST",
-      body: formData,
-      // No Content-Type header for FormData
-    });
-    if (!response.ok) throw new Error("Failed to send message");
-    return response.json();
-  }
+  // Always send as JSON
+  const payload = {
+    sender_id: myId,
+    receiver_id: patientId,
+    message,
+    file: file || null,
+  };
+  const response = await fetch(`${config.API_URL}chat/messages/send`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      // Add auth headers if needed
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error("Failed to send message");
+  return response.json();
 };
 
 // General Types (Dropdown Settings) API
@@ -214,3 +204,6 @@ export const getFaqsAPI = () => api.get(GET_FAQS_API);
 export const addFaqAPI = (faq) => api.create(ADD_FAQ_API, faq);
 export const updateFaqAPI = (faq) => api.update(`${UPDATE_FAQ_API}?id=${faq.id}`, faq);
 export const deleteFaqAPI = (id) => api.delete(`${DELETE_FAQ_API}?id=${id}`);
+
+// Treatment Steps (Scans) API
+export const getTreatmentStepsAPI = (patientId) => api.get(`${GET_TREATMENT_STEPS_API}?id=${patientId}`);

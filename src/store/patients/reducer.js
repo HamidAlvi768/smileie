@@ -1,4 +1,4 @@
-import { GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL_SUCCESS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL, GET_MONITORED_PATIENTS_SUCCESS, GET_NOT_MONITORED_PATIENTS_SUCCESS, GET_CONSENT_FORMS, GET_CONSENT_FORMS_SUCCESS, GET_CONSENT_FORMS_FAIL, CREATE_3D_PLAN, CREATE_3D_PLAN_SUCCESS, CREATE_3D_PLAN_FAIL, GET_3D_PLAN, GET_3D_PLAN_SUCCESS, GET_3D_PLAN_FAIL, UPDATE_3D_PLAN, UPDATE_3D_PLAN_SUCCESS, UPDATE_3D_PLAN_FAIL, DELETE_3D_PLAN, DELETE_3D_PLAN_SUCCESS, DELETE_3D_PLAN_FAIL } from "./actionTypes";
+import { GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL_SUCCESS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL, GET_MONITORED_PATIENTS_SUCCESS, GET_NOT_MONITORED_PATIENTS_SUCCESS, GET_CONSENT_FORMS, GET_CONSENT_FORMS_SUCCESS, GET_CONSENT_FORMS_FAIL, CREATE_3D_PLAN, CREATE_3D_PLAN_SUCCESS, CREATE_3D_PLAN_FAIL, GET_3D_PLAN, GET_3D_PLAN_SUCCESS, GET_3D_PLAN_FAIL, UPDATE_3D_PLAN, UPDATE_3D_PLAN_SUCCESS, UPDATE_3D_PLAN_FAIL, DELETE_3D_PLAN, DELETE_3D_PLAN_SUCCESS, DELETE_3D_PLAN_FAIL, GET_TREATMENT_STEPS, GET_TREATMENT_STEPS_SUCCESS, GET_TREATMENT_STEPS_FAIL } from "./actionTypes";
 
 const INIT_STATE = {
   patients: [],
@@ -21,6 +21,9 @@ const INIT_STATE = {
   creating3DPlan: false,
   updating3DPlan: false,
   deleting3DPlan: false,
+  treatmentSteps: [],
+  treatmentStepsLoading: false,
+  treatmentStepsError: null,
 };
 
 const patientsReducer = (state = INIT_STATE, action) => {
@@ -84,6 +87,13 @@ const patientsReducer = (state = INIT_STATE, action) => {
       return { ...state, threeDPlan: null, deleting3DPlan: false, threeDPlanError: null };
     case DELETE_3D_PLAN_FAIL:
       return { ...state, deleting3DPlan: false, threeDPlanError: action.payload };
+    
+    case GET_TREATMENT_STEPS:
+      return { ...state, treatmentStepsLoading: true, treatmentStepsError: null };
+    case GET_TREATMENT_STEPS_SUCCESS:
+      return { ...state, treatmentSteps: action.payload.data, treatmentStepsLoading: false };
+    case GET_TREATMENT_STEPS_FAIL:
+      return { ...state, treatmentStepsLoading: false, treatmentStepsError: action.payload };
     
     case 'CLEAR_PATIENT_MESSAGES':
       return { ...state, successMessage: null, error: null };

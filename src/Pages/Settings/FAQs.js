@@ -104,7 +104,7 @@ const FAQs = () => {
   return (
     <div className="page-content no-navbar">
       <Container fluid={true}>
-        <Breadcrumbs title="Smileie" breadcrumbItem="FAQs" />
+        <Breadcrumbs title="Smileie" breadcrumbItem="Settings" breadcrumbItem2="FAQs" />
         <Row>
           <Col md={12}>
             <Card>

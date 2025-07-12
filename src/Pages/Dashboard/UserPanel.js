@@ -47,6 +47,20 @@ const UserPanel = () => {
 
   return (
     <React.Fragment>
+      <style>{`
+        .view-all-btn {
+          position: relative;
+        }
+        .view-all-btn .ri-arrow-right-line {
+          transition: transform 0.2s cubic-bezier(0.4,0,0.2,1) !important;
+        }
+        .view-all-btn:hover .ri-arrow-right-line {
+          transform: translateX(8px) !important;
+        }
+        .view-all-btn:hover {
+          background-color: #f0f8ff !important;
+        }
+      `}</style>
       <Row>
         <Col xl={3} sm={6}>
           <Card>
@@ -68,7 +82,7 @@ const UserPanel = () => {
                     <h5 className="mb-0"><CountUp end={stats.doctors ?? 0} /></h5>
                     <button
                       type="button"
-                      className="btn btn-soft-primary btn-sm text-primary ms-auto"
+                      className="btn btn-soft-primary btn-sm text-primary ms-auto view-all-btn"
                       onClick={handleViewAllDoctors}
                     >
                       View All{" "}
@@ -101,7 +115,7 @@ const UserPanel = () => {
                     <h5 className="mb-0"><CountUp end={stats.patients ?? 0} /></h5>
                     <button
                       type="button"
-                      className="btn btn-soft-primary btn-sm text-primary ms-auto"
+                      className="btn btn-soft-primary btn-sm text-primary ms-auto view-all-btn"
                       onClick={handleViewAll}
                     >
                       View All{" "}

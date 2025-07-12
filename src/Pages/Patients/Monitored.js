@@ -31,7 +31,14 @@ const filterOptions = {
     "2-4 weeks late",
     "= 4 weeks late",
   ],
-  alignerType: ["Day Aligner", "Night Aligner"],
+  alignerType: [
+    "Day time dual arch",
+    "Night time dual arch", 
+    "Day time upper arch",
+    "Day time lower arch",
+    "Night time upper arch",
+    "Night time lower arch"
+  ],
   alignerStatus: ["All", "In progress", "Finished", "Aligner number not set"],
   appActivation: ["All", "Activated", "Not activated"],
   monitoringStatus: ["All", "In progress", "Paused"],
@@ -141,6 +148,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     if (createPatientModal) {
       // Modal is being closed, reset form
       setPatientForm(initialPatientForm);
+      setFormErrors({}); // Reset errors on modal close
     }
     setCreatePatientModal(!createPatientModal);
   };
@@ -180,6 +188,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     aligner_type: "",
   };
   const [patientForm, setPatientForm] = useState(initialPatientForm);
+  const [formErrors, setFormErrors] = useState({}); // NEW: error state
 
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -357,22 +366,27 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   // Map API patients to table data
   const rawData =
     monitoredPatients && Array.isArray(monitoredPatients)
-      ? monitoredPatients.map((p, idx) => ({
-          name:
-            `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
-            p.username ||
-            "",
-          doctor: p.doctor_name,
-          latestActivity: p.latestActivity || mockPatientFields.latestActivity,
-          latestActivityTime:
-            p.latestActivityTime || mockPatientFields.latestActivityTime,
-          alignerType: p.alignerType || 'Day Aligner',
-          latestScan: p.latestScan || mockPatientFields.latestScan,
-          lateInfo: p.lateInfo || mockPatientFields.lateInfo,
-          scanInterval: p.scanInterval || mockPatientFields.scanInterval,
-          id: p.id,
-          email: p.email || "",
-        }))
+      ? monitoredPatients.map((p, idx) => {
+          console.log('Patient data:', p);
+          console.log('Latest activity:', p.latest_activity);
+          console.log('Aligner type:', p.aligner_type);
+          return {
+            name:
+              `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
+              p.username ||
+              "",
+            doctor: p.doctor_name,
+            latestActivity: p.latest_activity?.description || mockPatientFields.latestActivity,
+            latestActivityTime:
+              p.latest_activity?.created_at || mockPatientFields.latestActivityTime,
+            alignerType: p.aligner_type || 'Day Aligner',
+            latestScan: p.latestScan || mockPatientFields.latestScan,
+            lateInfo: p.lateInfo || mockPatientFields.lateInfo,
+            scanInterval: p.scanInterval || mockPatientFields.scanInterval,
+            id: p.id,
+            email: p.email || "",
+          };
+        })
       : [];
 
   // Filter and search data
@@ -397,8 +411,38 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
     }));
   };
 
+  // Validation function
+  const validatePatientForm = (form) => {
+    const errors = {};
+    if (!form.first_name) errors.first_name = 'First name is required';
+    if (!form.last_name) errors.last_name = 'Last name is required';
+    if (!form.email) errors.email = 'Email is required';
+    else if (!/^\S+@\S+\.\S+$/.test(form.email)) errors.email = 'Invalid email address';
+    if (!form.phone) errors.phone = 'Mobile phone is required';
+    if (!form.dob) errors.dob = 'Date of birth is required';
+    if (!form.doctor_id) errors.doctor_id = 'Doctor is required';
+    if (!form.gender) errors.gender = 'Gender is required';
+    if (!form.country) errors.country = 'Country is required';
+    if (!form.state) errors.state = 'State is required';
+    if (!form.city) errors.city = 'City is required';
+    if (!form.address) errors.address = 'Address is required';
+    if (!form.address2) errors.address2 = 'Address line 2 is required';
+    if (!form.zip_code) errors.zip_code = 'Zip code is required';
+    if (!form.aligner_type) errors.aligner_type = 'Aligner type is required';
+    return errors;
+  };
+
   const handleCreatePatient = (e) => {
     e.preventDefault();
+    const errors = validatePatientForm(patientForm);
+    if (Object.keys(errors).length > 0) {
+      showToast({
+        message: "Please fill all the required fields",
+        type: "error",
+        title: "Validation Error",
+      });
+      return;
+    }
     dispatch(addPatient(patientForm));
   };
 
@@ -438,6 +482,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
       });
       setCreatePatientModal(false);
       setPatientForm(initialPatientForm);
+      setFormErrors({}); // Clear errors on successful creation
       dispatch(clearPatientMessages());
       dispatch(getMonitoredPatients()); // Refresh the list after creation
     }
@@ -510,14 +555,12 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
 
   // Shared aligner type options (from Orders.js main concern)
   const alignerTypeOptions = [
-    'Impression Kit',
     'Day time dual arch',
     'Night time dual arch',
     'Day time upper arch',
     'Day time lower arch',
     'Night time upper arch',
     'Night time lower arch',
-    'Refinement Aligners',
   ];
 
   return (
@@ -573,6 +616,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
                 isLoadingCountries={isLoadingCountries}
                 isLoadingStates={isLoadingStates}
                 isLoadingCities={isLoadingCities}
+                errors={formErrors} // Pass errors
               />
               <div className="text-end mt-4">
                 <Button color="light" className="me-2" onClick={toggleCreatePatient} type="button" disabled={isLoading}>

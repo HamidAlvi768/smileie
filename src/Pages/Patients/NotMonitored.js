@@ -95,7 +95,14 @@ const filterOptions = {
     "2-4 weeks late",
     "= 4 weeks late",
   ],
-  alignerType: ["Day Aligner", "Night Aligner"],
+  alignerType: [
+    "Day time dual arch",
+    "Night time dual arch", 
+    "Day time upper arch",
+    "Day time lower arch",
+    "Night time upper arch",
+    "Night time lower arch"
+  ],
   alignerStatus: ["All", "In progress", "Finished", "Aligner number not set"],
   appActivation: ["All", "Activated", "Not activated"],
 };
@@ -124,20 +131,17 @@ const defaultFilters = {
 
 // Shared aligner type options (from Orders.js main concern)
 const alignerTypeOptions = [
-  'Impression Kit',
   'Day time dual arch',
   'Night time dual arch',
   'Day time upper arch',
   'Day time lower arch',
   'Night time upper arch',
   'Night time lower arch',
-  'Refinement Aligners',
 ];
 
 const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [createPatientModal, setCreatePatientModal] = useState(false);
-  const toggleCreatePatient = () => setCreatePatientModal(!createPatientModal);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const patients = useSelector(state => state.patients.notMonitoredPatients);
@@ -163,6 +167,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     country: "",
     aligner_type: "",
   });
+  const [formErrors, setFormErrors] = useState({}); // NEW: error state
 
   // Add search and filter state
   const [searchTerm, setSearchTerm] = useState("");
@@ -270,8 +275,38 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     setPatientForm((prev) => ({ ...prev, [id === "mobile" ? "phone" : id === "doctor" ? "doctor_id" : id]: value }));
   };
 
+  // Validation function
+  const validatePatientForm = (form) => {
+    const errors = {};
+    if (!form.first_name) errors.first_name = 'First name is required';
+    if (!form.last_name) errors.last_name = 'Last name is required';
+    if (!form.email) errors.email = 'Email is required';
+    else if (!/^\S+@\S+\.\S+$/.test(form.email)) errors.email = 'Invalid email address';
+    if (!form.phone) errors.phone = 'Mobile phone is required';
+    if (!form.dob) errors.dob = 'Date of birth is required';
+    if (!form.doctor_id) errors.doctor_id = 'Doctor is required';
+    if (!form.gender) errors.gender = 'Gender is required';
+    if (!form.country) errors.country = 'Country is required';
+    if (!form.state) errors.state = 'State is required';
+    if (!form.city) errors.city = 'City is required';
+    if (!form.address) errors.address = 'Address is required';
+    if (!form.address2) errors.address2 = 'Address line 2 is required';
+    if (!form.zip_code) errors.zip_code = 'Zip code is required';
+    if (!form.aligner_type) errors.aligner_type = 'Aligner type is required';
+    return errors;
+  };
+
   const handleCreatePatient = (e) => {
     e.preventDefault();
+    const errors = validatePatientForm(patientForm);
+    if (Object.keys(errors).length > 0) {
+      showToast({
+        message: "Please fill all the required fields",
+        type: "error",
+        title: "Validation Error",
+      });
+      return;
+    }
     dispatch(addPatient(patientForm));
     // Do not close modal or show toast here; wait for Redux state
   };
@@ -297,6 +332,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
         country: "",
         aligner_type: "",
       });
+      setFormErrors({}); // Clear errors on success
       dispatch(clearPatientMessages());
       dispatch(getNotMonitoredPatients()); // Refresh the list after creation
     }
@@ -336,6 +372,30 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
   const handleClearFilters = () => {
     setFilters({ ...defaultFilters });
     setSearchTerm("");
+  };
+
+  // Reset errors when modal is closed
+  const toggleCreatePatient = () => {
+    setCreatePatientModal(!createPatientModal);
+    if (createPatientModal) {
+      setPatientForm({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        dob: "",
+        doctor_id: "",
+        gender: "",
+        address: "",
+        address2: "",
+        zip_code: "",
+        city: "",
+        state: "",
+        country: "",
+        aligner_type: "",
+      });
+      setFormErrors({});
+    }
   };
 
   return (
@@ -447,6 +507,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                 isLoadingCountries={isLoadingCountries}
                 isLoadingStates={isLoadingStates}
                 isLoadingCities={isLoadingCities}
+                errors={formErrors} // Pass errors
               />
               <div className="text-end mt-4">
                 <Button color="light" className="me-2" onClick={toggleCreatePatient} type="button">

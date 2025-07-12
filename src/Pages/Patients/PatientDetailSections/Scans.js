@@ -1,19 +1,25 @@
-import React, { useState, useRef } from 'react';
-import { Card, CardBody, Button, Badge } from 'reactstrap';
+import React, { useState } from 'react';
+import { Card, CardBody, Button, Badge, Tooltip } from 'reactstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-
-const mockScans = Array.from({ length: 8 }, (_, i) => ({
-  mainConcern: `Aligner protocol - Stephen Dyos`,
-  alignerNumber: i + 1, // Mock aligner number
-  dueOn: `2025-05-27 12:1${i} GMT+5`,
-  uploadedOn: `2025-05-27 11:5${i} GMT+5`,
-}));
+import { useDispatch, useSelector } from 'react-redux';
+import { getTreatmentSteps } from '../../../store/patients/actions';
 
 const Scans = ({ patient }) => {
   const [sortBy, setSortBy] = useState('dueOn');
   const [sortOrder, setSortOrder] = useState('asc');
   const navigate = useNavigate();
   const { id } = useParams();
+  const dispatch = useDispatch();
+  const { treatmentSteps, treatmentStepsLoading, treatmentStepsError } = useSelector(state => state.patients);
+  const [infoTooltipOpen, setInfoTooltipOpen] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState({});
+  const toggleTooltip = (id) => {
+    setTooltipOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  React.useEffect(() => {
+    if (id) dispatch(getTreatmentSteps(id));
+  }, [id, dispatch]);
 
   const handleSort = (column) => {
     if (sortBy === column) {
@@ -24,129 +30,227 @@ const Scans = ({ patient }) => {
     }
   };
 
-  const sortedScans = [...mockScans].sort((a, b) => {
-    const aVal = a[sortBy];
-    const bVal = b[sortBy];
-    if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
-    if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
-    return 0;
-  });
+  const sortedScans = React.useMemo(() => {
+    if (!Array.isArray(treatmentSteps)) return [];
+    return [...treatmentSteps].sort((a, b) => {
+      const aVal = a[sortBy === 'dueOn' ? 'end_date' : 'created_at'];
+      const bVal = b[sortBy === 'dueOn' ? 'end_date' : 'created_at'];
+      if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [treatmentSteps, sortBy, sortOrder]);
 
   // For demo, set current aligner number
   const currentAlignerNumber = 3;
-  // For demo: upper = alignerNumber 1-8, lower = 1-8
-  const upperScans = sortedScans; // all 8
-  const lowerScans = sortedScans; // all 8
+  // For now, use all steps for both arches
+  const upperScans = sortedScans;
+  const lowerScans = sortedScans;
 
-  // Scroll handlers for horizontal slider
-  const upperGridRef = useRef(null);
-  const lowerGridRef = useRef(null);
-  const scrollByAmount = 120; // px, matches card width
-
-  const scrollGrid = (ref, dir) => {
-    if (ref.current) {
-      ref.current.scrollBy({ left: dir * scrollByAmount, behavior: 'smooth' });
-    }
-  };
-
-  // Helper to format date nicely
+  // Helper to format date nicely, fallback for invalid dates
   function formatDate(dateStr) {
-    const date = new Date(dateStr.replace(/ GMT.*/, ''));
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  // Helper to get status label
+  function getStatus(scan, currentAlignerNumber, isLate) {
+    if (isLate) return 'Late';
+    if (scan.step_number < currentAlignerNumber) return 'Completed';
+    if (scan.step_number === currentAlignerNumber) return 'Current';
+    return 'Not started';
+  }
+
+  if (treatmentStepsLoading) return <div>Loading scans...</div>;
+  if (treatmentStepsError) return <div className="text-danger">Error loading scans: {treatmentStepsError.toString()}</div>;
+  if (!upperScans.length) {
+    return (
+      <div className="scans-section">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h4 className="mb-0">Treatment Process</h4>
+        </div>
+        <Card>
+          <CardBody className="text-center py-5">
+            <div className="mb-3">
+              <i className="mdi mdi-clock-outline" style={{ fontSize: '3rem', color: '#6c757d' }}></i>
+            </div>
+            <h5 className="text-muted mb-2">No Scans Available</h5>
+            <p className="text-muted mb-0">Waiting for the patient to upload the scan</p>
+          </CardBody>
+        </Card>
+      </div>
+    );
   }
 
   return (
     <div className="scans-section">
+      <style>{`.scan-card-late { border: 2px solid hsl(360, 48%, 80%) !important; }`}</style>
+      <style>{`.scan-card-tooltip-white .tooltip-inner { background: #fff !important; color: #222 !important; border: 1px solid #e3eaf3 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08); } .scan-card-tooltip-white.bs-tooltip-top .arrow::before, .scan-card-tooltip-white.bs-tooltip-auto[x-placement^=top] .arrow::before { border-top-color: #fff !important; }`}</style>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="mb-0">Scans</h4>
-        <span className="text-muted small">8 result(s)</span>
+        <div className="d-flex align-items-center">
+          <h4 className="mb-0 me-2">Treatment Process</h4>
+          <span id="scans-info-icon" style={{ cursor: 'pointer', color: '#1da5fe', display: 'inline-flex', alignItems: 'center' }}>
+            <i className="mdi mdi-information-outline" aria-label="Info" tabIndex={0}></i>
+          </span>
+          <Tooltip
+            placement="top"
+            className="scans-info-tooltip-fix"
+            isOpen={infoTooltipOpen}
+            target="scans-info-icon"
+            toggle={() => setInfoTooltipOpen(!infoTooltipOpen)}
+            autohide={false}
+          >
+            <div style={{ textAlign: 'left' }}>
+              <div><strong>Top date (completed/current):</strong> Due date</div>
+              <div><strong>Top date (upcoming):</strong> Start date</div>
+              <div><strong>Bottom date:</strong> Uploaded date (if available)</div>
+            </div>
+          </Tooltip>
+        </div>
+        <span className="text-muted small">26 result(s)</span>
       </div>
-      <Card className="bg-transparent border-0 shadow-none">
-        <CardBody className='pt-1'>
+      {/* Upper Section in its own card */}
+      <Card className="mb-4">
+        <CardBody className='pt-3'>
           <h5 className="mb-3">Upper</h5>
-          {/* Upper Section with arrows */}
-          <div className="scan-cards-slider-wrapper">
-            <button className="scan-cards-arrow left" onClick={() => scrollGrid(upperGridRef, -1)} aria-label="Scroll left" type="button">
-              <i className="mdi mdi-chevron-left"></i>
-            </button>
-            <div className="scan-cards-grid" ref={upperGridRef}>
-              {upperScans.map((scan, idx) => {
-                let cardStateClass = '';
-                if (scan.alignerNumber < currentAlignerNumber) cardStateClass = ' scan-card-completed';
-                else if (scan.alignerNumber === currentAlignerNumber) cardStateClass = ' scan-card-current';
-                else cardStateClass = ' scan-card-notstarted scan-card-disabled';
-                const isClickable = scan.alignerNumber <= currentAlignerNumber;
-                return (
-                  <div key={idx}>
-                    <Card
-                      className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}`}
-                      {...(isClickable
-                        ? {
-                            onClick: () => navigate(`/patients/${id}/scans/${idx}`),
-                            tabIndex: 0,
-                            role: 'button',
-                            'aria-label': `View scan ${scan.alignerNumber}`,
-                          }
-                        : { 'aria-disabled': true })}
-                    >
-                      <CardBody className="scan-card-body d-flex flex-column align-items-center justify-content-center p-3">
-                        <div className="scan-card-aligner-number">{scan.alignerNumber}</div>
-                        <div className="scan-card-date-group">
-                          <div className="scan-card-date">{formatDate(scan.dueOn)}</div>
-                          <div className="scan-card-date-label">{cardStateClass.includes('scan-card-notstarted') ? 'Start Date' : 'Due Date'}</div>
-                        </div>
-                      </CardBody>
-                    </Card>
-                  </div>
-                );
-              })}
-            </div>
-            <button className="scan-cards-arrow right" onClick={() => scrollGrid(upperGridRef, 1)} aria-label="Scroll right" type="button">
-              <i className="mdi mdi-chevron-right"></i>
-            </button>
+          <div className="scan-cards-grid">
+            {upperScans.map((scan, idx) => {
+              let cardStateClass = '';
+              if (scan.step_number < currentAlignerNumber) cardStateClass = ' scan-card-completed';
+              else if (scan.step_number === currentAlignerNumber) cardStateClass = ' scan-card-current';
+              else cardStateClass = ' scan-card-notstarted scan-card-disabled';
+              const isClickable = scan.step_number <= currentAlignerNumber;
+              const showUploaded = scan.step_number <= currentAlignerNumber;
+              let isLate = false;
+              if (showUploaded) {
+                const due = new Date(scan.end_date);
+                const uploaded = new Date(scan.created_at);
+                isLate = uploaded > due;
+              }
+              const tooltipId = `scan-card-tooltip-upper-${idx}`;
+              return (
+                <div key={idx}>
+                  <Card
+                    id={tooltipId}
+                    className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}`}
+                    {...(isClickable
+                      ? {
+                          onClick: () => navigate(`/patients/${id}/scans/upper/${idx}`),
+                          tabIndex: 0,
+                          role: 'button',
+                          'aria-label': `View scan ${scan.step_number}`,
+                        }
+                      : { 'aria-disabled': true })}
+                  >
+                    <CardBody className="scan-card-body d-flex flex-column align-items-center justify-content-center p-3">
+                      <div className="scan-card-aligner-number">{String(scan.step_number).padStart(2, '0')}</div>
+                      <div className="scan-card-date-group">
+                        <div className="scan-card-date">{formatDate(scan.end_date)}</div>
+                        {showUploaded && (
+                          <div className="scan-card-date text-muted" style={{fontSize: '9px'}}>
+                            {formatDate(scan.created_at)}
+                          </div>
+                        )}
+                        {!showUploaded && (
+                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>
+                            —
+                          </div>
+                        )}
+                      </div>
+                    </CardBody>
+                  </Card>
+                  <Tooltip
+                    placement="top"
+                    isOpen={tooltipOpen[tooltipId]}
+                    target={tooltipId}
+                    toggle={() => toggleTooltip(tooltipId)}
+                    autohide={false}
+                    delay={{ show: 100, hide: 100 }}
+                    className="scan-card-tooltip-white"
+                  >
+                    <div style={{ textAlign: 'left', minWidth: 160 }}>
+                      <div><strong>Aligner #:</strong> {scan.step_number}</div>
+                      <div><strong>Due date:</strong> {formatDate(scan.end_date)}</div>
+                      {showUploaded && <div><strong>Uploaded:</strong> {formatDate(scan.created_at)}</div>}
+                      <div><strong>Status:</strong> {getStatus(scan, currentAlignerNumber, isLate)}</div>
+                    </div>
+                  </Tooltip>
+                </div>
+              );
+            })}
           </div>
-          <hr className="my-2" />
+        </CardBody>
+      </Card>
+      {/* Lower Section in its own card */}
+      <Card>
+        <CardBody className='pt-3'>
           <h5 className="mb-3">Lower</h5>
-          {/* Lower Section with arrows */}
-          <div className="scan-cards-slider-wrapper">
-            <button className="scan-cards-arrow left" onClick={() => scrollGrid(lowerGridRef, -1)} aria-label="Scroll left" type="button">
-              <i className="mdi mdi-chevron-left"></i>
-            </button>
-            <div className="scan-cards-grid" ref={lowerGridRef}>
-              {lowerScans.map((scan, idx) => {
-                let cardStateClass = '';
-                if (scan.alignerNumber < currentAlignerNumber) cardStateClass = ' scan-card-completed';
-                else if (scan.alignerNumber === currentAlignerNumber) cardStateClass = ' scan-card-current';
-                else cardStateClass = ' scan-card-notstarted scan-card-disabled';
-                const isClickable = scan.alignerNumber <= currentAlignerNumber;
-                return (
-                  <div key={idx}>
-                    <Card
-                      className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}`}
-                      {...(isClickable
-                        ? {
-                            onClick: () => navigate(`/patients/${id}/scans/${idx}`),
-                            tabIndex: 0,
-                            role: 'button',
-                            'aria-label': `View scan ${scan.alignerNumber}`,
-                          }
-                        : { 'aria-disabled': true })}
-                    >
-                      <CardBody className="scan-card-body d-flex flex-column align-items-center justify-content-center p-3">
-                        <div className="scan-card-aligner-number">{scan.alignerNumber}</div>
-                        <div className="scan-card-date-group">
-                          <div className="scan-card-date">{formatDate(scan.dueOn)}</div>
-                          <div className="scan-card-date-label">{cardStateClass.includes('scan-card-notstarted') ? 'Start Date' : 'Due Date'}</div>
-                        </div>
-                      </CardBody>
-                    </Card>
-                  </div>
-                );
-              })}
-            </div>
-            <button className="scan-cards-arrow right" onClick={() => scrollGrid(lowerGridRef, 1)} aria-label="Scroll right" type="button">
-              <i className="mdi mdi-chevron-right"></i>
-            </button>
+          <div className="scan-cards-grid">
+            {lowerScans.map((scan, idx) => {
+              let cardStateClass = '';
+              if (scan.step_number < currentAlignerNumber) cardStateClass = ' scan-card-completed';
+              else if (scan.step_number === currentAlignerNumber) cardStateClass = ' scan-card-current';
+              else cardStateClass = ' scan-card-notstarted scan-card-disabled';
+              const isClickable = scan.step_number <= currentAlignerNumber;
+              const showUploaded = scan.step_number <= currentAlignerNumber;
+              let isLate = false;
+              if (showUploaded) {
+                const due = new Date(scan.end_date);
+                const uploaded = new Date(scan.created_at);
+                isLate = uploaded > due;
+              }
+              const tooltipId = `scan-card-tooltip-lower-${idx}`;
+              return (
+                <div key={idx}>
+                  <Card
+                    id={tooltipId}
+                    className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}`}
+                    {...(isClickable
+                      ? {
+                          onClick: () => navigate(`/patients/${id}/scans/lower/${idx}`),
+                          tabIndex: 0,
+                          role: 'button',
+                          'aria-label': `View scan ${scan.step_number}`,
+                        }
+                      : { 'aria-disabled': true })}
+                  >
+                    <CardBody className="scan-card-body d-flex flex-column align-items-center justify-content-center p-3">
+                      <div className="scan-card-aligner-number">{String(scan.step_number).padStart(2, '0')}</div>
+                      <div className="scan-card-date-group">
+                        <div className="scan-card-date">{formatDate(scan.end_date)}</div>
+                        {showUploaded && (
+                          <div className="scan-card-date text-muted" style={{fontSize: '9px'}}>
+                            {formatDate(scan.created_at)}
+                          </div>
+                        )}
+                        {!showUploaded && (
+                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>
+                            —
+                          </div>
+                        )}
+                      </div>
+                    </CardBody>
+                  </Card>
+                  <Tooltip
+                    placement="top"
+                    isOpen={tooltipOpen[tooltipId]}
+                    target={tooltipId}
+                    toggle={() => toggleTooltip(tooltipId)}
+                    autohide={false}
+                    delay={{ show: 100, hide: 100 }}
+                    className="scan-card-tooltip-white"
+                  >
+                    <div style={{ textAlign: 'left', minWidth: 160 }}>
+                      <div><strong>Aligner #:</strong> {scan.step_number}</div>
+                      <div><strong>Due date:</strong> {formatDate(scan.end_date)}</div>
+                      {showUploaded && <div><strong>Uploaded:</strong> {formatDate(scan.created_at)}</div>}
+                      <div><strong>Status:</strong> {getStatus(scan, currentAlignerNumber, isLate)}</div>
+                    </div>
+                  </Tooltip>
+                </div>
+              );
+            })}
           </div>
         </CardBody>
       </Card>

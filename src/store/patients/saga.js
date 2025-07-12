@@ -1,7 +1,8 @@
 import { call, put, takeEvery } from "redux-saga/effects";
 import { addPatientAPI, getRecentPatientsAPI, getPatientDetailAPI, updatePatientDetailAPI, getMonitoredPatientsAPI, getNotMonitoredPatientsAPI, getConsentFormsAPI, create3DPlanAPI, get3DPlanAPI, update3DPlanAPI, delete3DPlanAPI } from "../../helpers/api_helper";
-import { ADD_PATIENT, GET_RECENT_PATIENTS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, GET_MONITORED_PATIENTS, GET_NOT_MONITORED_PATIENTS, GET_CONSENT_FORMS, CREATE_3D_PLAN, GET_3D_PLAN, UPDATE_3D_PLAN, DELETE_3D_PLAN } from "./actionTypes";
-import { addPatientSuccess, addPatientMessage, getPatients, getRecentPatientsSuccess, getPatientDetailSuccess, updatePatientDetailSuccess, updatePatientDetailFail, getPatientDetail, getMonitoredPatientsSuccess, getNotMonitoredPatientsSuccess, patientsApiFail, getConsentFormsSuccess, getConsentFormsFail, create3DPlanSuccess, create3DPlanFail, get3DPlanSuccess, get3DPlanFail, update3DPlanSuccess, update3DPlanFail, delete3DPlanSuccess, delete3DPlanFail, get3DPlan } from "./actions";
+import { ADD_PATIENT, GET_RECENT_PATIENTS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, GET_MONITORED_PATIENTS, GET_NOT_MONITORED_PATIENTS, GET_CONSENT_FORMS, CREATE_3D_PLAN, GET_3D_PLAN, UPDATE_3D_PLAN, DELETE_3D_PLAN, GET_TREATMENT_STEPS } from "./actionTypes";
+import { addPatientSuccess, addPatientMessage, getPatients, getRecentPatientsSuccess, getPatientDetailSuccess, updatePatientDetailSuccess, updatePatientDetailFail, getPatientDetail, getMonitoredPatientsSuccess, getNotMonitoredPatientsSuccess, patientsApiFail, getConsentFormsSuccess, getConsentFormsFail, create3DPlanSuccess, create3DPlanFail, get3DPlanSuccess, get3DPlanFail, update3DPlanSuccess, update3DPlanFail, delete3DPlanSuccess, delete3DPlanFail, get3DPlan, getTreatmentStepsSuccess, getTreatmentStepsFail } from "./actions";
+import { getTreatmentStepsAPI } from "../../helpers/api_helper";
 
 function* addPatientSaga({ payload }) {
   try {
@@ -137,6 +138,15 @@ function* delete3DPlanSaga({ payload }) {
   }
 }
 
+function* fetchTreatmentSteps({ payload }) {
+  try {
+    const response = yield call(getTreatmentStepsAPI, payload);
+    yield put(getTreatmentStepsSuccess(response));
+  } catch (error) {
+    yield put(getTreatmentStepsFail(error));
+  }
+}
+
 function* patientsSaga() {
   yield takeEvery(ADD_PATIENT, addPatientSaga);
   yield takeEvery(GET_RECENT_PATIENTS, fetchRecentPatients);
@@ -149,6 +159,7 @@ function* patientsSaga() {
   yield takeEvery(GET_3D_PLAN, get3DPlanSaga);
   yield takeEvery(UPDATE_3D_PLAN, update3DPlanSaga);
   yield takeEvery(DELETE_3D_PLAN, delete3DPlanSaga);
+  yield takeEvery(GET_TREATMENT_STEPS, fetchTreatmentSteps);
 }
 
 export default patientsSaga; 

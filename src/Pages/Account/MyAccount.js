@@ -103,16 +103,43 @@ function MyAccount() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(res => setTimeout(res, 1000));
+      // Get user ID from localStorage
+      const authUser = JSON.parse(localStorage.getItem("authUser"));
+      const userId = authUser?.id;
+      if (!userId) throw new Error("No user ID found");
+      // Prepare payload
+      const payload = {
+        first_name: form.firstName,
+        last_name: form.lastName,
+        phone: form.phone,
+        new_password: form.newPassword,
+        confirm_password: form.confirmPassword,
+      };
+      const response = await fetch(API_URL + 'users/update?id=' + userId, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update profile.');
+      }
+      const responseData = await response.json();
+      if (responseData.status === 'error') {
+        throw new Error(responseData.message || 'Failed to update profile.');
+      }
       showToast({
         message: 'Profile updated successfully!',
         type: 'success',
         title: 'Success',
       });
+      // Refresh profile data in the form
+      getProfile();
     } catch (err) {
       showToast({
-        message: 'Failed to update profile.',
+        message: err.message || 'Failed to update profile.',
         type: 'error',
         title: 'Error',
       });
@@ -134,7 +161,7 @@ function MyAccount() {
             </CardHeader>
             <CardBody>
               {/* Practice and Account Info */}
-              <Row className="mb-3">
+              {/* <Row className="mb-3">
                 <Col md={6}>
                   <div className="text-muted">
                     Practice: <strong>{practice}</strong>
@@ -145,7 +172,7 @@ function MyAccount() {
                     Account ID: <strong>{accountId}</strong>
                   </div>
                 </Col>
-              </Row>
+              </Row> */}
 
               <div>
                 {/* Name and Email Row */}

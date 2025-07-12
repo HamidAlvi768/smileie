@@ -62,7 +62,7 @@ const Alerts = () => {
               {filteredAlerts.map((alert) => (
                 <div key={alert.id} className="timeline-item d-flex align-items-start">
                   <div className="timeline-icon me-3 mt-1" style={{ color: '#f39c12' }}>
-                    <i className="mdi mdi-bell-alert-outline large-icon"></i>
+                    <i className="mdi mdi-bell-outline large-icon"></i>
                   </div>
                   <div className="flex-grow-1">
                     <div className="d-flex align-items-center mb-1">

@@ -320,6 +320,11 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
       e.preventDefault();
 
       if (!validateForm()) {
+        showToast({
+          message: "Please fill all the required fields",
+          type: "error",
+          title: "Validation Error",
+        });
         return;
       }
 
@@ -335,7 +340,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
         setIsSubmitting(false);
       }
     },
-    [dispatch, form, validateForm, fetchDoctors]
+    [dispatch, form, validateForm, fetchDoctors, showToast]
   );
 
   const handleRowClicked = useCallback(
@@ -415,13 +420,8 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                       value={form.full_name}
                       onChange={handleInputChange}
                       placeholder="Enter doctor's name"
-                      invalid={!!formErrors.full_name} required
+                      required
                     />
-                    {formErrors.full_name && (
-                      <div className="invalid-feedback d-block">
-                        {formErrors.full_name}
-                      </div>
-                    )}
                   </FormGroup>
                 </Col>
                 <Col md={6}>
@@ -432,7 +432,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                       id="specialty"
                       value={form.specialty}
                       onChange={handleInputChange}
-                      invalid={!!formErrors.specialty}
                       required
                     >
                       <option value="">Select specialty</option>
@@ -442,11 +441,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                         </option>
                       ))}
                     </Input>
-                    {formErrors.specialty && (
-                      <div className="invalid-feedback d-block">
-                        {formErrors.specialty}
-                      </div>
-                    )}
                   </FormGroup>
                 </Col>
                 <Col md={6}>
@@ -458,14 +452,8 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                       value={form.email}
                       onChange={handleInputChange}
                       placeholder="Enter email address"
-                      invalid={!!formErrors.email}
                       required
                     />
-                    {formErrors.email && (
-                      <div className="invalid-feedback d-block">
-                        {formErrors.email}
-                      </div>
-                    )}
                   </FormGroup>
                 </Col>
                 <Col md={6}>
@@ -477,13 +465,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                       value={form.phone}
                       onChange={handleInputChange}
                       placeholder="Enter phone number"
-                      invalid={!!formErrors.phone}
                     />
-                    {formErrors.phone && (
-                      <div className="invalid-feedback d-block">
-                        {formErrors.phone}
-                      </div>
-                    )}
                   </FormGroup>
                 </Col>
                 <Col md={6}>
@@ -494,7 +476,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                       id="practice"
                       value={form.practice}
                       onChange={handleInputChange}
-                      invalid={!!formErrors.practice}
                       required
                     >
                       <option value="">Select practice</option>
@@ -504,11 +485,6 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                         </option>
                       ))}
                     </Input>
-                    {formErrors.practice && (
-                      <div className="invalid-feedback d-block">
-                        {formErrors.practice}
-                      </div>
-                    )}
                   </FormGroup>
                 </Col>
               </Row>

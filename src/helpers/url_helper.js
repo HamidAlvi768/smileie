@@ -68,4 +68,7 @@ export const ADD_FAQ_API = '/faqs/create';
 export const UPDATE_FAQ_API = '/faqs/update';
 export const DELETE_FAQ_API = '/faqs/delete';
 
+//treatment steps (scans)
+export const GET_TREATMENT_STEPS_API = '/treatment/steps';
+
 

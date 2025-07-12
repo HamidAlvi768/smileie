@@ -73,6 +73,7 @@
     "react-super-responsive-table": "^6.0.0",
     "react-switch": "^7.0.0",
     "react-table": "^7.8.0",
+    "react-tooltip": "^5.29.1",
     "reactstrap": "^9.2.3",
     "recharts": "^2.13.3",
     "redux": "^5.0.1",

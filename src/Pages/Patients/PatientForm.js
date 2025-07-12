@@ -3,14 +3,12 @@ import { Row, Col, FormGroup, Label, Input } from 'reactstrap';
 import Select from 'react-select';
 
 const alignerTypeOptions = [
-  'Impression Kit',
   'Day time dual arch',
   'Night time dual arch',
   'Day time upper arch',
   'Day time lower arch',
   'Night time upper arch',
   'Night time lower arch',
-  'Refinement Aligners',
 ];
 
 const PatientForm = ({
@@ -23,6 +21,7 @@ const PatientForm = ({
   isLoadingCountries = false,
   isLoadingStates = false,
   isLoadingCities = false,
+  errors = {}, // Keep for parent component to use
 }) => (
   <Row>
     <Col md={6}>
@@ -36,6 +35,7 @@ const PatientForm = ({
           placeholder="Enter first name"
           value={formState.first_name}
           onChange={onChange}
+          required
         />
       </FormGroup>
     </Col>
@@ -50,6 +50,7 @@ const PatientForm = ({
           placeholder="Enter last name"
           value={formState.last_name}
           onChange={onChange}
+          required
         />
       </FormGroup>
     </Col>
@@ -62,6 +63,7 @@ const PatientForm = ({
           placeholder="Enter email address"
           value={formState.email}
           onChange={onChange}
+          required
         />
       </FormGroup>
     </Col>
@@ -74,6 +76,7 @@ const PatientForm = ({
           placeholder="Enter mobile number"
           value={formState.phone}
           onChange={onChange}
+          required
         />
       </FormGroup>
     </Col>
@@ -86,6 +89,7 @@ const PatientForm = ({
           value={formState.dob}
           onChange={onChange}
           max={new Date().toISOString().split('T')[0]}
+          required
         />
       </FormGroup>
     </Col>
@@ -97,6 +101,7 @@ const PatientForm = ({
           id="doctor_id"
           value={formState.doctor_id}
           onChange={onChange}
+          required
         >
           <option value="">Select doctor</option>
           {doctors.map((doc) => (
@@ -113,6 +118,7 @@ const PatientForm = ({
           id="gender"
           value={formState.gender}
           onChange={onChange}
+          required
         >
           <option value="">Select gender</option>
           <option value="Male">Male</option>
@@ -133,6 +139,7 @@ const PatientForm = ({
           placeholder="Select country"
           isLoading={isLoadingCountries}
           loadingMessage={() => "Loading countries..."}
+          required
         />
       </FormGroup>
     </Col>
@@ -149,6 +156,7 @@ const PatientForm = ({
           isDisabled={!formState.country}
           isLoading={isLoadingStates}
           loadingMessage={() => "Loading states..."}
+          required
         />
       </FormGroup>
     </Col>
@@ -165,6 +173,7 @@ const PatientForm = ({
           isDisabled={!formState.state}
           isLoading={isLoadingCities}
           loadingMessage={() => "Loading cities..."}
+          required
         />
       </FormGroup>
     </Col>
@@ -176,6 +185,7 @@ const PatientForm = ({
           id="address"
           value={formState.address}
           onChange={onChange}
+          required
         />
       </FormGroup>
     </Col>
@@ -187,6 +197,7 @@ const PatientForm = ({
           id="address2"
           value={formState.address2}
           onChange={onChange}
+          required
         />
       </FormGroup>
     </Col>
@@ -198,6 +209,7 @@ const PatientForm = ({
           id="zip_code"
           value={formState.zip_code}
           onChange={onChange}
+          required
         />
       </FormGroup>
     </Col>
@@ -209,6 +221,7 @@ const PatientForm = ({
           id="aligner_type"
           value={formState.aligner_type}
           onChange={onChange}
+          required
         >
           <option value="">Select aligner type</option>
           {alignerTypeOptions.map(opt => (

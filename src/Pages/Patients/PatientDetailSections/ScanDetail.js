@@ -64,7 +64,7 @@ const mockScan = {
 
 const ScanDetail = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id, arch } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [allImages, setAllImages] = useState([]); // All images from all sections (for filtering)
@@ -197,7 +197,14 @@ const ScanDetail = () => {
           {mockScan.sections.map((section) => (
             <div key={section.name} className="mb-4 border bg-light-subtle p-3 rounded">
               <div className="section-header mb-2">
-                <h6 className="mb-0 fw-semibold">{section.name}</h6>
+                <h6 className="mb-0 fw-semibold">
+                  {section.name}
+                  {arch && (
+                    <span style={{ color: '#d9534f', marginLeft: 8 }}>
+                      ({arch === 'upper' ? 'Upper Arch' : arch === 'lower' ? 'Lower Arch' : arch})
+                    </span>
+                  )}
+                </h6>
               </div>
               {section.subsections.map((subsection, subIdx) => (
                 <div key={subsection.name} className="mb-2 ms-3">

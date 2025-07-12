@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import "./i18n";
+import '../src/assets/scss/pages/patient.scss';
 
 import {configureStore} from "./store/store";
 
