@@ -11,6 +11,9 @@ const Scans = ({ patient }) => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { treatmentSteps, treatmentStepsLoading, treatmentStepsError } = useSelector(state => state.patients);
+
+  // Debug: Log the raw treatmentSteps from backend
+  console.log('Raw treatmentSteps from backend:', treatmentSteps);
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState({});
   const toggleTooltip = (id) => {
@@ -31,21 +34,36 @@ const Scans = ({ patient }) => {
   };
 
   const sortedScans = React.useMemo(() => {
-    if (!Array.isArray(treatmentSteps)) return [];
-    return [...treatmentSteps].sort((a, b) => {
+    // Old: if (!Array.isArray(treatmentSteps)) return [];
+    // New: If treatmentSteps is not an object, return empty arrays
+    if (!treatmentSteps || typeof treatmentSteps !== 'object') {
+      return { upper: [], lower: [] };
+    }
+    // Extract upper and lower aligners arrays
+    const upper = Array.isArray(treatmentSteps.upper_aligners) ? [...treatmentSteps.upper_aligners] : [];
+    const lower = Array.isArray(treatmentSteps.lower_aligners) ? [...treatmentSteps.lower_aligners] : [];
+    // Sort each array
+    const sortFn = (a, b) => {
       const aVal = a[sortBy === 'dueOn' ? 'end_date' : 'created_at'];
       const bVal = b[sortBy === 'dueOn' ? 'end_date' : 'created_at'];
       if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
       return 0;
-    });
+    };
+    return {
+      upper: upper.sort(sortFn),
+      lower: lower.sort(sortFn),
+    };
   }, [treatmentSteps, sortBy, sortOrder]);
 
   // For demo, set current aligner number
-  const currentAlignerNumber = 3;
-  // For now, use all steps for both arches
-  const upperScans = sortedScans;
-  const lowerScans = sortedScans;
+  // Use sorted upper and lower arrays
+  const upperScans = sortedScans.upper || [];
+  const lowerScans = sortedScans.lower || [];
+
+  // Debug: Log the processed upperScans and lowerScans
+  console.log('Processed upperScans:', upperScans);
+  console.log('Processed lowerScans:', lowerScans);
 
   // Helper to format date nicely, fallback for invalid dates
   function formatDate(dateStr) {
@@ -54,17 +72,26 @@ const Scans = ({ patient }) => {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  // Helper to get status label
-  function getStatus(scan, currentAlignerNumber, isLate) {
+  // Helper to get status label from backend
+  function getStatus(scan, isLate) {
     if (isLate) return 'Late';
-    if (scan.step_number < currentAlignerNumber) return 'Completed';
-    if (scan.step_number === currentAlignerNumber) return 'Current';
-    return 'Not started';
+    // Use backend status directly
+    if (scan.status) {
+      // Optionally, map backend status to display label
+      switch (scan.status) {
+        case 'completed': return 'Completed';
+        case 'current': return 'Current';
+        case 'pending': return 'Pending';
+        case 'not_started': return 'Not started';
+        default: return scan.status;
+      }
+    }
+    return 'Unknown';
   }
 
   if (treatmentStepsLoading) return <div>Loading scans...</div>;
   if (treatmentStepsError) return <div className="text-danger">Error loading scans: {treatmentStepsError.toString()}</div>;
-  if (!upperScans.length) {
+  if (!upperScans.length && !lowerScans.length) {
     return (
       <div className="scans-section">
         <div className="d-flex justify-content-between align-items-center mb-3">
@@ -116,12 +143,18 @@ const Scans = ({ patient }) => {
           <h5 className="mb-3">Upper</h5>
           <div className="scan-cards-grid">
             {upperScans.map((scan, idx) => {
+              // Use backend status to determine card class
               let cardStateClass = '';
-              if (scan.step_number < currentAlignerNumber) cardStateClass = ' scan-card-completed';
-              else if (scan.step_number === currentAlignerNumber) cardStateClass = ' scan-card-current';
-              else cardStateClass = ' scan-card-notstarted scan-card-disabled';
-              const isClickable = scan.step_number <= currentAlignerNumber;
-              const showUploaded = scan.step_number <= currentAlignerNumber;
+              switch (scan.status) {
+                case 'completed': cardStateClass = ' scan-card-completed'; break;
+                case 'current': cardStateClass = ' scan-card-current'; break;
+                case 'pending': cardStateClass = ' scan-card-pending'; break;
+                case 'not_started': cardStateClass = ' scan-card-notstarted scan-card-disabled'; break;
+                default: cardStateClass = '';
+              }
+              // Optionally, make only completed/current/pending clickable
+              const isClickable = scan.status === 'completed' || scan.status === 'current' || scan.status === 'pending';
+              const showUploaded = !!scan.created_at;
               let isLate = false;
               if (showUploaded) {
                 const due = new Date(scan.end_date);
@@ -173,7 +206,7 @@ const Scans = ({ patient }) => {
                       <div><strong>Aligner #:</strong> {scan.step_number}</div>
                       <div><strong>Due date:</strong> {formatDate(scan.end_date)}</div>
                       {showUploaded && <div><strong>Uploaded:</strong> {formatDate(scan.created_at)}</div>}
-                      <div><strong>Status:</strong> {getStatus(scan, currentAlignerNumber, isLate)}</div>
+                      <div><strong>Status:</strong> {getStatus(scan, isLate)}</div>
                     </div>
                   </Tooltip>
                 </div>
@@ -188,12 +221,18 @@ const Scans = ({ patient }) => {
           <h5 className="mb-3">Lower</h5>
           <div className="scan-cards-grid">
             {lowerScans.map((scan, idx) => {
+              // Use backend status to determine card class
               let cardStateClass = '';
-              if (scan.step_number < currentAlignerNumber) cardStateClass = ' scan-card-completed';
-              else if (scan.step_number === currentAlignerNumber) cardStateClass = ' scan-card-current';
-              else cardStateClass = ' scan-card-notstarted scan-card-disabled';
-              const isClickable = scan.step_number <= currentAlignerNumber;
-              const showUploaded = scan.step_number <= currentAlignerNumber;
+              switch (scan.status) {
+                case 'completed': cardStateClass = ' scan-card-completed'; break;
+                case 'current': cardStateClass = ' scan-card-current'; break;
+                case 'pending': cardStateClass = ' scan-card-pending'; break;
+                case 'not_started': cardStateClass = ' scan-card-notstarted scan-card-disabled'; break;
+                default: cardStateClass = '';
+              }
+              // Optionally, make only completed/current/pending clickable
+              const isClickable = scan.status === 'completed' || scan.status === 'current' || scan.status === 'pending';
+              const showUploaded = !!scan.created_at;
               let isLate = false;
               if (showUploaded) {
                 const due = new Date(scan.end_date);
@@ -245,7 +284,7 @@ const Scans = ({ patient }) => {
                       <div><strong>Aligner #:</strong> {scan.step_number}</div>
                       <div><strong>Due date:</strong> {formatDate(scan.end_date)}</div>
                       {showUploaded && <div><strong>Uploaded:</strong> {formatDate(scan.created_at)}</div>}
-                      <div><strong>Status:</strong> {getStatus(scan, currentAlignerNumber, isLate)}</div>
+                      <div><strong>Status:</strong> {getStatus(scan, isLate)}</div>
                     </div>
                   </Tooltip>
                 </div>
