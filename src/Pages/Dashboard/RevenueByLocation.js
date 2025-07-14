@@ -1,5 +1,5 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { VectorMap } from '@react-jvectormap/core';
 import { worldMill } from '@react-jvectormap/world';
 import {
@@ -9,16 +9,81 @@ import {
 } from "reactstrap";
 
 import { Link } from 'react-router-dom';
+import { getPatients } from '../../store/patients/actions';
 
 // Data aggregated by country using ISO 3166-1 alpha-2 codes
 const countryData = {
-  'US': 940,  // New York (553) + Los Angeles (387)
-  'GB': 520,  // London
-  // Add other countries here e.g., 'CA': 300
+    'US': 940,  // New York (553) + Los Angeles (387)
+    'GB': 520,  // London
+    // Add other countries here e.g., 'CA': 300
 };
 
 const RevenueByLocation = () => {
+    const dispatch = useDispatch();
     const stats = useSelector(state => state.stats.stats);
+    
+    // Get all patients list from Redux
+    const patients = useSelector(state => state.patients && state.patients.patients ? state.patients.patients : []);
+    const patientsLoading = useSelector(state => state.patients.loading);
+
+    // Fetch patients data on component mount
+    useEffect(() => {
+        dispatch(getPatients());
+    }, [dispatch]);
+
+    // Calculate new patients this month
+    const getNewThisMonth = () => {
+        const now = new Date();
+        const thisMonth = now.getMonth(); // 0-11 (January = 0)
+        const thisYear = now.getFullYear();
+
+        console.log(`Current date: ${now}`);
+        console.log(`Filtering for month: ${thisMonth} (${now.toLocaleString('default', { month: 'long' })}) and year: ${thisYear}`);
+        console.log("Patients data:", patients);
+
+        if (!Array.isArray(patients) || patients.length === 0) {
+            console.log("Patients array is empty or not an array.");
+            return 0;
+        }
+
+        const filteredPatients = patients.filter(patient => {
+            if (!patient.created_at) {
+                console.log("Patient is missing created_at property:", patient);
+                return false;
+            }
+
+            const created = new Date(patient.created_at);
+            
+            // Check if the date is valid
+            if (isNaN(created.getTime())) {
+                console.log(`Invalid date format for patient: ${patient.created_at}`, patient);
+                return false;
+            }
+
+            const createdMonth = created.getMonth();
+            const createdYear = created.getFullYear();
+
+            const isMatch = createdMonth === thisMonth && createdYear === thisYear;
+            
+            if (isMatch) {
+                console.log(`✓ Patient matched - Created: ${patient.created_at}, Name: ${patient.first_name} ${patient.last_name}`);
+            }
+
+            return isMatch;
+        });
+
+        console.log(`Total patients: ${patients.length}, This month: ${filteredPatients.length}`);
+        return filteredPatients.length;
+    };
+
+    const newThisMonthCount = getNewThisMonth();
+
+    // Show loading state if patients are being fetched
+    if (patientsLoading) {
+        console.log("Loading patients data...");
+    }
+
+
     return (
         <React.Fragment>
             <Col lg={4}>
@@ -45,7 +110,7 @@ const RevenueByLocation = () => {
                                             `${label.html()}: ${countryData[code]} Patients`
                                         );
                                     } else {
-                                         label.html(
+                                        label.html(
                                             `${label.html()}: No Data`
                                         );
                                     }
@@ -74,7 +139,7 @@ const RevenueByLocation = () => {
                                 </div>
                                 <div>
                                     <p className="text-muted mb-1">New This Month</p>
-                                    <h5 className="mb-0">156</h5>
+                                    <h5 className="mb-0">{newThisMonthCount}</h5>
                                 </div>
                             </div>
                         </div>

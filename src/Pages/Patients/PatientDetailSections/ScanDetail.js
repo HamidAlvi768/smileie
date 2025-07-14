@@ -71,10 +71,53 @@ const ScanDetail = () => {
   const [currentSectionImages, setCurrentSectionImages] = useState([]); // Images for the current section in modal
   const [currentSectionName, setCurrentSectionName] = useState('');
 
+  // Compute sections to display based on arch param
+  const getSectionsWithJawView = () => {
+    let sections = [...mockScan.sections];
+    if (arch === 'upper') {
+      // Append Upper Jaw View at the end
+      sections = [
+        ...sections,
+        {
+          name: 'Upper Jaw View',
+          subsections: [
+            {
+              name: 'With Aligner',
+              images: [upperJawImg],
+            },
+            {
+              name: 'Without Aligner',
+              images: [upperJawImg2],
+            },
+          ],
+        },
+      ];
+    } else if (arch === 'lower') {
+      // Append Lower Jaw View at the end
+      sections = [
+        ...sections,
+        {
+          name: 'Lower Jaw View',
+          subsections: [
+            {
+              name: 'With Aligner',
+              images: [lowerJawImg],
+            },
+            {
+              name: 'Without Aligner',
+              images: [lowerJawImg2],
+            },
+          ],
+        },
+      ];
+    }
+    return sections;
+  };
+
   // Flatten all images from all sections into a single array for easier filtering later
   useEffect(() => {
     const images = [];
-    mockScan.sections.forEach(section => {
+    getSectionsWithJawView().forEach(section => {
       section.subsections.forEach(subsection => {
         subsection.images.forEach((img, index) => {
           images.push({
@@ -87,7 +130,7 @@ const ScanDetail = () => {
       });
     });
     setAllImages(images);
-  }, []);
+  }, [arch]);
 
   const openModal = (sectionName, subsectionName, imageIndexInThatSubsection) => {
     const imagesForSubsection = allImages.filter(img => img.section === sectionName && img.subsection === subsectionName);
@@ -194,7 +237,7 @@ const ScanDetail = () => {
       
       <Card>
         <CardBody>
-          {mockScan.sections.map((section) => (
+          {getSectionsWithJawView().map((section) => (
             <div key={section.name} className="mb-4 border bg-light-subtle p-3 rounded">
               <div className="section-header mb-2">
                 <h6 className="mb-0 fw-semibold">

@@ -369,7 +369,7 @@ const TreatmentPlan3D = ({ patient }) => {
                       </div>
                       <div className="col-md-4">
                         <FormGroup>
-                          <Label for="upperAligners">Upper Aligners</Label>
+                          <Label for="upperAligners">Upper Aligners </Label>
                           <Input
                             id="upperAligners"
                             type="number"
@@ -395,7 +395,7 @@ const TreatmentPlan3D = ({ patient }) => {
                       </div>
                     </div>
                     <div className="d-flex justify-content-end gap-2">
-                      <Button color="primary" type="submit" size="lg" disabled={updating3DPlan || isStep3Saved}>
+                      <Button color="primary" type="submit" size="lg" disabled={updating3DPlan || isStep3Saved || parseInt(upperAligners) >0 || parseInt(lowerAligners) > 0}>
                         {updating3DPlan ? <><Spinner size="sm" className="me-2" />Saving...</> : isStep3Saved ? 'Saved' : 'Save'}
                       </Button>
                     </div>

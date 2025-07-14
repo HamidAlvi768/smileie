@@ -177,6 +177,7 @@ export const loginAPI = async (email, password) => {
 };
 
 // Patients API
+export const getPatientsAPI = () => api.get(GET_MONITORED_PATIENTS_API); // General patients endpoint
 export const getMonitoredPatientsAPI = () => api.get(GET_MONITORED_PATIENTS_API);
 export const getNotMonitoredPatientsAPI = () => api.get(GET_NOT_MONITORED_PATIENTS_API);
 export const addPatientAPI = (patient) => api.create(ADD_PATIENT_API, patient);

@@ -1,7 +1,8 @@
-import { GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL_SUCCESS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL, GET_MONITORED_PATIENTS_SUCCESS, GET_NOT_MONITORED_PATIENTS_SUCCESS, GET_CONSENT_FORMS, GET_CONSENT_FORMS_SUCCESS, GET_CONSENT_FORMS_FAIL, CREATE_3D_PLAN, CREATE_3D_PLAN_SUCCESS, CREATE_3D_PLAN_FAIL, GET_3D_PLAN, GET_3D_PLAN_SUCCESS, GET_3D_PLAN_FAIL, UPDATE_3D_PLAN, UPDATE_3D_PLAN_SUCCESS, UPDATE_3D_PLAN_FAIL, DELETE_3D_PLAN, DELETE_3D_PLAN_SUCCESS, DELETE_3D_PLAN_FAIL, GET_TREATMENT_STEPS, GET_TREATMENT_STEPS_SUCCESS, GET_TREATMENT_STEPS_FAIL } from "./actionTypes";
+import { GET_PATIENTS, GET_PATIENTS_SUCCESS, API_FAIL, ADD_PATIENT_SUCCESS, ADD_PATIENT_MESSAGE, GET_RECENT_PATIENTS_SUCCESS, GET_PATIENT_DETAIL_SUCCESS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL_SUCCESS, UPDATE_PATIENT_DETAIL_FAIL, GET_MONITORED_PATIENTS_SUCCESS, GET_NOT_MONITORED_PATIENTS_SUCCESS, GET_CONSENT_FORMS, GET_CONSENT_FORMS_SUCCESS, GET_CONSENT_FORMS_FAIL, CREATE_3D_PLAN, CREATE_3D_PLAN_SUCCESS, CREATE_3D_PLAN_FAIL, GET_3D_PLAN, GET_3D_PLAN_SUCCESS, GET_3D_PLAN_FAIL, UPDATE_3D_PLAN, UPDATE_3D_PLAN_SUCCESS, UPDATE_3D_PLAN_FAIL, DELETE_3D_PLAN, DELETE_3D_PLAN_SUCCESS, DELETE_3D_PLAN_FAIL, GET_TREATMENT_STEPS, GET_TREATMENT_STEPS_SUCCESS, GET_TREATMENT_STEPS_FAIL } from "./actionTypes";
 
 const INIT_STATE = {
   patients: [],
+  loading: false,
   monitoredPatients: [],
   notMonitoredPatients: [],
   error: null,
@@ -28,14 +29,16 @@ const INIT_STATE = {
 
 const patientsReducer = (state = INIT_STATE, action) => {
   switch (action.type) {
+    case GET_PATIENTS:
+      return { ...state, loading: true, error: null };
     case GET_PATIENTS_SUCCESS:
-      return { ...state, patients: action.payload.data, error: null };
+      return { ...state, patients: action.payload.data, loading: false, error: null };
     case ADD_PATIENT_SUCCESS:
       return { ...state, patients: [...state.patients, action.payload], error: null };
     case ADD_PATIENT_MESSAGE:
       return { ...state, successMessage: action.payload, error: null };
     case API_FAIL:
-      return { ...state, error: action.payload, successMessage: null };
+      return { ...state, error: action.payload, loading: false, successMessage: null };
     case GET_RECENT_PATIENTS_SUCCESS:
       return { ...state, recentPatients: action.payload.data };
     case GET_PATIENT_DETAIL:
