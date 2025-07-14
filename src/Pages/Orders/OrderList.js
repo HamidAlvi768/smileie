@@ -91,10 +91,10 @@ const OrderList = () => {
   return (
     <div className="page-content no-navbar">
       <Container fluid={true}>
-        <Breadcrumbs
+        {/* <Breadcrumbs
           title="Smileie"
           breadcrumbItem="Orders"
-        />
+        /> */}
         <Row className="mb-3 align-items-center">
           <Col md={8} xs={6}>
             <h4 className="mb-0">Orders</h4>

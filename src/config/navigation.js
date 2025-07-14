@@ -22,13 +22,13 @@ export const headerMenuItems = [
     label: "Orders",
     icon: "mdi mdi-package-variant-closed",
     url: "/orders",
-    navbarItems: [
-      {
-        id: "order-list",
-        label: "Order List",
-        url: "/orders",
-      }
-    ],
+    // navbarItems: [
+    //   {
+    //     id: "order-list",
+    //     label: "Order List",
+    //     url: "/orders",
+    //   }
+    // ],
   },
   // {
   //   id: "todo",

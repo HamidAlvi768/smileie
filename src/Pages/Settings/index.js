@@ -57,6 +57,17 @@ const settingsData = [
       },
     ],
   },
+  {
+    section: "Customer Support",
+    cards: [
+      {
+        name: "Contact Us",
+        description: "View and manage messages from customers.",
+        icon: "ri-mail-send-line",
+        url: "/settings/contact-us",
+      },
+    ],
+  },
 ];
 
 const Settings = () => {

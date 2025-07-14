@@ -122,6 +122,7 @@ import DoctorsList from "../Pages/Doctors/DoctorsList";
 import OrderDetail from "../Pages/Orders/OrderDetail";
 import OrderList from "../Pages/Orders/OrderList";
 import FAQs from "../Pages/Settings/FAQs";
+import ContactUs from "../Pages/Settings/ContactUs";
 
 function RedirectToMainPage() {
   return <Navigate to="/notifications/messages" />;
@@ -148,6 +149,7 @@ const authProtectedRoutes = [
   { path: "/settings/treatment-plans", component: <TreatmentPlans /> },
   { path: "/settings/video-tutorials", component: <VideoTtutorials /> },
   { path: "/settings/faqs", component: <FAQs /> },
+  { path: "/settings/contact-us", component: <ContactUs /> },
 
   // Calender
   { path: "/calendar", component: <Calender /> },
