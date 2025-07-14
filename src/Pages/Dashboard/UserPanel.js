@@ -38,7 +38,7 @@ const UserPanel = () => {
   }, [dispatch]);
 
   const handleViewAll = () => {
-    navigate("/patients/monitored");
+    navigate("/patients");
   };
 
   const handleViewAllDoctors = () => {

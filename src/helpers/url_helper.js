@@ -42,7 +42,7 @@ export const UPDATE_GENERAL_TYPE_API = "/generic-records/update";
 export const DELETE_GENERAL_TYPE_API = "/generic-records/delete";
 
 //patients
-export const GET_MONITORED_PATIENTS_API = `/patients?type=monitored`;
+export const GET_MONITORED_PATIENTS_API = `/patients`;
 export const GET_NOT_MONITORED_PATIENTS_API = `/patients?type=not_monitored`;
 export const ADD_PATIENT_API = "/patients/create";
 export const GET_RECENT_PATIENTS_API = "/patients/recent";

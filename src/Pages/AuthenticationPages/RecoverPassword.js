@@ -1,14 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 
 import logolight from "../../assets/images/logo-light.png";
 import logodark from "../../assets/images/logo-dark.png";
 
-import { Container, Row, Col, Card, CardBody } from "reactstrap";
+import { Container, Row, Col, Card, CardBody, Alert } from "reactstrap";
 import { Link } from "react-router-dom";
 
 const RecoverPassword = () => {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
   document.title =
     "Recover Password | Smileie - React Admin & Dashboard Template";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSuccess("");
+    setError("");
+    setLoading(true);
+    try {
+      const response = await fetch("https://smileie.jantrah.com/backend/api/users/password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSuccess(data.message || "Password reset instructions sent to your email.");
+      } else {
+        setError(data.message || "Failed to send password reset email.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <React.Fragment>
       <div className="bg-pattern" style={{ height: "100vh" }}>
@@ -42,7 +72,9 @@ const RecoverPassword = () => {
                       <p className="mb-5 text-center">
                         Reset your Password with Smileie.
                       </p>
-                      <form className="form-horizontal" action="#">
+                      {success && <Alert color="success">{success}</Alert>}
+                      {error && <Alert color="danger">{error}</Alert>}
+                      <form className="form-horizontal" onSubmit={handleSubmit}>
                         <Row>
                           <Col md={12}>
                             <div className="alert alert-warning alert-dismissible">
@@ -59,16 +91,20 @@ const RecoverPassword = () => {
                                 className="form-control"
                                 id="useremail"
                                 placeholder="Enter email"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                required
+                                disabled={loading}
                               />
                             </div>
                             <div className="d-grid mt-4">
-                              <a
-                                href="/dashboard"
+                              <button
                                 className="btn btn-primary waves-effect waves-light"
                                 type="submit"
+                                disabled={loading || !email}
                               >
-                                Send Email
-                              </a>
+                                {loading ? "Sending..." : "Send Email"}
+                              </button>
                             </div>
                           </Col>
                         </Row>

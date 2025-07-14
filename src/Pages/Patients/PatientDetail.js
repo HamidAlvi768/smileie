@@ -869,7 +869,7 @@ const PatientDetail = () => {
           <Button
             color="link"
             className="back-button"
-            onClick={() => navigate("/patients/monitored")}
+            onClick={() => navigate("/patients")}
           >
             <i className="mdi mdi-chevron-left"></i>
           </Button>
@@ -885,7 +885,7 @@ const PatientDetail = () => {
                 ({patientDetail?.public_id || "A78B-58F2-W"})
               </span>
             </div>
-            <a
+            {/* <a
               href="#"
               className="before-after-link"
               onClick={(e) => {
@@ -895,7 +895,7 @@ const PatientDetail = () => {
             >
               <i className="mdi mdi-play-circle-outline"></i>
               BEFORE/AFTER VIDEO
-            </a>
+            </a> */}
           </div>
         </div>
       </Container>

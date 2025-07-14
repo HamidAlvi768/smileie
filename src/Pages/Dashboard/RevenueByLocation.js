@@ -80,7 +80,7 @@ const RevenueByLocation = () => {
                         </div>
 
                         <div className="text-center mt-4">
-                            <Link to="/patients/monitored" className="btn btn-primary btn-sm">View Patient Details</Link>
+                            <Link to="/patients" className="btn btn-primary btn-sm">View Patient Details</Link>
                         </div>
                     </CardBody>
                 </Card>

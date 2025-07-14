@@ -9,23 +9,7 @@ export const headerMenuItems = [
     id: "patients",
     label: "Patients",
     icon: "mdi mdi-account-group-outline",
-    navbarItems: [
-      {
-        id: "monitored",
-        label: "Monitored",
-        url: "/patients/monitored",
-      },
-      {
-        id: "not-monitored",
-        label: "Not Monitored",
-        url: "/patients/not-monitored",
-      },
-      // {
-      //   id: "guardians",
-      //   label: "Guardians",
-      //   url: "/patients/guardians",
-      // },
-    ],
+    url: "/patients",
   },
   {
     id: "doctors",

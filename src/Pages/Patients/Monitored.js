@@ -564,7 +564,7 @@ const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
   ];
 
   return (
-    <div className="page-content">
+    <div className="page-content no-navbar">
       <Container fluid>
         {/* Page Title and New Patient Button */}
         <Row className="mb-3 align-items-center">

@@ -223,7 +223,7 @@ const authProtectedRoutes = [
   { path: "/maps-google", component: <MapsGoogle /> },
 
   // Patients Pages
-  { path: "/patients/monitored", component: <PatientsMonitored /> },
+  { path: "/patients", component: <PatientsMonitored /> },
   { path: "/patients/not-monitored", component: <PatientsNotMonitored /> },
   { path: "/patients/guardians", component: <PatientsGuardians /> },
   { path: "/patients/:id/*", component: <PatientDetail /> },

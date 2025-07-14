@@ -1,12 +1,14 @@
 import React from "react";
 import Routes from "./Routes/index";
 import { ToastProvider } from './components/Common/ToastContext';
-
-// Import Scss
+import CacheBuster from 'react-cache-buster';
 import './assets/scss/theme.scss';
-
-// Fake Backend 
 import fakeBackend from "./helpers/AuthType/fakeBackend";
+// Use require to import version from package.json (must be at the top for ESLint)
+const { version } = require('../package.json');
+
+// Simple loading fallback if no Loading component exists
+const Loading = () => <div>Loading...</div>;
 
 // Activating fake backend
 fakeBackend();
@@ -31,10 +33,19 @@ fakeBackend();
 
 
 function App() {
+  const isProduction = process.env.NODE_ENV === 'production';
   return (
-    <ToastProvider>
-      <Routes />
-    </ToastProvider>
+    <CacheBuster
+      currentVersion={version}
+      isEnabled={isProduction}
+      isVerboseMode={false}
+      loadingComponent={<Loading />}
+      metaFileDirectory={'.'}
+    >
+      <ToastProvider>
+        <Routes />
+      </ToastProvider>
+    </CacheBuster>
   );
 }
 
