@@ -205,7 +205,8 @@ const TreatmentPlan3D = ({ patient }) => {
     const isoString = dateStr.replace(' ', 'T');
     const date = new Date(isoString);
     if (isNaN(date.getTime())) return '';
-    return date.toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    // Only return the date part, e.g., 'July 10, 2025'
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
   return (
@@ -216,12 +217,10 @@ const TreatmentPlan3D = ({ patient }) => {
         {threeDPlan && (
           <>
             <Badge color={isApproved ? 'success' : 'secondary'} pill className="approval-badge">
-              {isApproved ? 'Approved' : 'Not Approved'}
+              {isApproved ? 'Approved on '+formatApprovedAt(threeDPlan.approved_at) : 'Not Approved'}
             </Badge>
             {isApproved && threeDPlan.approved_at && (
-              <span className="approved-on text-muted" style={{ fontSize: '0.98rem', marginLeft: 8 }}>
-                Approved on: {formatApprovedAt(threeDPlan.approved_at)}
-              </span>
+              <span className="approved-on text-muted" style={{ fontSize: '0.98rem', marginLeft: 8 }}> </span>
             )}
           </>
         )}
