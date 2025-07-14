@@ -394,7 +394,13 @@ const TreatmentPlan3D = ({ patient }) => {
                       </div>
                     </div>
                     <div className="d-flex justify-content-end gap-2">
-                      <Button color="primary" type="submit" size="lg" disabled={updating3DPlan || isStep3Saved || parseInt(upperAligners) >0 || parseInt(lowerAligners) > 0}>
+                      <Button color="primary" type="submit" size="lg"
+                        disabled={
+                          updating3DPlan ||
+                          isStep3Saved ||
+                          (threeDPlan.upper_aligners > 0 || threeDPlan.lower_aligners > 0)
+                        }
+                      >
                         {updating3DPlan ? <><Spinner size="sm" className="me-2" />Saving...</> : isStep3Saved ? 'Saved' : 'Save'}
                       </Button>
                     </div>

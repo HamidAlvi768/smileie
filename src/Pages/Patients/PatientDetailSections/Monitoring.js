@@ -103,6 +103,7 @@ const ImageViewer = ({ images, selectedDate, setSelectedDate, selectedImageIndex
           onClick={onMainImageClick}
         />
         <div className="image-viewer-actions">
+          {/*
           <button type="button" className="image-viewer-action-button" onClick={onSendPhoto}>
             <i className="mdi mdi-camera-outline"></i>
             Send photo
@@ -110,6 +111,19 @@ const ImageViewer = ({ images, selectedDate, setSelectedDate, selectedImageIndex
           <button type="button" className="image-viewer-action-button" onClick={onSendVideo}>
             <i className="mdi mdi-video-outline"></i>
             Send video
+          </button>
+          */}
+          <button type="button" className="image-viewer-action-button" onClick={() => {
+            // Download the main image
+            const link = document.createElement('a');
+            link.href = mainImage;
+            link.download = 'photo.jpg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}>
+            <i className="mdi mdi-download"></i>
+            Download Photo
           </button>
         </div>
       </div>

@@ -141,7 +141,7 @@ const customStyles = {
   },
 };
 
-const PatientsMonitored = ({ pageTitle = "Monitored Patients" }) => {
+const PatientsMonitored = ({ pageTitle = "Patients" }) => {
   const [createPatientModal, setCreatePatientModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const toggleCreatePatient = () => {
