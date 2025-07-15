@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardBody, Badge, Container } from "reactstrap";
 import '../../assets/scss/pages/patient.scss';
 import { useDispatch, useSelector } from 'react-redux';
-import { getNotifications } from '../../store/notifications/actions';
+import { getNotifications, markNotificationRead } from '../../store/notifications/actions';
 
 // Inline styles for timeline/alerts UI (from patient.scss)
 const timelineStyles = `
@@ -92,12 +92,13 @@ const Messages = () => {
     dispatch(getNotifications());
   }, [dispatch]);
 
-  // Map API notifications to UI structure
+  // Map API notifications to UI structure, including read_at
   const mappedNotifications = (notifications || []).map(n => ({
     id: n.id,
     date: n.date ? n.date.split(' ')[0] : '',
     title: n.title,
-    message: n.message
+    message: n.message,
+    read_at: n.read_at,
   }));
 
   // Debug: Log mappedNotifications
@@ -110,9 +111,29 @@ const Messages = () => {
   const handlePrev = () => setCurrentPage((p) => Math.max(1, p - 1));
   const handleNext = () => setCurrentPage((p) => Math.min(totalPages, p + 1));
 
+  // Handler to mark notification as read
+  const handleNotificationClick = (id, read_at) => {
+    if (read_at == null) {
+      dispatch(markNotificationRead(id));
+    }
+  };
+
+  // Automatically mark all visible unread notifications as read
+  React.useEffect(() => {
+    if (paginatedNotifications.length > 0) {
+      paginatedNotifications.forEach((notification) => {
+        if (!notification.read_at) {
+          dispatch(markNotificationRead(notification.id));
+        }
+      });
+    }
+    // Only run when paginatedNotifications changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paginatedNotifications]);
+
   return (
     <div className="page-content no-navbar">
-      <style>{timelineStyles}</style>
+      <style>{timelineStyles + `\n.timeline-item.read { opacity: 0.6; }\n.timeline-item.unread { font-weight: bold; }`}</style>
       <Container fluid>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h4 className="mb-0">Notifications</h4>
@@ -138,7 +159,12 @@ const Messages = () => {
               <>
                 <div className="timeline-list">
                   {paginatedNotifications.map((notification) => (
-                    <div key={notification.id} className="timeline-item d-flex align-items-start">
+                    <div
+                      key={notification.id}
+                      className={`timeline-item d-flex align-items-start ${notification.read_at ? 'read' : 'unread'}`}
+                      onClick={() => handleNotificationClick(notification.id, notification.read_at)}
+                      style={{ opacity: notification.read_at ? 0.6 : 1 }}
+                    >
                       <div className="timeline-icon me-3 mt-3" style={{ color: '#1da5fe' }}>
                         <i className="mdi mdi-bell-outline large-icon"></i>
                       </div>

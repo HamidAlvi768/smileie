@@ -10,7 +10,7 @@ import {
 import { isPathActive } from '../../utils/pathMatch';
 import HelpMobilePanel from "./HelpMobilePanel";
 import { logoutUser } from '../../store/auth/login/actions';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 //import images
 import logoSm from "../../assets/images/logo-sm.png";
@@ -25,6 +25,12 @@ const Header = (props) => {
   const navigate = useNavigate();
   const [helpPanelOpen, setHelpPanelOpen] = useState(false);
   const dispatch = useDispatch();
+
+  // Get unread notifications count from Redux
+  const unreadCount = useSelector(state => {
+    const notifications = state.notifications?.notifications || [];
+    return notifications.filter(n => !n.read_at).length;
+  });
 
   // Sync navbarMenuItems with current route on load/route change
   useEffect(() => {
@@ -202,7 +208,24 @@ const Header = (props) => {
                   style={{ position: 'relative' }}
                 >
                   {menu.label}
-                  {menu.badge && (
+                  {menu.id === 'notifications' && unreadCount > 0 && (
+                    <span style={{
+                      display: 'inline-block',
+                      background: '#ef5350',
+                      color: 'white',
+                      borderRadius: '999px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      minWidth: 20,
+                      height: 20,
+                      lineHeight: '20px',
+                      textAlign: 'center',
+                      marginLeft: 8,
+                      verticalAlign: 'middle',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+                    }}>{unreadCount}</span>
+                  )}
+                  {menu.id !== 'notifications' && menu.badge && (
                     <span style={{
                       display: 'inline-block',
                       background: '#ef5350',

@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { GET_NOTIFICATIONS } from './actionTypes';
+import { GET_NOTIFICATIONS, MARK_NOTIFICATION_READ, MARK_NOTIFICATION_READ_SUCCESS, MARK_NOTIFICATION_READ_FAIL } from './actionTypes';
 import { getNotificationsSuccess, getNotificationsFail } from './actions';
 import axios from 'axios';
 
@@ -24,6 +24,17 @@ function* fetchNotifications() {
   }
 }
 
+function* markNotificationReadSaga(action) {
+  try {
+    const id = action.payload;
+    yield call(axios.get, `https://smileie.jantrah.com/backend/api/notifications/read?id=${id}`);
+    yield put({ type: MARK_NOTIFICATION_READ_SUCCESS, payload: id });
+  } catch (error) {
+    yield put({ type: MARK_NOTIFICATION_READ_FAIL, payload: error.message });
+  }
+}
+
 export default function* notificationsSaga() {
   yield takeLatest(GET_NOTIFICATIONS, fetchNotifications);
+  yield takeLatest(MARK_NOTIFICATION_READ, markNotificationReadSaga);
 }
