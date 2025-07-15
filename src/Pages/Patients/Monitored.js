@@ -41,7 +41,7 @@ const filterOptions = {
   ],
   alignerStatus: ["All", "In progress", "Finished", "Aligner number not set"],
   appActivation: ["All", "Activated", "Not activated"],
-  monitoringStatus: ["All", "In progress", "Paused"],
+  monitoringStatus: ["All", "Monitored", "Not Monitored"],
 };
 
 const filterLabels = {
@@ -385,6 +385,8 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
             scanInterval: p.scanInterval || mockPatientFields.scanInterval,
             id: p.id,
             email: p.email || "",
+            is_patient_monitored: p.is_patient_monitored,
+            app_activation: p.app_activation,
           };
         })
       : [];
@@ -398,9 +400,33 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
         (item.id && item.id.toString().includes(searchTerm))
       : true;
 
-    // Apply other filters here if needed
-    // For now, just return search match
-    return searchMatch;
+    // Monitoring Status filter
+    let monitoringStatusMatch = true;
+    if (filters.monitoringStatus !== 'All') {
+      if (filters.monitoringStatus === 'Monitored') {
+        monitoringStatusMatch = item.is_patient_monitored === true || item.is_patient_monitored === 1;
+      } else if (filters.monitoringStatus === 'Not Monitored') {
+        monitoringStatusMatch = item.is_patient_monitored === false || item.is_patient_monitored === 0;
+      }
+    }
+
+    // App Activation filter
+    let appActivationMatch = true;
+    if (filters.appActivation !== 'All') {
+      if (filters.appActivation === 'Activated') {
+        appActivationMatch = item.app_activation === 1 || item.app_activation === true;
+      } else if (filters.appActivation === 'Not activated') {
+        appActivationMatch = item.app_activation === 0 || item.app_activation === false;
+      }
+    }
+
+    // Aligner Type filter
+    let alignerTypeMatch = true;
+    if (filters.alignerType !== 'All' && filters.alignerType !== 'Day Aligner') {
+      alignerTypeMatch = item.alignerType === filters.alignerType;
+    }
+
+    return searchMatch && monitoringStatusMatch && appActivationMatch && alignerTypeMatch;
   });
 
   const handlePatientFormChange = (e) => {

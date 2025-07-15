@@ -77,7 +77,7 @@ const timelineStyles = `
 }
 `;
 
-const PAGE_SIZE = 40;
+const PAGE_SIZE = 20;
 
 const Messages = () => {
   const dispatch = useDispatch();

@@ -34,7 +34,6 @@ const Scans = ({ patient }) => {
   };
 
   const sortedScans = React.useMemo(() => {
-    // Old: if (!Array.isArray(treatmentSteps)) return [];
     // New: If treatmentSteps is not an object, return empty arrays
     if (!treatmentSteps || typeof treatmentSteps !== 'object') {
       return { upper: [], lower: [] };
@@ -56,7 +55,6 @@ const Scans = ({ patient }) => {
     };
   }, [treatmentSteps, sortBy, sortOrder]);
 
-  // For demo, set current aligner number
   // Use sorted upper and lower arrays
   const upperScans = sortedScans.upper || [];
   const lowerScans = sortedScans.lower || [];
@@ -118,8 +116,6 @@ const Scans = ({ patient }) => {
 
   return (
     <div className="scans-section">
-      <style>{`.scan-card-late { border: 2px solid hsl(360, 48%, 80%) !important; }`}</style>
-      <style>{`.scan-card-tooltip-white .tooltip-inner { background: #fff !important; color: #222 !important; border: 1px solid #e3eaf3 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08); } .scan-card-tooltip-white.bs-tooltip-top .arrow::before, .scan-card-tooltip-white.bs-tooltip-auto[x-placement^=top] .arrow::before { border-top-color: #fff !important; }`}</style>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="d-flex align-items-center">
           <h4 className="mb-0 me-2">Treatment Process</h4>
@@ -153,12 +149,15 @@ const Scans = ({ patient }) => {
               let cardStateClass = '';
               switch (scan.status) {
                 case 'completed': cardStateClass = ' scan-card-completed'; break;
-                case 'current': cardStateClass = ' scan-card-current'; break;
+                case 'current':
+                case 'inprogress': // Treat inprogress as current for styling
+                  cardStateClass = ' scan-card-current';
+                  break;
                 case 'pending': cardStateClass = ' scan-card-pending'; break;
-                case 'not_started': cardStateClass = ' scan-card-notstarted scan-card-disabled'; break;
+                case 'not_started': cardStateClass = ' scan-card-notstarted'; break;
                 default: cardStateClass = '';
               }
-              // Optionally, make only completed/inprogress clickable
+              // Make completed/inprogress cards clickable
               const isClickable = scan.status === 'completed' || scan.status === 'inprogress';
               const showUploaded = !!scan.created_at;
               let isLate = false;
@@ -172,7 +171,7 @@ const Scans = ({ patient }) => {
                 <div key={idx}>
                   <Card
                     id={tooltipId}
-                    className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}`}
+                    className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}${scan.status === 'not_started' ? ' scan-card-disabled' : ''}`}
                     {...(isClickable
                       ? {
                           onClick: () => handleScanCardClick('upper', idx, scan),
@@ -231,12 +230,15 @@ const Scans = ({ patient }) => {
               let cardStateClass = '';
               switch (scan.status) {
                 case 'completed': cardStateClass = ' scan-card-completed'; break;
-                case 'current': cardStateClass = ' scan-card-current'; break;
+                case 'current':
+                case 'inprogress': // Treat inprogress as current for styling
+                  cardStateClass = ' scan-card-current';
+                  break;
                 case 'pending': cardStateClass = ' scan-card-pending'; break;
-                case 'not_started': cardStateClass = ' scan-card-notstarted scan-card-disabled'; break;
+                case 'not_started': cardStateClass = ' scan-card-notstarted'; break;
                 default: cardStateClass = '';
               }
-              // Optionally, make only completed/inprogress clickable
+              // Make completed/inprogress cards clickable
               const isClickable = scan.status === 'completed' || scan.status === 'inprogress';
               const showUploaded = !!scan.created_at;
               let isLate = false;
@@ -250,7 +252,7 @@ const Scans = ({ patient }) => {
                 <div key={idx}>
                   <Card
                     id={tooltipId}
-                    className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}`}
+                    className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}${scan.status === 'not_started' ? ' scan-card-disabled' : ''}`}
                     {...(isClickable
                       ? {
                           onClick: () => handleScanCardClick('lower', idx, scan),
