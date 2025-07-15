@@ -17,19 +17,19 @@ export const headerMenuItems = [
     icon: "mdi mdi-stethoscope",
     url: "/doctors",
   },
-  {
-    id: "orders",
-    label: "Orders",
-    icon: "mdi mdi-package-variant-closed",
-    url: "/orders",
-    // navbarItems: [
-    //   {
-    //     id: "order-list",
-    //     label: "Order List",
-    //     url: "/orders",
-    //   }
-    // ],
-  },
+  // {
+  //   id: "orders",
+  //   label: "Orders",
+  //   icon: "mdi mdi-package-variant-closed",
+  //   url: "/orders",
+  //   // navbarItems: [
+  //   //   {
+  //   //     id: "order-list",
+  //   //     label: "Order List",
+  //   //     url: "/orders",
+  //   //   }
+  //   // ],
+  // },
   // {
   //   id: "todo",
   //   label: "To-Do List",

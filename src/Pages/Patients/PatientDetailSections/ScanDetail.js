@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardBody, Button, Modal, ModalBody } from 'reactstrap';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { useDispatch, useSelector } from 'react-redux';
+import { WEB_APP_URL } from '../../../config';
 
-// Use the provided image for all thumbnails
+// Use the provided image for all thumbnails (fallbacks)
 const intraoralImg = require('../../../assets/images/intraoral_1.jpg');
 const intraoralImg2 = require('../../../assets/images/intraoral_2.jpg');
 const lowerJawImg = require('../../../assets/images/lower-jaw.jpg');
@@ -17,107 +19,96 @@ const leftJawImg = require('../../../assets/images/left-view.jpg');
 const leftJawImg2 = require('../../../assets/images/left-view2.jpg');
 const frontViewImg2 = require('../../../assets/images/front-view2.jpg');
 
-const mockScan = {
-  timestamp: '2025-05-27 12:14 GMT+5',
-  sections: [
-    {
-      name: 'Front View',
-      subsections: [
-        {
-          name: 'With Aligner',
-          images: [intraoralImg, intraoralImg2],
-        },
-        {
-          name: 'Without Aligner',
-          images: [intraoralImg2, frontViewImg2],
-        },
-      ],
-    },
-    {
-      name: 'Left View',
-      subsections: [
-        {
-          name: 'With Aligner',
-          images: [leftJawImg, rightJawImg],
-        },
-        {
-          name: 'Without Aligner',
-          images: [leftJawImg2, rightJawImg2],
-        },
-      ],
-    },
-    {
-      name: 'Right View',
-      subsections: [
-        {
-          name: 'With Aligner',
-          images: [rightJawImg, leftJawImg],
-        },
-        {
-          name: 'Without Aligner',
-          images: [rightJawImg2, leftJawImg2],
-        },
-      ],
-    },
-  ],
+const fallbackImages = {
+  front: [intraoralImg, intraoralImg2, frontViewImg2],
+  left: [leftJawImg, leftJawImg2],
+  right: [rightJawImg, rightJawImg2],
+  upper: [upperJawImg, upperJawImg2],
+  lower: [lowerJawImg, lowerJawImg2],
 };
 
 const ScanDetail = () => {
   const navigate = useNavigate();
-  const { id, arch } = useParams();
+  const { id, arch, scanId } = useParams();
+  const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [allImages, setAllImages] = useState([]); // All images from all sections (for filtering)
-  const [currentSectionImages, setCurrentSectionImages] = useState([]); // Images for the current section in modal
+  const [currentSectionImages, setCurrentSectionImages] = useState([]);
   const [currentSectionName, setCurrentSectionName] = useState('');
 
-  // Compute sections to display based on arch param
-  const getSectionsWithJawView = () => {
-    let sections = [...mockScan.sections];
-    if (arch === 'upper') {
-      // Append Upper Jaw View at the end
-      sections = [
-        ...sections,
-        {
-          name: 'Upper Jaw View',
-          subsections: [
-            {
-              name: 'With Aligner',
-              images: [upperJawImg],
-            },
-            {
-              name: 'Without Aligner',
-              images: [upperJawImg2],
-            },
-          ],
-        },
-      ];
-    } else if (arch === 'lower') {
-      // Append Lower Jaw View at the end
-      sections = [
-        ...sections,
-        {
-          name: 'Lower Jaw View',
-          subsections: [
-            {
-              name: 'With Aligner',
-              images: [lowerJawImg],
-            },
-            {
-              name: 'Without Aligner',
-              images: [lowerJawImg2],
-            },
-          ],
-        },
-      ];
+  // Get scan detail from Redux
+  const { scanDetail, scanDetailLoading, scanDetailError } = useSelector(state => state.patients);
+
+  // Debug: Log params and redux state
+  console.log('ScanDetail params:', { id, scanId, arch });
+  console.log('Redux scanDetail:', scanDetail);
+  console.log('Redux scanDetailLoading:', scanDetailLoading);
+  console.log('Redux scanDetailError:', scanDetailError);
+
+  // Always call hooks at the top
+  useEffect(() => {
+    if (id && scanId) {
+      console.log('Dispatching GET_SCAN_DETAIL with:', { id, scanId });
+      dispatch({ type: 'GET_SCAN_DETAIL', payload: { id, step_number: scanId } });
     }
-    return sections;
-  };
+  }, [dispatch, id, scanId]);
+
+  // Map API data to sections/subsections/images
+  const dynamicScan = useMemo(() => {
+    if (!Array.isArray(scanDetail) || scanDetail.length === 0) return null;
+    // Group scans by view_type (front, left, right, upper, lower, etc.)
+    const sectionsMap = {};
+    scanDetail.forEach(scan => {
+      const view = scan.view_type || 'front';
+      if (!sectionsMap[view]) {
+        sectionsMap[view] = { name: `${view.charAt(0).toUpperCase() + view.slice(1)} View`, subsections: [] };
+      }
+      // Use scan_type from API, not scan_url
+      const alignerType = scan.scan_type === 'without_aligner' ? 'Without Aligner' : 'With Aligner';
+      let subsection = sectionsMap[view].subsections.find(s => s.name === alignerType);
+      if (!subsection) {
+        subsection = { name: alignerType, images: [] };
+        sectionsMap[view].subsections.push(subsection);
+      }
+      subsection.images.push(scan.scan_url);
+    });
+    // Only keep subsections that have real images (not fallback) if there is any real data for that view
+    Object.keys(sectionsMap).forEach(view => {
+      const section = sectionsMap[view];
+      // If this view exists in API data, filter out fallback-only subsections (not needed anymore, but keep for safety)
+      const hasRealData = scanDetail.some(scan => scan.view_type === view);
+      if (hasRealData) {
+        section.subsections = section.subsections.filter(subsection =>
+          subsection.images.some(img => typeof img === 'string' && img.startsWith('/uploads'))
+        );
+      }
+    });
+    // Convert to array
+    let sectionsArr = Object.values(sectionsMap);
+    // Filter: Only show 'top' view for upper arch, and 'bottom' view for lower arch
+    sectionsArr = sectionsArr.filter(section => {
+      if (section.name.toLowerCase().includes('top')) {
+        return arch === 'upper';
+      }
+      if (section.name.toLowerCase().includes('bottom')) {
+        return arch === 'lower';
+      }
+      return true;
+    });
+    return {
+      timestamp: scanDetail[0]?.created_at || '',
+      sections: sectionsArr
+    };
+  }, [scanDetail, arch]);
+
+  // Debug: Log dynamicScan result
+  console.log('dynamicScan:', dynamicScan);
 
   // Flatten all images from all sections into a single array for easier filtering later
-  useEffect(() => {
+  const allImages = useMemo(() => {
+    if (!dynamicScan) return [];
     const images = [];
-    getSectionsWithJawView().forEach(section => {
+    dynamicScan.sections.forEach(section => {
       section.subsections.forEach(subsection => {
         subsection.images.forEach((img, index) => {
           images.push({
@@ -129,9 +120,10 @@ const ScanDetail = () => {
         });
       });
     });
-    setAllImages(images);
-  }, [arch]);
+    return images;
+  }, [dynamicScan]);
 
+  // Modal and navigation logic (unchanged)
   const openModal = (sectionName, subsectionName, imageIndexInThatSubsection) => {
     const imagesForSubsection = allImages.filter(img => img.section === sectionName && img.subsection === subsectionName);
     setCurrentSectionImages(imagesForSubsection);
@@ -142,7 +134,6 @@ const ScanDetail = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    // Reset section specific images when modal closes
     setCurrentSectionImages([]);
     setCurrentImageIndex(0);
     setCurrentSectionName('');
@@ -164,7 +155,6 @@ const ScanDetail = () => {
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (!isModalOpen) return;
-      
       switch (event.key) {
         case 'ArrowLeft':
           event.preventDefault();
@@ -182,33 +172,28 @@ const ScanDetail = () => {
           break;
       }
     };
-
     if (isModalOpen) {
       document.addEventListener('keydown', handleKeyDown);
-      // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
     }
-
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
     };
   }, [isModalOpen]);
 
+  // Download all photos logic (unchanged)
   const handleDownloadAllPhotos = async (e) => {
     e.preventDefault();
     if (!allImages.length) return;
     const zip = new JSZip();
     const folder = zip.folder('photos');
-    // Fetch all images as blobs and add to zip
     await Promise.all(
       allImages.map(async (img, idx) => {
         try {
-          // If img.src is a require() result, it may be a module with default
           const url = typeof img.src === 'string' ? img.src : img.src.default || img.src;
           const response = await fetch(url);
           const blob = await response.blob();
-          // Use a meaningful filename
           const ext = url.split('.').pop().split('?')[0];
           const name = `${img.section.replace(/\s+/g, '_')}_${img.subsection.replace(/\s+/g, '_')}_${idx + 1}.${ext}`;
           folder.file(name, blob);
@@ -221,11 +206,58 @@ const ScanDetail = () => {
     saveAs(content, 'photos.zip');
   };
 
+  // Loading and error/empty state logic (after all hooks)
+  if (scanDetailLoading) {
+    return (
+      <div className="scan-detail-section">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 className="mb-1">Loading scan data...</h5>
+            <a href="#" className="small me-3" onClick={() => navigate(-1)}>
+              <i className="mdi mdi-arrow-left"></i> Back to the list
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (scanDetailError) {
+    return (
+      <div className="scan-detail-section">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 className="mb-1 text-danger">Error loading scan data</h5>
+            <div className="text-danger small">{scanDetailError.toString()}</div>
+            <a href="#" className="small me-3" onClick={() => navigate(-1)}>
+              <i className="mdi mdi-arrow-left"></i> Back to the list
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!dynamicScan) {
+    return (
+      <div className="scan-detail-section">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 className="mb-1">No scan data available</h5>
+            <a href="#" className="small me-3" onClick={() => navigate(-1)}>
+              <i className="mdi mdi-arrow-left"></i> Back to the list
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="scan-detail-section">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
-          <h5 className="mb-1">Scan taken on {mockScan.timestamp}</h5>
+          <h5 className="mb-1">Scan taken on {dynamicScan.timestamp}</h5>
           <a href="#" className="small me-3" onClick={() => navigate(-1)}>
             <i className="mdi mdi-arrow-left"></i> Back to the list
           </a>
@@ -234,10 +266,9 @@ const ScanDetail = () => {
           <i className="mdi mdi-download me-1"></i>Download all photos
         </a>
       </div>
-      
       <Card>
         <CardBody>
-          {getSectionsWithJawView().map((section) => (
+          {dynamicScan.sections.map((section) => (
             <div key={section.name} className="mb-4 border bg-light-subtle p-3 rounded">
               <div className="section-header mb-2">
                 <h6 className="mb-0 fw-semibold">
@@ -267,7 +298,7 @@ const ScanDetail = () => {
                       {subsection.images.map((img, imgIdx) => (
                         <img
                           key={imgIdx}
-                          src={img}
+                          src={typeof img === 'string' && img.startsWith('/uploads') ? `${WEB_APP_URL}${img}` : img}
                           alt={`${section.name} - ${subsection.name} ${imgIdx + 1}`}
                           className="scan-thumbnail"
                           style={{ 
@@ -296,7 +327,6 @@ const ScanDetail = () => {
           ))}
         </CardBody>
       </Card>
-
       {/* Full-screen Image Modal */}
       <Modal 
         isOpen={isModalOpen} 
@@ -325,7 +355,11 @@ const ScanDetail = () => {
                 </button>
               )}
               <img
-                src={currentSectionImages[currentImageIndex].src}
+                src={
+                  typeof currentSectionImages[currentImageIndex].src === 'string' && currentSectionImages[currentImageIndex].src.startsWith('/uploads')
+                    ? `${WEB_APP_URL}${currentSectionImages[currentImageIndex].src}`
+                    : currentSectionImages[currentImageIndex].src
+                }
                 alt={currentSectionImages[currentImageIndex].alt}
                 style={{
                   maxWidth: '100%',
@@ -370,4 +404,4 @@ const ScanDetail = () => {
   );
 };
 
-export default ScanDetail; 
+export default ScanDetail;

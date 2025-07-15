@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Card, CardBody, Badge, Container } from "reactstrap";
 import '../../assets/scss/pages/patient.scss';
+import { useDispatch, useSelector } from 'react-redux';
+import { getNotifications } from '../../store/notifications/actions';
 
 // Inline styles for timeline/alerts UI (from patient.scss)
 const timelineStyles = `
@@ -75,47 +77,35 @@ const timelineStyles = `
 }
 `;
 
-// Mock notifications data (similar to Alerts.js)
-const mockNotifications = [
-  {
-    id: 1,
-    date: '2025-06-01',
-    title: 'New Message from Dr. Smith',
-    message: 'You have received a new message regarding your treatment plan.'
-  },
-  {
-    id: 2,
-    date: '2025-06-02',
-    title: 'Appointment Reminder',
-    message: 'Your appointment is scheduled for tomorrow at 10:00 AM.'
-  },
-  {
-    id: 3,
-    date: '2025-06-03',
-    title: 'Lab Results Available',
-    message: 'Your recent lab results are now available to view.'
-  },
-  {
-    id: 4,
-    date: '2025-06-05',
-    title: 'Payment Received',
-    message: 'Your payment has been received. Thank you!'
-  },
-  {
-    id: 5,
-    date: '2025-06-10',
-    title: 'Profile Update',
-    message: 'Your profile information was updated successfully.'
-  },
-];
-
 const PAGE_SIZE = 40;
 
 const Messages = () => {
-  const notifications = mockNotifications;
+  const dispatch = useDispatch();
+  const { notifications, loading, error } = useSelector(state => state.notifications || {});
+
+  // Debug: Log notifications statep
+  console.log('Redux notifications:', notifications);
+  console.log('Redux loading:', loading);
+  console.log('Redux error:', error);
+
+  React.useEffect(() => {
+    dispatch(getNotifications());
+  }, [dispatch]);
+
+  // Map API notifications to UI structure
+  const mappedNotifications = (notifications || []).map(n => ({
+    id: n.id,
+    date: n.date ? n.date.split(' ')[0] : '',
+    title: n.title,
+    message: n.message
+  }));
+
+  // Debug: Log mappedNotifications
+  console.log('mappedNotifications:', mappedNotifications);
+
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(notifications.length / PAGE_SIZE);
-  const paginatedNotifications = notifications.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const totalPages = Math.ceil(mappedNotifications.length / PAGE_SIZE);
+  const paginatedNotifications = mappedNotifications.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const handlePrev = () => setCurrentPage((p) => Math.max(1, p - 1));
   const handleNext = () => setCurrentPage((p) => Math.min(totalPages, p + 1));
@@ -129,7 +119,17 @@ const Messages = () => {
         </div>
         <Card>
           <CardBody>
-            {notifications.length === 0 ? (
+            {loading ? (
+              <div className="text-center text-muted py-5">
+                <i className="mdi mdi-bell-outline mb-3" style={{ fontSize: '3rem' }}></i>
+                <p className="mb-0">Loading notifications...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center text-danger py-5">
+                <i className="mdi mdi-alert-circle-outline mb-3" style={{ fontSize: '3rem' }}></i>
+                <p className="mb-0">{error}</p>
+              </div>
+            ) : mappedNotifications.length === 0 ? (
               <div className="text-center text-muted py-5">
                 <i className="mdi mdi-bell-outline mb-3" style={{ fontSize: '3rem' }}></i>
                 <p className="mb-0">No notifications to display.</p>

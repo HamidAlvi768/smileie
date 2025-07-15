@@ -110,6 +110,12 @@ const Scans = ({ patient }) => {
     );
   }
 
+  // For scan detail
+  const handleScanCardClick = (arch, idx, scan) => {
+    dispatch({ type: 'GET_SCAN_DETAIL', payload: { id, step_number: scan.step_number } });
+    navigate(`/patients/${id}/scans/${arch}/${scan.step_number}`);
+  };
+
   return (
     <div className="scans-section">
       <style>{`.scan-card-late { border: 2px solid hsl(360, 48%, 80%) !important; }`}</style>
@@ -152,8 +158,8 @@ const Scans = ({ patient }) => {
                 case 'not_started': cardStateClass = ' scan-card-notstarted scan-card-disabled'; break;
                 default: cardStateClass = '';
               }
-              // Optionally, make only completed/current/pending clickable
-              const isClickable = scan.status === 'completed' || scan.status === 'current' || scan.status === 'pending';
+              // Optionally, make only completed/inprogress clickable
+              const isClickable = scan.status === 'completed' || scan.status === 'inprogress';
               const showUploaded = !!scan.created_at;
               let isLate = false;
               if (showUploaded) {
@@ -169,7 +175,7 @@ const Scans = ({ patient }) => {
                     className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}`}
                     {...(isClickable
                       ? {
-                          onClick: () => navigate(`/patients/${id}/scans/upper/${idx}`),
+                          onClick: () => handleScanCardClick('upper', idx, scan),
                           tabIndex: 0,
                           role: 'button',
                           'aria-label': `View scan ${scan.step_number}`,
@@ -230,8 +236,8 @@ const Scans = ({ patient }) => {
                 case 'not_started': cardStateClass = ' scan-card-notstarted scan-card-disabled'; break;
                 default: cardStateClass = '';
               }
-              // Optionally, make only completed/current/pending clickable
-              const isClickable = scan.status === 'completed' || scan.status === 'current' || scan.status === 'pending';
+              // Optionally, make only completed/inprogress clickable
+              const isClickable = scan.status === 'completed' || scan.status === 'inprogress';
               const showUploaded = !!scan.created_at;
               let isLate = false;
               if (showUploaded) {
@@ -247,7 +253,7 @@ const Scans = ({ patient }) => {
                     className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}`}
                     {...(isClickable
                       ? {
-                          onClick: () => navigate(`/patients/${id}/scans/lower/${idx}`),
+                          onClick: () => handleScanCardClick('lower', idx, scan),
                           tabIndex: 0,
                           role: 'button',
                           'aria-label': `View scan ${scan.step_number}`,
@@ -297,4 +303,4 @@ const Scans = ({ patient }) => {
   );
 };
 
-export default Scans; 
+export default Scans;

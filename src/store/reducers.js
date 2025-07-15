@@ -5,6 +5,7 @@ import statsReducer from "./stats/reducer";
 import patientsReducer from "./patients/reducer";
 import tutorialsReducer from "./tutorials/reducer";
 import faqsReducer from './faqs/reducer';
+import notificationsReducer from './notifications/reducer';
 
 // Front
 import Layout from "./layout/reducer";
@@ -37,6 +38,7 @@ const appReducer = combineReducers({
   patients: patientsReducer,
   tutorials: tutorialsReducer,
   faqs: faqsReducer,
+  notifications: notificationsReducer,
 });
 
 // Wrap it in a root reducer that can handle full reset

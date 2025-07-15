@@ -1,18 +1,58 @@
 {
     "status": "success",
-    "data": {
-        "id": 20,
-        "patient_id": 170,
-        "plan_url": "https://doctor.smileie.com//access/2e0cc06b768e91b1c0d388c09b6c5440",
-        "description": "abc",
-        "arch_type": "",
-        "upper_aligners": 30,
-        "lower_aligners": 15,
-        "approved": 1,
-        "approved_at": "2025-07-10 17:28:58",
-        "created_by": 0,
-        "updated_by": 0,
-        "created_at": "2025-07-10 17:27:28",
-        "updated_at": "2025-07-14 11:50:37"
-    }
+    "code": 200,
+    "data": [
+        {
+            "notification": {
+                "id": 2,
+                "user_id": 178,
+                "title": "Patient Login",
+                "message": "Patient login to the app.",
+                "type": "info",
+                "icon_url": null,
+                "click_action": null,
+                "status": "pending",
+                "read_at": null,
+                "device_token": null,
+                "firebase_response": null,
+                "created_by": null,
+                "updated_by": null,
+                "created_at": "2025-07-15 12:12:14",
+                "updated_at": "2025-07-15 12:12:14",
+                "sent_at": null
+            },
+            "user": {
+                "id": 178,
+                "username": "shoaibshokat6@gmail.com",
+                "email": "shoaibshokat6@gmail.com",
+                "role": "patient"
+            }
+        },
+        {
+            "notification": {
+                "id": 1,
+                "user_id": 178,
+                "title": "Patient Logout",
+                "message": "Patient logout from the app.",
+                "type": "info",
+                "icon_url": null,
+                "click_action": null,
+                "status": "pending",
+                "read_at": null,
+                "device_token": null,
+                "firebase_response": null,
+                "created_by": null,
+                "updated_by": null,
+                "created_at": "2025-07-15 12:10:46",
+                "updated_at": "2025-07-15 12:10:46",
+                "sent_at": null
+            },
+            "user": {
+                "id": 178,
+                "username": "shoaibshokat6@gmail.com",
+                "email": "shoaibshokat6@gmail.com",
+                "role": "patient"
+            }
+        }
+    ]
 }

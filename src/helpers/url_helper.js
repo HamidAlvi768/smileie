@@ -70,5 +70,6 @@ export const DELETE_FAQ_API = '/faqs/delete';
 
 //treatment steps (scans)
 export const GET_TREATMENT_STEPS_API = '/treatment/steps';
+export const GET_SCAN_DETAIL_API = '/treatment/scans';
 
 
