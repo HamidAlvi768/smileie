@@ -2,30 +2,33 @@ import React from "react";
 import LineColumnArea from "./LineColumnArea";
 
 import { Card, CardBody, Col, Row } from "reactstrap";
-
-// Updated data for dental practice overview
-const OverViewData = [
-  {
-    title: "Inquiries",
-    count: "89",
-    percentage: "8.2",
-    color: "success",
-  },
-  {
-    title: "Orders",
-    count: "156",
-    percentage: "12.5",
-    color: "light",
-  },
-  {
-    title: "Treatments Completed",
-    count: "23",
-    percentage: "3.1",
-    color: "info",
-  },
-];
+import { useSelector, useDispatch } from 'react-redux';
+import { getStats } from '../../store/stats/actions';
 
 const OverView = () => {
+  const dispatch = useDispatch();
+  const stats = useSelector(state => state.stats.stats);
+  React.useEffect(() => {
+    dispatch(getStats());
+  }, [dispatch]);
+  const overview = stats && stats.overview ? stats.overview : {};
+  const OverViewData = [
+    {
+      title: "Total Patients",
+      count: overview.total_patients ?? 0,
+      color: "success",
+    },
+    {
+      title: "Activated Patients",
+      count: overview.activated_patients ?? 0,
+      color: "light",
+    },
+    {
+      title: "Patients with Scans",
+      count: overview.patients_with_scans ?? 0,
+      color: "info",
+    },
+  ];
   return (
     <React.Fragment>
       <Col xl={8}>

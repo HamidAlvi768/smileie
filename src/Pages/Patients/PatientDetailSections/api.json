@@ -2,83 +2,97 @@
     "request": "GET",
     "status": "success",
     "code": 200,
-    "data": [
-        {
-            "id": 182,
-            "username": "hamidalvi768@gmail.com",
-            "phone": "03705480367",
-            "email": "hamidalvi768@gmail.com",
-            "role": "patient",
-            "created_at": "2025-07-15 09:30:23",
-            "first_name": "Hamid",
-            "last_name": "Alvi",
-            "practice": "",
-            "doctor_name": "Dr. Zahra",
-            "latest_activity": {
-                "id": 624,
-                "user_id": 182,
-                "action": "Login",
-                "description": "Patient login to the app",
-                "created_at": "2025-07-15 15:24:55"
+    "data": {
+        "users": 78,
+        "doctors": 14,
+        "patients": 63,
+        "scans": 0,
+        "aligners": 0,
+        "plans": 0,
+        "global-stats": [
+            {
+                "country": "",
+                "patient-count": 7
             },
-            "type": "Account",
-            "is_patient_monitored": null,
-            "description": "Patient Account Created by System",
-            "aligner_type": "Day time dual arch",
-            "app_activation": 0
-        },  {
-            "id": 55,
-            "username": "c0wv5@punkproof.com",
-            "phone": "07123456789",
-            "email": "c0wv5@punkproof.com",
-            "role": "patient",
-            "created_at": "2025-06-27 10:11:34",
-            "first_name": "Tester",
-            "last_name": "Patient",
-            "practice": null,
-            "doctor_name": "",
-            "latest_activity": null,
-            "type": "Account",
-            "is_patient_monitored": null,
-            "description": "Patient Account Created by System",
-            "aligner_type": null,
-            "app_activation": 0
+            {
+                "country": "Albania",
+                "patient-count": 2
+            },
+            {
+                "country": "Algeria",
+                "patient-count": 2
+            },
+            {
+                "country": "Andorra",
+                "patient-count": 1
+            },
+            {
+                "country": "Pakistan",
+                "patient-count": 32
+            }
+        ],
+        "overview": {
+            "total_patients": 63,
+            "activated_patients": 17,
+            "patients_with_scans": 3
         },
-        {
-            "id": 54,
-            "username": "1234@gmail.com",
-            "phone": "123",
-            "email": "1234@gmail.com",
-            "role": "patient",
-            "created_at": "2025-06-27 09:12:37",
-            "first_name": "Shoaib",
-            "last_name": "Shokat",
-            "practice": null,
-            "doctor_name": "Hamid",
-            "latest_activity": null,
-            "type": "Account",
-            "is_patient_monitored": null,
-            "description": "Patient Account Created by System",
-            "aligner_type": null,
-            "app_activation": 0
-        },
-        {
-            "id": 52,
-            "username": "h@gmail.com",
-            "phone": "123",
-            "email": "h@gmail.com",
-            "role": "patient",
-            "created_at": "2025-06-27 09:09:55",
-            "first_name": "Hamid",
-            "last_name": "Awan",
-            "practice": null,
-            "doctor_name": "",
-            "latest_activity": null,
-            "type": "Account",
-            "is_patient_monitored": null,
-            "description": "Patient Account Created by System",
-            "aligner_type": null,
-            "app_activation": 0
+        "monthly": {
+            "months": [
+                "2024-08",
+                "2024-09",
+                "2024-10",
+                "2024-11",
+                "2024-12",
+                "2025-01",
+                "2025-02",
+                "2025-03",
+                "2025-04",
+                "2025-05",
+                "2025-06",
+                "2025-07"
+            ],
+            "total_patients": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                10,
+                53
+            ],
+            "activated_patients": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                16
+            ],
+            "patients_with_scans": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                3
+            ]
         }
-    ]
+    }
 }

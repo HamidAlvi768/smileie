@@ -1,23 +1,59 @@
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
+import { useSelector, useDispatch } from 'react-redux';
+import { getStats } from '../../store/stats/actions';
 
 const LineColumnArea = () => {
-  const [chartData, setChartData] = useState({
+  const dispatch = useDispatch();
+  const stats = useSelector(state => state.stats.stats);
+  React.useEffect(() => {
+    dispatch(getStats());
+  }, [dispatch]);
+
+  // Debug: Log stats and monthly data
+  console.log('Stats from Redux:', stats);
+  if (stats && stats.monthly) {
+    console.log('Monthly total_patients:', stats.monthly.total_patients);
+    console.log('Monthly activated_patients:', stats.monthly.activated_patients);
+    console.log('Monthly patients_with_scans:', stats.monthly.patients_with_scans);
+  } else {
+    console.log('No monthly data in stats');
+  }
+
+  // Use months from API if available, otherwise fallback to Jan-Dec
+  const months = (stats && stats.monthly && Array.isArray(stats.monthly.months) && stats.monthly.months.length === 12)
+    ? stats.monthly.months
+    : [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+  // Fallback to overview values for all months if monthly is missing
+  const getMonthly = (key) => {
+    if (stats && stats.monthly && Array.isArray(stats.monthly[key]) && stats.monthly[key].length === 12) {
+      return stats.monthly[key];
+    }
+    if (stats && stats.overview && typeof stats.overview[key] === 'number') {
+      return Array(12).fill(stats.overview[key]);
+    }
+    return Array(12).fill(0);
+  };
+
+  const chartData = {
     series: [
       {
-        name: "Inquiries",
+        name: "Total Patients",
         type: "column",
-        data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 18],
+        data: getMonthly('total_patients'),
       },
       {
-        name: "Orders",
+        name: "Activated Patients",
         type: "area",
-        data: [44, 55, 41, 42, 22, 43, 21, 41, 56, 27, 43, 27],
+        data: getMonthly('activated_patients'),
       },
       {
-        name: "Treatments Completed",
+        name: "Patients with Scans",
         type: "line",
-        data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51],
+        data: getMonthly('patients_with_scans'),
       },
     ],
     options: {
@@ -59,20 +95,7 @@ const LineColumnArea = () => {
           opacityTo: 0.55,
         },
       },
-      labels: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      labels: months,
       markers: {
         size: 0,
       },
@@ -84,6 +107,18 @@ const LineColumnArea = () => {
         axisTicks: {
           show: false,
         },
+        labels: {
+          formatter: function(value) {
+            // value is e.g. '2025-07' or '2024-06'
+            if (typeof value === 'string' && value.length === 7 && value.includes('-')) {
+              const monthNum = parseInt(value.split('-')[1], 10);
+              // Map 1-12 to Jan-Dec
+              const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+              return monthNames[monthNum - 1] || value;
+            }
+            return value;
+          }
+        }
       },
       yaxis: {
         show: true,
@@ -116,19 +151,7 @@ const LineColumnArea = () => {
         }
       },
     },
-  });
-
-  useEffect(() => {
-    // Ensure chart is properly initialized
-    const timer = setTimeout(() => {
-      setChartData(prevData => ({
-        ...prevData,
-        series: [...prevData.series]
-      }));
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, []);
+  };
 
   return (
     <React.Fragment>

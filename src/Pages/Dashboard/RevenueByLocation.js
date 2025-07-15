@@ -10,14 +10,9 @@ import {
 
 import { Link } from 'react-router-dom';
 import { getPatients } from '../../store/patients/actions';
+import { getCountryCode } from './countries';
 
 // Data aggregated by country using ISO 3166-1 alpha-2 codes
-const countryData = {
-    'US': 940,  // New York (553) + Los Angeles (387)
-    'GB': 520,  // London
-    // Add other countries here e.g., 'CA': 300
-};
-
 const RevenueByLocation = () => {
     const dispatch = useDispatch();
     const stats = useSelector(state => state.stats.stats);
@@ -82,6 +77,21 @@ const RevenueByLocation = () => {
     if (patientsLoading) {
         console.log("Loading patients data...");
     }
+
+    // Use stats['global-stats'] for country data
+    const countryData = React.useMemo(() => {
+      const arr = stats && stats['global-stats'] ? stats['global-stats'] : [];
+      // Map country names to patient counts (for display)
+      // If you need ISO codes, you may need a mapping function
+      const data = {};
+      arr.forEach(item => {
+        if (item.country && item['patient-count']) {
+          // You may want to map country names to ISO codes here
+          data[getCountryCode(item.country)] = item['patient-count'];
+        }
+      });
+      return data;
+    }, [stats]);
 
 
     return (
