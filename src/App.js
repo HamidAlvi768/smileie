@@ -4,6 +4,8 @@ import { ToastProvider } from './components/Common/ToastContext';
 import CacheBuster from 'react-cache-buster';
 import './assets/scss/theme.scss';
 import fakeBackend from "./helpers/AuthType/fakeBackend";
+import { useDispatch } from 'react-redux';
+import { getNotifications } from './store/notifications/actions';
 // Use require to import version from package.json (must be at the top for ESLint)
 const { version } = require('../package.json');
 
@@ -34,6 +36,17 @@ fakeBackend();
 
 function App() {
   const isProduction = process.env.NODE_ENV === 'production';
+  const dispatch = useDispatch();
+
+  // Global polling for notifications
+  // React.useEffect(() => {
+  //   dispatch(getNotifications()); // Initial fetch
+  //   const interval = setInterval(() => {
+  //     dispatch(getNotifications());
+  //   }, 30000); // 30 seconds
+  //   return () => clearInterval(interval);
+  // }, [dispatch]);
+
   return (
     <CacheBuster
       currentVersion={version}

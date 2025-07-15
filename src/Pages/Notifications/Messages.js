@@ -92,14 +92,46 @@ const Messages = () => {
     dispatch(getNotifications());
   }, [dispatch]);
 
-  // Map API notifications to UI structure, including read_at
-  const mappedNotifications = (notifications || []).map(n => ({
-    id: n.id,
-    date: n.date ? n.date.split(' ')[0] : '',
-    title: n.title,
-    message: n.message,
-    read_at: n.read_at,
-  }));
+  // Map API notifications to UI structure, including read_at and username
+  const mappedNotifications = (notifications || []).map(n => {
+    let date = '';
+    let time = '';
+    if (n.date) {
+      const dt = new Date(n.date);
+      if (!isNaN(dt.getTime())) {
+        date = dt.toISOString().slice(0, 10);
+        // Format time as 12-hour with am/pm
+        let hours = dt.getHours();
+        let minutes = dt.getMinutes();
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+        time = `${hours}:${minutesStr} ${ampm}`;
+      } else if (typeof n.date === 'string' && n.date.includes(' ')) {
+        const [d, t] = n.date.split(' ');
+        date = d;
+        if (t) {
+          let [h, m] = t.split(':');
+          h = parseInt(h, 10);
+          m = m ? m.padStart(2, '0') : '00';
+          const ampm = h >= 12 ? 'pm' : 'am';
+          let hour12 = h % 12;
+          hour12 = hour12 ? hour12 : 12;
+          time = `${hour12}:${m} ${ampm}`;
+        }
+      }
+    }
+    return {
+      id: n.id,
+      date,
+      time,
+      title: n.title,
+      message: n.message,
+      read_at: n.read_at,
+      username: n.user?.username || '',
+    };
+  });
 
   // Debug: Log mappedNotifications
   console.log('mappedNotifications:', mappedNotifications);
@@ -133,7 +165,7 @@ const Messages = () => {
 
   return (
     <div className="page-content no-navbar">
-      <style>{timelineStyles + `\n.timeline-item.read { opacity: 0.6; }\n.timeline-item.unread { font-weight: bold; }`}</style>
+      <style>{timelineStyles + `\n.timeline-item.read { opacity: 0.9; }\n.timeline-item.unread { font-weight: bold; }`}</style>
       <Container fluid>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h4 className="mb-0">Notifications</h4>
@@ -163,17 +195,22 @@ const Messages = () => {
                       key={notification.id}
                       className={`timeline-item d-flex align-items-start ${notification.read_at ? 'read' : 'unread'}`}
                       onClick={() => handleNotificationClick(notification.id, notification.read_at)}
-                      style={{ opacity: notification.read_at ? 0.6 : 1 }}
+                      style={{ opacity: notification.read_at ? 0.9 : 1 }}
                     >
                       <div className="timeline-icon me-3 mt-3" style={{ color: '#1da5fe' }}>
                         <i className="mdi mdi-bell-outline large-icon"></i>
                       </div>
                       <div className="flex-grow-1">
-                        <div className="d-flex align-items-center mb-1">
+                        <div className="d-flex align-items-center mb-1" style={{ position: 'relative' }}>
                           <span className="fw-bold me-2">{notification.title}</span>
                           <Badge color="light" className="text-muted small fw-normal">
-                            {notification.date}
+                            {notification.date} {notification.time && <span>{notification.time}</span>}
                           </Badge>
+                          {notification.username && (
+                            <span className="text-muted small ms-3 ms-auto" style={{ whiteSpace: 'nowrap', marginLeft: 'auto', fontWeight: 400 }}>
+                              {notification.username}
+                            </span>
+                          )}
                         </div>
                         <div className="timeline-desc text-muted small">
                           {notification.message}
