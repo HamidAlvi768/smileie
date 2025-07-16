@@ -79,9 +79,12 @@ const Scans = ({ patient }) => {
       switch (scan.status) {
         case 'completed': return 'Completed';
         case 'current': return 'Current';
+        case 'inprogress': return 'In-Progress';
         case 'pending': return 'Pending';
-        case 'not_started': return 'Not started';
-        default: return scan.status;
+        case 'not_started': return 'Not Started';
+        default:
+          // Capitalize first letter and replace underscores with spaces
+          return scan.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
       }
     }
     return 'Unknown';
@@ -137,7 +140,7 @@ const Scans = ({ patient }) => {
             </div>
           </Tooltip>
         </div>
-        <span className="text-muted small">26 result(s)</span>
+        {/* <span className="text-muted small">26 result(s)</span> */}
       </div>
       {/* Upper Section in its own card */}
       <Card className="mb-4">
@@ -166,7 +169,17 @@ const Scans = ({ patient }) => {
                 const uploaded = new Date(scan.created_at);
                 isLate = uploaded > due;
               }
+              // Determine which date to show on top
+              let topDate = '';
+              if (['completed', 'current', 'inprogress'].includes(scan.status)) {
+                topDate = formatDate(scan.end_date);
+              } else if (['pending', 'not_started'].includes(scan.status)) {
+                topDate = formatDate(scan.start_date);
+              } else {
+                topDate = formatDate(scan.end_date);
+              }
               const tooltipId = `scan-card-tooltip-upper-${idx}`;
+              const isPending = ['pending', 'not_started'].includes(scan.status);
               return (
                 <div key={idx}>
                   <Card
@@ -184,36 +197,37 @@ const Scans = ({ patient }) => {
                     <CardBody className="scan-card-body d-flex flex-column align-items-center justify-content-center p-3">
                       <div className="scan-card-aligner-number">{String(scan.step_number).padStart(2, '0')}</div>
                       <div className="scan-card-date-group">
-                        <div className="scan-card-date">{formatDate(scan.end_date)}</div>
-                        {showUploaded && (
-                          <div className="scan-card-date text-muted" style={{fontSize: '9px'}}>
-                            {formatDate(scan.created_at)}
-                          </div>
-                        )}
-                        {!showUploaded && (
-                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>
-                            —
-                          </div>
+                        <div className="scan-card-date">{topDate}</div>
+                        {isPending ? (
+                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>-</div>
+                        ) : showUploaded ? (
+                          <div className="scan-card-date text-muted" style={{fontSize: '9px'}}>{formatDate(scan.created_at)}</div>
+                        ) : (
+                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>-</div>
                         )}
                       </div>
                     </CardBody>
+                    <Tooltip
+                      placement="top"
+                      isOpen={tooltipOpen[tooltipId]}
+                      target={tooltipId}
+                      toggle={() => toggleTooltip(tooltipId)}
+                      autohide={false}
+                      delay={{ show: 100, hide: 100 }}
+                      className="scan-card-tooltip-white"
+                    >
+                      <div style={{ textAlign: 'left', minWidth: 160 }}>
+                        <div><strong>Aligner #:</strong> {scan.step_number}</div>
+                        {isPending ? (
+                          <div><strong>Starting :</strong> {formatDate(scan.start_date)}</div>
+                        ) : showUploaded ? (
+                          <div><strong>Uploaded:</strong> {formatDate(scan.created_at)}</div>
+                        ) : null}
+                        <div><strong>Due date:</strong> {formatDate(scan.end_date)}</div>
+                        <div><strong>Status:</strong> {getStatus(scan, isLate)}</div>
+                      </div>
+                    </Tooltip>
                   </Card>
-                  <Tooltip
-                    placement="top"
-                    isOpen={tooltipOpen[tooltipId]}
-                    target={tooltipId}
-                    toggle={() => toggleTooltip(tooltipId)}
-                    autohide={false}
-                    delay={{ show: 100, hide: 100 }}
-                    className="scan-card-tooltip-white"
-                  >
-                    <div style={{ textAlign: 'left', minWidth: 160 }}>
-                      <div><strong>Aligner #:</strong> {scan.step_number}</div>
-                      <div><strong>Due date:</strong> {formatDate(scan.end_date)}</div>
-                      {showUploaded && <div><strong>Uploaded:</strong> {formatDate(scan.created_at)}</div>}
-                      <div><strong>Status:</strong> {getStatus(scan, isLate)}</div>
-                    </div>
-                  </Tooltip>
                 </div>
               );
             })}
@@ -247,7 +261,17 @@ const Scans = ({ patient }) => {
                 const uploaded = new Date(scan.created_at);
                 isLate = uploaded > due;
               }
+              // Determine which date to show on top
+              let topDate = '';
+              if (['completed', 'current', 'inprogress'].includes(scan.status)) {
+                topDate = formatDate(scan.end_date);
+              } else if (['pending', 'not_started'].includes(scan.status)) {
+                topDate = formatDate(scan.start_date);
+              } else {
+                topDate = formatDate(scan.end_date);
+              }
               const tooltipId = `scan-card-tooltip-lower-${idx}`;
+              const isPending = ['pending', 'not_started'].includes(scan.status);
               return (
                 <div key={idx}>
                   <Card
@@ -265,36 +289,37 @@ const Scans = ({ patient }) => {
                     <CardBody className="scan-card-body d-flex flex-column align-items-center justify-content-center p-3">
                       <div className="scan-card-aligner-number">{String(scan.step_number).padStart(2, '0')}</div>
                       <div className="scan-card-date-group">
-                        <div className="scan-card-date">{formatDate(scan.end_date)}</div>
-                        {showUploaded && (
-                          <div className="scan-card-date text-muted" style={{fontSize: '9px'}}>
-                            {formatDate(scan.created_at)}
-                          </div>
-                        )}
-                        {!showUploaded && (
-                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>
-                            —
-                          </div>
+                        <div className="scan-card-date">{topDate}</div>
+                        {isPending ? (
+                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>-</div>
+                        ) : showUploaded ? (
+                          <div className="scan-card-date text-muted" style={{fontSize: '9px'}}>{formatDate(scan.created_at)}</div>
+                        ) : (
+                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>-</div>
                         )}
                       </div>
                     </CardBody>
+                    <Tooltip
+                      placement="top"
+                      isOpen={tooltipOpen[tooltipId]}
+                      target={tooltipId}
+                      toggle={() => toggleTooltip(tooltipId)}
+                      autohide={false}
+                      delay={{ show: 100, hide: 100 }}
+                      className="scan-card-tooltip-white"
+                    >
+                      <div style={{ textAlign: 'left', minWidth: 160 }}>
+                        <div><strong>Aligner #:</strong> {scan.step_number}</div>
+                        {isPending ? (
+                          <div><strong>Starting :</strong> {formatDate(scan.start_date)}</div>
+                        ) : showUploaded ? (
+                          <div><strong>Uploaded:</strong> {formatDate(scan.created_at)}</div>
+                        ) : null}
+                        <div><strong>Due date:</strong> {formatDate(scan.end_date)}</div>
+                        <div><strong>Status:</strong> {getStatus(scan, isLate)}</div>
+                      </div>
+                    </Tooltip>
                   </Card>
-                  <Tooltip
-                    placement="top"
-                    isOpen={tooltipOpen[tooltipId]}
-                    target={tooltipId}
-                    toggle={() => toggleTooltip(tooltipId)}
-                    autohide={false}
-                    delay={{ show: 100, hide: 100 }}
-                    className="scan-card-tooltip-white"
-                  >
-                    <div style={{ textAlign: 'left', minWidth: 160 }}>
-                      <div><strong>Aligner #:</strong> {scan.step_number}</div>
-                      <div><strong>Due date:</strong> {formatDate(scan.end_date)}</div>
-                      {showUploaded && <div><strong>Uploaded:</strong> {formatDate(scan.created_at)}</div>}
-                      <div><strong>Status:</strong> {getStatus(scan, isLate)}</div>
-                    </div>
-                  </Tooltip>
                 </div>
               );
             })}

@@ -1,98 +1,13 @@
 {
     "request": "GET",
     "status": "success",
-    "code": 200,
     "data": {
-        "users": 78,
-        "doctors": 14,
-        "patients": 63,
-        "scans": 0,
-        "aligners": 0,
-        "plans": 0,
-        "global-stats": [
-            {
-                "country": "",
-                "patient-count": 7
-            },
-            {
-                "country": "Albania",
-                "patient-count": 2
-            },
-            {
-                "country": "Algeria",
-                "patient-count": 2
-            },
-            {
-                "country": "Andorra",
-                "patient-count": 1
-            },
-            {
-                "country": "Pakistan",
-                "patient-count": 32
-            }
-        ],
-        "overview": {
-            "total_patients": 63,
-            "activated_patients": 17,
-            "patients_with_scans": 3
-        },
-        "monthly": {
-            "months": [
-                "2024-08",
-                "2024-09",
-                "2024-10",
-                "2024-11",
-                "2024-12",
-                "2025-01",
-                "2025-02",
-                "2025-03",
-                "2025-04",
-                "2025-05",
-                "2025-06",
-                "2025-07"
-            ],
-            "total_patients": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                10,
-                53
-            ],
-            "activated_patients": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                1,
-                16
-            ],
-            "patients_with_scans": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                3
-            ]
-        }
-    }
+        "aligner_type": "Day time dual arch",
+        "first_step_started_at": "2025-07-16",
+        "app_activation": 1,
+        "total_steps": 5,
+        "step_number": 1,
+        "next_step_started_at": "2025-07-30"
+    },
+    "code": 200
 }

@@ -204,7 +204,7 @@ const Messages = () => {
                         <div className="d-flex align-items-center mb-1" style={{ position: 'relative' }}>
                           <span className="fw-bold me-2">{notification.title}</span>
                           <Badge color="light" className="text-muted small fw-normal">
-                            {notification.date} {notification.time && <span>{notification.time}</span>}
+                            {notification.date}
                           </Badge>
                           {notification.username && (
                             <span className="text-muted small ms-3 ms-auto" style={{ whiteSpace: 'nowrap', marginLeft: 'auto', fontWeight: 400 }}>

@@ -32,7 +32,6 @@ const LatestTransation = () => {
                                             <th scope="col">Patient Name</th>
                                             <th scope="col">Age</th>
                                             <th scope="col">Contact</th>
-                                            <th scope="col">Latest Scan</th>
                                             <th scope="col">Action</th>
                                         </tr>
                                     </thead>
@@ -44,7 +43,6 @@ const LatestTransation = () => {
                                                 </td>
                                                 <td>{item.age}</td>
                                                 <td>{item.phone}</td>
-                                                <td>{item.latest_scan}</td>
                                                 <td>
                                                     <button 
                                                         type="button" 

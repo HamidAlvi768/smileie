@@ -27,10 +27,13 @@ const Header = (props) => {
   const dispatch = useDispatch();
 
   // Get unread notifications count from Redux
+  const notificationCount = useSelector(state => state.notifications?.notificationCount);
   const unreadCount = useSelector(state => {
     const notifications = state.notifications?.notifications || [];
-    return notifications.filter(n => !n.read_at).length;
+    const count = notifications.filter(n => !n.read_at).length;
+    return count;
   });
+  const badgeCount = typeof notificationCount === 'number' ? notificationCount : unreadCount;
 
   // Sync navbarMenuItems with current route on load/route change
   useEffect(() => {
@@ -208,22 +211,10 @@ const Header = (props) => {
                   style={{ position: 'relative' }}
                 >
                   {menu.label}
-                  {menu.id === 'notifications' && unreadCount > 0 && (
-                    <span style={{
-                      display: 'inline-block',
-                      background: '#ef5350',
-                      color: 'white',
-                      borderRadius: '999px',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      minWidth: 20,
-                      height: 20,
-                      lineHeight: '20px',
-                      textAlign: 'center',
-                      marginLeft: 8,
-                      verticalAlign: 'middle',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
-                    }}>{unreadCount}</span>
+                  {menu.id === 'notifications' && badgeCount > 0 && (
+                    <span className="badge bg-danger rounded-pill notification-badge" style={{left:"3px"}}>
+                      {badgeCount}
+                    </span>
                   )}
                   {menu.id !== 'notifications' && menu.badge && (
                     <span style={{

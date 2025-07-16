@@ -206,6 +206,20 @@ const ScanDetail = () => {
     saveAs(content, 'photos.zip');
   };
 
+  // Helper to format timestamp without seconds
+  function formatTimestamp(ts) {
+    if (!ts) return '';
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return ts;
+    // Format: YYYY-MM-DD HH:mm
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+  }
+
   // Loading and error/empty state logic (after all hooks)
   if (scanDetailLoading) {
     return (
@@ -257,7 +271,7 @@ const ScanDetail = () => {
     <div className="scan-detail-section">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
-          <h5 className="mb-1">Scan taken on {dynamicScan.timestamp}</h5>
+          <h5 className="mb-1">Scan taken on {formatTimestamp(dynamicScan.timestamp)}</h5>
           <a href="#" className="small me-3" onClick={() => navigate(-1)}>
             <i className="mdi mdi-arrow-left"></i> Back to the list
           </a>

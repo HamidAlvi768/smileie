@@ -32,6 +32,12 @@ const settingsData = [
         icon: "ri-question-answer-line",
         url: "/settings/faqs",
       },
+      {
+        name: "Contact Us",
+        description: "View and manage messages from customers.",
+        icon: "ri-mail-send-line",
+        url: "/settings/contact-us",
+      }
     ],
   },
   {
@@ -43,29 +49,18 @@ const settingsData = [
         icon: "ri-notification-line",
         url: "/settings/scan-notification-frequency",
       },
-      {
-        name: "Next Step Reminder",
-        description: "Configure reminders for upcoming patient actions.",
-        icon: "ri-arrow-right-circle-line",
-        url: "/settings/next-step-reminder",
-      },
-      {
-        name: "Manage Treatment Plans",
-        description: "Create, edit, and organize treatment plans.",
-        icon: "ri-file-list-3-line",
-        url: "/settings/treatment-plans",
-      },
-    ],
-  },
-  {
-    section: "Customer Support",
-    cards: [
-      {
-        name: "Contact Us",
-        description: "View and manage messages from customers.",
-        icon: "ri-mail-send-line",
-        url: "/settings/contact-us",
-      },
+      // {
+      //   name: "Next Step Reminder",
+      //   description: "Configure reminders for upcoming patient actions.",
+      //   icon: "ri-arrow-right-circle-line",
+      //   url: "/settings/next-step-reminder",
+      // },
+      // {
+      //   name: "Manage Treatment Plans",
+      //   description: "Create, edit, and organize treatment plans.",
+      //   icon: "ri-file-list-3-line",
+      //   url: "/settings/treatment-plans",
+      // },
     ],
   },
 ];

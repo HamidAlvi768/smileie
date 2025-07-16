@@ -21,6 +21,21 @@ const notificationsReducer = (state = INIT_STATE, action) => {
           n.id === action.payload ? { ...n, read_at: new Date().toISOString() } : n
         ),
       };
+    case 'RECEIVE_NOTIFICATION_SSE': {
+      const newNotif = action.payload;
+      // Avoid duplicates by id
+      const exists = state.notifications.some(n => n.id === newNotif.id);
+      if (exists) return state;
+      return {
+        ...state,
+        notifications: [newNotif, ...state.notifications],
+      };
+    }
+    case 'SET_NOTIFICATION_COUNT':
+      return {
+        ...state,
+        notificationCount: action.payload,
+      };
     default:
       return state;
   }

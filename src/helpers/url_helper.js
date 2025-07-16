@@ -50,6 +50,9 @@ export const GET_PATIENT_DETAIL_API = "/patients/view";
 export const UPDATE_PATIENT_DETAIL_API = "/patients/update";
 export const GET_CONSENT_FORMS_API = "/consent-forms";
 
+//patient stats
+export const GET_PATIENT_STATS_API = "/patients/stats";
+
 //tutorials
 export const GET_TUTORIALS_API = "/tutorials";
 export const ADD_TUTORIAL_API = "/tutorials/create";
@@ -72,4 +75,5 @@ export const DELETE_FAQ_API = '/faqs/delete';
 export const GET_TREATMENT_STEPS_API = '/treatment/steps';
 export const GET_SCAN_DETAIL_API = '/treatment/scans';
 
-
+//alerts
+export const GET_ALERTS_API = '/app/notifications';

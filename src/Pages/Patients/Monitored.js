@@ -32,6 +32,7 @@ const filterOptions = {
     "= 4 weeks late",
   ],
   alignerType: [
+    "All",
     "Day time dual arch",
     "Night time dual arch", 
     "Day time upper arch",
