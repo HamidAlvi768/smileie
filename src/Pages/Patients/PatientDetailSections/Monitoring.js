@@ -4,6 +4,8 @@ import VisTimeline from './VisTimeline';
 import FullscreenImageModal from './FullscreenImageModal';
 import FullscreenComparisonModal from './FullscreenComparisonModal';
 import DetailedStatsModal from './DetailedStatsModal';
+import { getPatientMonitoringScansAPI } from '../../../helpers/api_helper';
+import config from '../../../config';
 
 // --- MOCK DATA ---
 const mockImages = [
@@ -244,7 +246,69 @@ const Monitoring = ({ patient }) => {
   const [photoScheduledDate, setPhotoScheduledDate] = useState('2025-05-27'); // Default or set dynamically
   const [photoScheduledTime, setPhotoScheduledTime] = useState('12:00');    // Default or set dynamically
 
-  const [selectedDate, setSelectedDate] = useState(mockImages[0].date);
+  const [scansByDate, setScansByDate] = useState({});
+  const [scanDates, setScanDates] = useState([]);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [loadingScans, setLoadingScans] = useState(false);
+  const [scansError, setScansError] = useState(null);
+
+  useEffect(() => {
+    // Use the correct patient id for API calls (not public_id)
+    const realPatientId = patient?.patient_id || patient?.id;
+    if (!realPatientId) return;
+    setLoadingScans(true);
+    getPatientMonitoringScansAPI(realPatientId)
+      .then(res => {
+        if (res.status === 'success' && res.data && Object.keys(res.data).length > 0) {
+          setScansByDate(res.data);
+          // Sort dates descending (latest first)
+          const dates = Object.keys(res.data).sort((a, b) => new Date(b) - new Date(a));
+          setScanDates(dates);
+          setSelectedDate(dates[0]);
+          setSelectedImageIndex(0);
+        } else {
+          setScansByDate({});
+          setScanDates([]);
+          setSelectedDate('');
+          setSelectedImageIndex(0);
+        }
+        setLoadingScans(false);
+      })
+      .catch(() => {
+        setScansByDate({});
+        setScanDates([]);
+        setSelectedDate('');
+        setSelectedImageIndex(0);
+        setLoadingScans(false);
+        setScansError('Failed to load scans');
+      });
+  }, [patient?.patient_id, patient?.id]);
+
+  // Get scans for selected date
+  const scansForDate = selectedDate && scansByDate[selectedDate] ? scansByDate[selectedDate] : [];
+  const mainScan = scansForDate[selectedImageIndex] || null;
+  const mainImageUrl = mainScan ? (mainScan.scan_url.startsWith('http') ? mainScan.scan_url : config.WEB_APP_URL + mainScan.scan_url) : '';
+
+  // Handler for thumbnail click
+  const handleThumbnailClick = (idx) => setSelectedImageIndex(idx);
+
+  // Handler for date change
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+    setSelectedImageIndex(0);
+  };
+
+  // Handler for download
+  const handleDownloadPhoto = () => {
+    if (!mainImageUrl) return;
+    const link = document.createElement('a');
+    link.href = mainImageUrl;
+    link.download = 'scan.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const toggleSendPhotoModal = () => setSendPhotoModalOpen(!sendPhotoModalOpen);
   const toggleSendVideoModal = () => setSendVideoModalOpen(!sendVideoModalOpen);
@@ -279,9 +343,6 @@ const Monitoring = ({ patient }) => {
   const handleCloseComparisonModal = () => setComparisonModalOpen(false);
   const handleOpenStatsModal = () => setStatsModalOpen(true);
   const handleCloseStatsModal = () => setStatsModalOpen(false);
-
-  // Find the image for the selected date
-  const selectedImageIndex = mockImages.findIndex(img => img.date === selectedDate);
 
   // Prepare mock data for both sides
   const leftData = {
@@ -379,15 +440,67 @@ const Monitoring = ({ patient }) => {
             onCompare={handleOpenComparisonModal}
             onShowStats={handleOpenStatsModal}
           />
-          <ImageViewer
-            images={mockImages}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            selectedImageIndex={selectedImageIndex}
-            onSendPhoto={toggleSendPhotoModal}
-            onSendVideo={toggleSendVideoModal}
-            onMainImageClick={handleOpenFullscreenModal}
-          />
+          <div className="monitoring-date-select mb-3">
+            {loadingScans ? (
+              <div className="text-center py-4"><span className="spinner-border spinner-border-sm"></span> Loading scans...</div>
+            ) : scanDates.length === 0 ? (
+              <div className="text-center text-muted py-4" style={{ fontSize: '1.1em' }}>
+                <i className="mdi mdi-image-off-outline" style={{ fontSize: '2em', color: '#ccc' }}></i><br/>
+                No scans uploaded yet.
+              </div>
+            ) : (
+              <>
+                <div className="d-flex align-items-center mb-2">
+                  <Label for="monitoring-date-select" className="me-2 mb-0">Scan Date:</Label>
+                  <Input
+                    type="select"
+                    id="monitoring-date-select"
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                    style={{ width: 'auto', minWidth: 160 }}
+                  >
+                    {scanDates.map(date => (
+                      <option key={date} value={date}>{date}</option>
+                    ))}
+                  </Input>
+                </div>
+                <div className="image-viewer-container">
+                  {mainImageUrl && (
+                    <div className="image-viewer-main-content">
+                      <img
+                        src={mainImageUrl}
+                        alt="Main scan"
+                        className="image-viewer-main-image"
+                        style={{ cursor: 'zoom-in', maxHeight: 320, maxWidth: 480, borderRadius: 8, boxShadow: '0 2px 8px #0001' }}
+                      />
+                      <div className="image-viewer-actions">
+                        <button type="button" className="image-viewer-action-button" onClick={handleDownloadPhoto}>
+                          <i className="mdi mdi-download"></i>
+                          Download Photo
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  <div className="image-viewer-thumbnails mt-2" style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: 4 }}>
+                    {scansForDate.map((scan, idx) => {
+                      const thumbUrl = scan.scan_url.startsWith('http') ? scan.scan_url : config.WEB_APP_URL + scan.scan_url;
+                      return (
+                        <img
+                          key={scan.id}
+                          src={thumbUrl}
+                          alt={`Scan ${idx + 1}`}
+                          onClick={() => handleThumbnailClick(idx)}
+                          className={`thumbnail-image${idx === selectedImageIndex ? ' active' : ''}`}
+                          style={{ height: 56, width: 56, objectFit: 'cover', borderRadius: 6, border: idx === selectedImageIndex ? '2px solid #1da5fe' : '1.5px solid #eee', cursor: 'pointer', boxShadow: idx === selectedImageIndex ? '0 0 0 2px #1da5fe33' : 'none' }}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          
           {/* <div className="monitoring-details-flex">
             <div className="monitoring-observations-wrapper">
               <ObservationsGoals obs={mockObservations} />

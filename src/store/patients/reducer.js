@@ -28,6 +28,9 @@ const INIT_STATE = {
   scanDetail: [],
   scanDetailLoading: false,
   scanDetailError: null,
+  changingAligner: false,
+  changeAlignerError: null,
+  changeAlignerResult: null,
 };
 
 const patientsReducer = (state = INIT_STATE, action) => {
@@ -107,6 +110,13 @@ const patientsReducer = (state = INIT_STATE, action) => {
       return { ...state, scanDetail: action.payload.data, scanDetailLoading: false };
     case GET_SCAN_DETAIL_FAIL:
       return { ...state, scanDetailError: action.payload, scanDetailLoading: false };
+    
+    case 'CHANGE_ALIGNER':
+      return { ...state, changingAligner: true, changeAlignerError: null, changeAlignerResult: null };
+    case 'CHANGE_ALIGNER_SUCCESS':
+      return { ...state, changingAligner: false, changeAlignerResult: action.payload, changeAlignerError: null };
+    case 'CHANGE_ALIGNER_FAIL':
+      return { ...state, changingAligner: false, changeAlignerError: action.payload };
     
     case 'CLEAR_PATIENT_MESSAGES':
       return { ...state, successMessage: null, error: null };

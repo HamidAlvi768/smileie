@@ -55,7 +55,7 @@ const History = ({ patient }) => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="mb-0">History</h4>
       </div>
-      <div className="d-flex align-items-center gap-3 mb-3 flex-wrap">
+      {/* <div className="d-flex align-items-center gap-3 mb-3 flex-wrap">
         <div>
           <select
             id="action-type-dropdown"
@@ -85,7 +85,7 @@ const History = ({ patient }) => {
             To Review
           </Button>
         </div>
-      </div>
+      </div> */}
       <Card>
         <CardBody>
           {loading ? (

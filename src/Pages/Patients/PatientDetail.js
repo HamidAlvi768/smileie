@@ -28,7 +28,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { setNavbarMenuItems } from "../../store/navigation/actions";
-import { getPatientDetail } from "../../store/patients/actions";
+import { getPatientDetail, changeAligner } from "../../store/patients/actions";
 import Monitoring from "./PatientDetailSections/Monitoring";
 import Protocol from "./PatientDetailSections/Protocol";
 import Info from "./PatientDetailSections/Info";
@@ -49,7 +49,7 @@ import config, { WEB_APP_URL } from "../../config.js";
 import PatientOrders from "./PatientDetailSections/Orders.js";
 import ConsentForms from "./PatientDetailSections/ConsentForms";
 import TreatmentPlan3D from "./PatientDetailSections/TreatmentPlan3D";
-import { getPatientStatsAPI } from '../../helpers/api_helper';
+import { getPatientStatsAPI, getPatientAlignersAPI } from '../../helpers/api_helper';
 
 const OBSERVATION_SUB_OBSERVATIONS_DATA = {
   Tracking: [
@@ -169,7 +169,7 @@ const PatientDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
 
-  const { patientDetail, loadingDetail, error } = useSelector((state) => state.patients);
+  const { patientDetail, loadingDetail, error, changingAligner, changeAlignerError, changeAlignerResult } = useSelector((state) => state.patients);
 
   const staticPatientData = {
     id: "P-00123",
@@ -206,6 +206,8 @@ const PatientDetail = () => {
 
   const patient = {
     ...staticPatientData,
+    id: patientDetail?.id, // use real database id
+    public_id: patientDetail?.public_id, // keep public_id for display if needed
     name: patientDetail?.full_name || "Loading...",
     app_activation:
       typeof patientDetail?.app_activation !== "undefined"
@@ -486,11 +488,52 @@ const PatientDetail = () => {
 
   // Add state for Move to Next modal
   const [moveNextModalOpen, setMoveNextModalOpen] = useState(false);
+  const [alignerInfo, setAlignerInfo] = useState(null);
+  const [loadingAlignerInfo, setLoadingAlignerInfo] = useState(false);
+
+  useEffect(() => {
+    if (moveNextModalOpen && id) {
+      setLoadingAlignerInfo(true);
+      getPatientAlignersAPI(id)
+        .then((res) => {
+          setAlignerInfo(res.data);
+          setLoadingAlignerInfo(false);
+        })
+        .catch(() => {
+          setAlignerInfo(null);
+          setLoadingAlignerInfo(false);
+        });
+    } else if (!moveNextModalOpen) {
+      setAlignerInfo(null);
+      setLoadingAlignerInfo(false);
+    }
+  }, [moveNextModalOpen, id]);
 
   // Helper to get current and next aligner
   const currentAligner = typeof patientStats?.step_number !== 'undefined' ? patientStats.step_number : '';
   const totalAligners = typeof patientStats?.total_steps !== 'undefined' ? patientStats.total_steps : '';
   const nextAligner = currentAligner && totalAligners && currentAligner < totalAligners ? currentAligner + 1 : '';
+
+  // Refresh patient stats after successful aligner change
+  useEffect(() => {
+    if (changeAlignerResult && !changingAligner) {
+      // Refresh patient stats to show updated information
+      if (id) {
+        setStatsLoading(true);
+        setStatsError(null);
+        getPatientStatsAPI(id)
+          .then((res) => {
+            console.log('Patient stats refreshed after aligner change:', res);
+            setPatientStats(res.data || null);
+            setStatsLoading(false);
+          })
+          .catch((err) => {
+            setStatsError("Failed to refresh patient stats");
+            setStatsLoading(false);
+          });
+      }
+    }
+  }, [changeAlignerResult, changingAligner, id]);
 
   return (
     <div className="page-content">
@@ -554,7 +597,7 @@ const PatientDetail = () => {
       <Container fluid>
         <Row>
           <Col md={4} lg={3}>
-            <Card className="mb-3">
+            <Card className="mb-3" style={{ minHeight: '400px' }}>
               <CardHeader
                 className="d-flex justify-content-between align-items-center cursor-pointer"
                 onClick={() => toggleCollapsibleSection("monitoring")}
@@ -565,45 +608,78 @@ const PatientDetail = () => {
                 </Button>
               </CardHeader>
               <Collapse isOpen={openCollapsibles.monitoring}>
-                <CardBody>
-                  <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>Aligner Type:</strong>
-                    <div className="d-flex flex-column">
-                      <span>{typeof patientStats?.aligner_type !== 'undefined' ? patientStats.aligner_type : ''}</span>
-                    </div>
-                  </div>
-                  <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>Started:</strong>
+                <CardBody className="py-4">
+                  <div className="mb-4 d-flex align-items-center justify-content-between">
+                    <strong className="text-muted">Aligner Type:</strong>
                     <div className="d-flex flex-column align-items-end">
-                      <span>{typeof patientStats?.first_step_started_at !== 'undefined' ? patientStats.first_step_started_at : ''}</span>
+                      <span className="fw-bold">{patientStats?.aligner_type || 'Not set'}</span>
                     </div>
                   </div>
-                  <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>Patient app:</strong>
-                    <span>
+                  
+                  <div className="mb-4 d-flex align-items-center justify-content-between">
+                    <strong className="text-muted">Started:</strong>
+                    <div className="d-flex flex-column align-items-end">
+                      <span className="fw-bold">{patientStats?.first_step_started_at || 'Not set'}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4 d-flex align-items-center justify-content-between">
+                    <strong className="text-muted">Patient app:</strong>
+                    <span className={`badge ${typeof patientStats?.app_activation !== 'undefined' && patientStats.app_activation === 1 ? 'bg-success' : 'bg-secondary'}`}>
                       {typeof patientStats?.app_activation !== 'undefined'
                         ? (patientStats.app_activation === 1 ? "Activated" : "Not Activated")
-                        : ''}
+                        : 'Unknown'}
                     </span>
                   </div>
-                  <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>Aligner #:</strong>
+                  
+                  <div className="mb-4 d-flex align-items-center justify-content-between">
+                    <strong className="text-muted">Aligner Progress:</strong>
                     <div className="d-flex flex-column align-items-end">
-                      <span>{typeof patientStats?.step_number !== 'undefined' && typeof patientStats?.total_steps !== 'undefined' ? `#${patientStats.step_number} of ${patientStats.total_steps}` : ''}</span>
-                      <Button
-                        color="link"
-                        size="sm"
-                        className="p-0"
-                        onClick={() => setMoveNextModalOpen(true)}
-                      >
-                        Move to Next
-                      </Button>
+                      {typeof patientStats?.step_number !== 'undefined' && typeof patientStats?.total_steps !== 'undefined' ? (
+                        <>
+                          <span style={{ fontWeight: 'bold', color: '#1da5fe', fontSize: '1.1em' }}>
+                            Current: <span style={{ fontSize: '1.2em' }}>{patientStats.step_number}</span> / <span style={{ fontSize: '1.1em' }}>{patientStats.total_steps}</span>
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-muted">Not set</span>
+                      )}
                     </div>
                   </div>
-                  <div className="mb-2 d-flex align-items-center justify-content-between">
-                    <strong>Next aligner:</strong>
-                    <span>{typeof patientStats?.next_step_started_at !== 'undefined' ? patientStats.next_step_started_at : ''}</span>
+                  
+                  <div className="mb-4 d-flex align-items-center justify-content-between">
+                    <strong className="text-muted">Next aligner start:</strong>
+                    <span className="fw-bold">{patientStats?.next_step_started_at || 'Not set'}</span>
                   </div>
+                  
+                  <div className="mb-4 d-flex align-items-center justify-content-between">
+                    <strong></strong>
+                    <div className="d-flex flex-column align-items-end">
+                      {typeof patientStats?.step_number !== 'undefined' && typeof patientStats?.total_steps !== 'undefined' && patientStats?.total_steps !== 0 ? (
+                        <>
+                          <Button
+                            color="primary"
+                            size="sm"
+                            className="px-3 py-2"
+                            onClick={() => setMoveNextModalOpen(true)}
+                            disabled={changingAligner}
+                          >
+                            {changingAligner ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-2"></span>
+                                Processing...
+                              </>
+                            ) : (
+                              'Move to Next'
+                            )}
+                          </Button>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                  
+                  {/* Add bottom spacing to match right side height */}
+                  <div style={{ height: '100px' }}></div>
                 </CardBody>
               </Collapse>
             </Card>
@@ -616,7 +692,7 @@ const PatientDetail = () => {
               />
               <Route
                 path="monitoring"
-                element={<Monitoring patient={PATIENT_MOCK_DATA} />}
+                element={<Monitoring patient={patient} />}
               />
               <Route
                 path="info"
@@ -949,15 +1025,73 @@ const PatientDetail = () => {
           <h5 className="modal-title">Move to Next Aligner</h5>
           <button type="button" className="btn-close" onClick={() => setMoveNextModalOpen(false)} aria-label="Close"></button>
         </div>
-        <div className="modal-body">
-          <p>Are you sure you want to move to the next aligner?</p>
-          <p><strong>Current aligner:</strong> {currentAligner}</p>
-          <p><strong>Next aligner:</strong> {nextAligner || 'N/A'}</p>
-          <p>This action cannot be undone.</p>
+        <div className="modal-body py-4">
+          {loadingAlignerInfo ? (
+            <div className="text-center py-4">
+              <span className="spinner-border spinner-border-sm me-2"></span> 
+              Loading aligner info...
+            </div>
+          ) : alignerInfo ? (
+            <>
+              <div className="mb-4">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <strong className="text-muted">Total aligners:</strong>
+                  <span className="fw-bold">{alignerInfo.total_aligners}</span>
+                </div>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <strong className="text-muted">Current aligner:</strong>
+                  <span className="fw-bold">{alignerInfo.current_aligner}</span>
+                </div>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <strong className="text-muted">Next aligner:</strong>
+                  <span className="fw-bold text-primary">
+                    {alignerInfo.current_aligner < alignerInfo.total_aligners ? alignerInfo.current_aligner + 1 : 'N/A'}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="alert alert-warning mb-0">
+                <i className="mdi mdi-alert-circle-outline me-2"></i>
+                <strong>Warning:</strong> This action cannot be undone.
+              </div>
+              
+              {changeAlignerError && (
+                <div className="alert alert-danger mt-3">
+                  <i className="mdi mdi-close-circle-outline me-2"></i>
+                  {changeAlignerError.toString()}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center text-danger py-4">
+              <i className="mdi mdi-close-circle-outline me-2"></i>
+              Failed to load aligner info.
+            </div>
+          )}
         </div>
         <div className="modal-footer">
-          <Button color="light" onClick={() => setMoveNextModalOpen(false)}>Cancel</Button>
-          <Button color="primary" onClick={() => { /* TODO: Implement move to next aligner logic */ setMoveNextModalOpen(false); }}>Confirm</Button>
+          <Button color="light" onClick={() => setMoveNextModalOpen(false)} disabled={changingAligner}>
+            Cancel
+          </Button>
+          <Button 
+            color="primary" 
+            onClick={() => {
+              if (id && alignerInfo && alignerInfo.current_aligner < alignerInfo.total_aligners) {
+                dispatch(changeAligner({ patient_id: id, next_number: alignerInfo.current_aligner + 1 }));
+              }
+              setMoveNextModalOpen(false);
+            }} 
+            disabled={changingAligner || !alignerInfo || alignerInfo.current_aligner >= alignerInfo.total_aligners}
+          >
+            {changingAligner ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2"></span>
+                Processing...
+              </>
+            ) : (
+              'Confirm Move to Next'
+            )}
+          </Button>
         </div>
       </Modal>
     </div>

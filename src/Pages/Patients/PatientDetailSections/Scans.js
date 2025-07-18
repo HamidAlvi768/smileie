@@ -50,8 +50,8 @@ const Scans = ({ patient }) => {
       return 0;
     };
     return {
-      upper: upper.sort(sortFn),
-      lower: lower.sort(sortFn),
+      upper: upper,
+      lower: lower,
     };
   }, [treatmentSteps, sortBy, sortOrder]);
 
@@ -89,6 +89,32 @@ const Scans = ({ patient }) => {
     }
     return 'Unknown';
   }
+
+  // Adjusted styles for larger square cards
+  const SQUARE_CARD_STYLE = {
+    width: '110px',
+    height: '110px',
+    minWidth: '110px',
+    minHeight: '110px',
+    aspectRatio: '1/1',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    margin: '0.75rem',
+    borderRadius: '14px',
+    boxSizing: 'border-box',
+    transition: 'box-shadow 0.2s',
+  };
+
+  const STATUS_COLORS = {
+    pending: '#adb5bd', // gray
+    inprogress: '#1da5fe', // blue
+    current: '#1da5fe', // blue
+    skipped: '#ffb300', // orange/yellow
+    late: '#e53935', // strong red
+    completed: '#43a047', // green
+  };
 
   if (treatmentStepsLoading) return <div>Loading scans...</div>;
   if (treatmentStepsError) return <div className="text-danger">Error loading scans: {treatmentStepsError.toString()}</div>;
@@ -146,7 +172,7 @@ const Scans = ({ patient }) => {
       <Card className="mb-4">
         <CardBody className='pt-3'>
           <h5 className="mb-3">Upper</h5>
-          <div className="scan-cards-grid">
+          <div className="scan-cards-flex" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start', gap: '1.2rem', padding: '0.5rem 0' }}>
             {upperScans.map((scan, idx) => {
               // Use backend status to determine card class
               let cardStateClass = '';
@@ -160,8 +186,9 @@ const Scans = ({ patient }) => {
                 case 'not_started': cardStateClass = ' scan-card-notstarted'; break;
                 default: cardStateClass = '';
               }
-              // Make completed/inprogress cards clickable
-              const isClickable = scan.status === 'completed' || scan.status === 'inprogress';
+              // Only 'pending' status disables the card
+              const isDisabled = scan.status === 'pending';
+              const isClickable = !isDisabled;
               const showUploaded = !!scan.created_at;
               let isLate = false;
               if (showUploaded) {
@@ -180,11 +207,21 @@ const Scans = ({ patient }) => {
               }
               const tooltipId = `scan-card-tooltip-upper-${idx}`;
               const isPending = ['pending', 'not_started'].includes(scan.status);
+              const statusKey = scan.status === 'inprogress' ? 'inprogress' : scan.status;
+              const statusColor = STATUS_COLORS[statusKey] || '#adb5bd';
+              const isSkipped = scan.status === 'skipped';
               return (
-                <div key={idx}>
+                <div key={idx} style={{ display: 'inline-block' }}>
                   <Card
                     id={tooltipId}
-                    className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}${scan.status === 'not_started' ? ' scan-card-disabled' : ''}`}
+                    style={{
+                      ...SQUARE_CARD_STYLE,
+                      border: isLate ? `2px solid ${STATUS_COLORS.late}` : '1.5px solid #e0e0e0',
+                      opacity: isDisabled ? 0.6 : 1,
+                      background: isDisabled ? '#f8f9fa' : '#fff',
+                      boxShadow: (scan.status === 'inprogress' || scan.status === 'current') ? '0 0 0 3px #1da5fe33' : 'none',
+                    }}
+                    className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}${isDisabled ? ' scan-card-disabled' : ''}`}
                     {...(isClickable
                       ? {
                           onClick: () => handleScanCardClick('upper', idx, scan),
@@ -194,16 +231,19 @@ const Scans = ({ patient }) => {
                         }
                       : { 'aria-disabled': true })}
                   >
-                    <CardBody className="scan-card-body d-flex flex-column align-items-center justify-content-center p-3">
-                      <div className="scan-card-aligner-number">{String(scan.step_number).padStart(2, '0')}</div>
-                      <div className="scan-card-date-group">
-                        <div className="scan-card-date">{topDate}</div>
+                    <CardBody className="scan-card-body d-flex flex-column align-items-center justify-content-start p-2" style={{ width: '100%', height: '100%', padding: 0, background: 'none' }}>
+                      <div style={{ marginTop: '10px', fontWeight: 700, fontSize: '1.3em', color: statusColor }}>{String(scan.step_number).padStart(2, '0')}</div>
+                      <div style={{ marginTop: '7px', fontSize: '0.95em', fontWeight: 600, color: statusColor, minHeight: '1.1em' }}>
+                        {isSkipped ? <span style={{ color: STATUS_COLORS.skipped, fontWeight: 600 }}>Skipped</span> : getStatus(scan, isLate)}
+                      </div>
+                      <div className="scan-card-date-group mt-1" style={{ marginTop: 'auto', fontSize: '0.75em', color: '#888' }}>
+                        <div className="scan-card-date">{formatDate(scan.start_date)}</div>
                         {isPending ? (
-                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>-</div>
+                          <div className="scan-card-date text-muted" style={{ fontSize: '8px', opacity: 0.5 }}>-</div>
                         ) : showUploaded ? (
-                          <div className="scan-card-date text-muted" style={{fontSize: '9px'}}>{formatDate(scan.created_at)}</div>
+                          <div className="scan-card-date text-muted" style={{ fontSize: '8px' }}>{formatDate(scan.end_date)}</div>
                         ) : (
-                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>-</div>
+                          <div className="scan-card-date text-muted" style={{ fontSize: '8px', opacity: 0.5 }}>-</div>
                         )}
                       </div>
                     </CardBody>
@@ -238,7 +278,7 @@ const Scans = ({ patient }) => {
       <Card>
         <CardBody className='pt-3'>
           <h5 className="mb-3">Lower</h5>
-          <div className="scan-cards-grid">
+          <div className="scan-cards-flex" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start', gap: '1.2rem', padding: '0.5rem 0' }}>
             {lowerScans.map((scan, idx) => {
               // Use backend status to determine card class
               let cardStateClass = '';
@@ -252,8 +292,9 @@ const Scans = ({ patient }) => {
                 case 'not_started': cardStateClass = ' scan-card-notstarted'; break;
                 default: cardStateClass = '';
               }
-              // Make completed/inprogress cards clickable
-              const isClickable = scan.status === 'completed' || scan.status === 'inprogress';
+              // Only 'pending' status disables the card
+              const isDisabled = scan.status === 'pending';
+              const isClickable = !isDisabled;
               const showUploaded = !!scan.created_at;
               let isLate = false;
               if (showUploaded) {
@@ -272,11 +313,21 @@ const Scans = ({ patient }) => {
               }
               const tooltipId = `scan-card-tooltip-lower-${idx}`;
               const isPending = ['pending', 'not_started'].includes(scan.status);
+              const statusKey = scan.status === 'inprogress' ? 'inprogress' : scan.status;
+              const statusColor = STATUS_COLORS[statusKey] || '#adb5bd';
+              const isSkipped = scan.status === 'skipped';
               return (
-                <div key={idx}>
+                <div key={idx} style={{ display: 'inline-block' }}>
                   <Card
                     id={tooltipId}
-                    className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}${scan.status === 'not_started' ? ' scan-card-disabled' : ''}`}
+                    style={{
+                      ...SQUARE_CARD_STYLE,
+                      border: isLate ? `2px solid ${STATUS_COLORS.late}` : '1.5px solid #e0e0e0',
+                      opacity: isDisabled ? 0.6 : 1,
+                      background: isDisabled ? '#f8f9fa' : '#fff',
+                      boxShadow: (scan.status === 'inprogress' || scan.status === 'current') ? '0 0 0 3px #1da5fe33' : 'none',
+                    }}
+                    className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}${isDisabled ? ' scan-card-disabled' : ''}`}
                     {...(isClickable
                       ? {
                           onClick: () => handleScanCardClick('lower', idx, scan),
@@ -286,16 +337,19 @@ const Scans = ({ patient }) => {
                         }
                       : { 'aria-disabled': true })}
                   >
-                    <CardBody className="scan-card-body d-flex flex-column align-items-center justify-content-center p-3">
-                      <div className="scan-card-aligner-number">{String(scan.step_number).padStart(2, '0')}</div>
-                      <div className="scan-card-date-group">
+                    <CardBody className="scan-card-body d-flex flex-column align-items-center justify-content-start p-2" style={{ width: '100%', height: '100%', padding: 0, background: 'none' }}>
+                      <div style={{ marginTop: '10px', fontWeight: 700, fontSize: '1.2em', color: statusColor }}>{String(scan.step_number).padStart(2, '0')}</div>
+                      <div style={{ marginTop: '7px', fontSize: '0.95em', fontWeight: 600, color: statusColor, minHeight: '1.1em' }}>
+                        {isSkipped ? <span style={{ color: STATUS_COLORS.skipped, fontWeight: 700 }}>Skipped</span> : getStatus(scan, isLate)}
+                      </div>
+                      <div className="scan-card-date-group mt-auto" style={{ marginTop: 'auto', fontSize: '0.75em', color: '#888' }}>
                         <div className="scan-card-date">{topDate}</div>
                         {isPending ? (
-                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>-</div>
+                          <div className="scan-card-date text-muted" style={{ fontSize: '8px', opacity: 0.5 }}>-</div>
                         ) : showUploaded ? (
-                          <div className="scan-card-date text-muted" style={{fontSize: '9px'}}>{formatDate(scan.created_at)}</div>
+                          <div className="scan-card-date text-muted" style={{ fontSize: '8px' }}>{formatDate(scan.created_at)}</div>
                         ) : (
-                          <div className="scan-card-date text-muted" style={{fontSize: '9px', opacity: 0.5}}>-</div>
+                          <div className="scan-card-date text-muted" style={{ fontSize: '8px', opacity: 0.5 }}>-</div>
                         )}
                       </div>
                     </CardBody>

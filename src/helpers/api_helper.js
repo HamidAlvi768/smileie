@@ -36,6 +36,7 @@ import {
   GET_SCAN_DETAIL_API,
   GET_ALERTS_API,
   GET_PATIENT_STATS_API,
+  CHANGE_ALIGNER_API,
 } from "./url_helper";
 
 // default
@@ -283,3 +284,17 @@ export const getPatientHistoryAPI = (patientId) =>
 
 export const getPatientStatsAPI = (patientId) =>
   api.get(`${GET_PATIENT_STATS_API}?id=${patientId}`);
+
+export const changeAlignerAPI = (data) => {
+  // data should include patient_id and next_number
+  const { patient_id, ...rest } = data;
+  return api.create(`${CHANGE_ALIGNER_API}?id=${patient_id}`, { patient_id, ...rest });
+};
+
+export const getPatientAlignersAPI = async (patientId) => {
+  return api.get(`/patients/aligners?id=${patientId}`);
+};
+
+export const getPatientMonitoringScansAPI = async (patientId) => {
+  return api.get(`/patients/monitoring?id=${patientId}`);
+};

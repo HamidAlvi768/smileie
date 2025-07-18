@@ -26,10 +26,11 @@ import PatientForm from './PatientForm';
 const filterOptions = {
   compliance: [
     "All patients",
-    "2-7 days late",
-    "1-2 weeks late",
-    "2-4 weeks late",
-    "= 4 weeks late",
+    "On track (0)",
+    "2-7 days late (1-7)",
+    "1-2 weeks late (8-14)",
+    "2-4 weeks late (15-28)",
+    "4+ weeks late (29+)",
   ],
   alignerType: [
     "All",
@@ -38,7 +39,10 @@ const filterOptions = {
     "Day time upper arch",
     "Day time lower arch",
     "Night time upper arch",
-    "Night time lower arch"
+    "Night time lower arch",
+    "Day Aligner",
+    "Night Aligner",
+    "Impression Kit"
   ],
   alignerStatus: ["All", "In progress", "Finished", "Aligner number not set"],
   appActivation: ["All", "Activated", "Not activated"],
@@ -63,10 +67,31 @@ const columns = [
           {row.doctor}
         </div>
         <div className="fw-bold">{row.name}</div>
+        <div className="text-muted" style={{ fontSize: "0.75em" }}>
+          {row.email}
+        </div>
       </div>
     ),
     sortable: true,
     minWidth: "200px",
+  },
+  {
+    name: "STATUS",
+    selector: (row) => row.status,
+    sortable: true,
+    cell: (row) => (
+      <div className="cell-content">
+        <div className="d-flex flex-column gap-1">
+          <span className={`badge ${row.appActivationBadge} px-2 py-1`} style={{ fontSize: "0.7rem" }}>
+            {row.appActivationText}
+          </span>
+          <span className={`badge ${row.monitoringBadge} px-2 py-1`} style={{ fontSize: "0.7rem" }}>
+            {row.monitoringText}
+          </span>
+        </div>
+      </div>
+    ),
+    minWidth: "120px",
   },
   {
     name: "LATEST ACTIVITY",
@@ -88,27 +113,29 @@ const columns = [
     sortable: true,
     cell: (row) => (
       <div className="cell-content">
-        <div className="fw-bold">{row.alignerType || 'Day Aligner'}</div>
+        <div className="fw-bold">{row.alignerType || 'Not set'}</div>
+        <div className="text-muted" style={{ fontSize: "0.75em" }}>
+          Status: {row.alignerStatus}
+        </div>
       </div>
     ),
     minWidth: "160px",
   },
   {
-    name: "LATEST SCAN",
-    selector: (row) => row.latestScan,
+    name: "COMPLIANCE",
+    selector: (row) => row.compliance,
     sortable: true,
     cell: (row) => (
       <div className="cell-content">
-        <div className="fw-bold">{row.latestScan}</div>
-        <div className="text-danger" style={{ fontSize: "0.85em" }}>
-          {row.lateInfo}
+        <div className={`fw-bold ${row.complianceBadge}`}>
+          {row.complianceText}
         </div>
-        <div className="text-muted" style={{ fontSize: "0.85em" }}>
-          {row.scanInterval}
+        <div className="text-muted" style={{ fontSize: "0.75em" }}>
+          {row.complianceDays} days
         </div>
       </div>
     ),
-    minWidth: "180px",
+    minWidth: "120px",
   },
 ];
 
@@ -197,7 +224,7 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
   // Filter state
   const [filters, setFilters] = useState({
     compliance: "All patients",
-    alignerType: "Day Aligner",
+    alignerType: "All",
     alignerStatus: "All",
     appActivation: "All",
     monitoringStatus: "All",
@@ -214,7 +241,7 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
 
   const defaultFilters = {
     compliance: "All patients",
-    alignerType: "Day Aligner",
+    alignerType: "All",
     alignerStatus: "All",
     appActivation: "All",
     monitoringStatus: "All",
@@ -289,6 +316,32 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
             >
               {row.name}
             </div>
+            <div className="text-muted" style={{ fontSize: "0.75em" }}>
+              {row.email}
+            </div>
+          </div>
+        ),
+      };
+    } else if (col.name === "STATUS") {
+      return {
+        ...col,
+        cell: (row) => (
+          <div 
+            className="cell-content"
+            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRowClicked(row);
+            }}
+          >
+            <div className="d-flex flex-column gap-1">
+              <span className={`badge ${row.appActivationBadge} px-2 py-1`} style={{ fontSize: "0.7rem" }}>
+                {row.appActivationText}
+              </span>
+              <span className={`badge ${row.monitoringBadge} px-2 py-1`} style={{ fontSize: "0.7rem" }}>
+                {row.monitoringText}
+              </span>
+            </div>
           </div>
         ),
       };
@@ -323,11 +376,14 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
               handleRowClicked(row);
             }}
           >
-            <div>{row.alignerType || 'Day Aligner'}</div>
+            <div>{row.alignerType || 'Not set'}</div>
+            <div className="text-muted" style={{ fontSize: "0.75em" }}>
+              Status: {row.alignerStatus}
+            </div>
           </div>
         ),
       };
-    } else if (col.name === "LATEST SCAN") {
+    } else if (col.name === "COMPLIANCE") {
       return {
         ...col,
         cell: (row) => (
@@ -339,12 +395,11 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
               handleRowClicked(row);
             }}
           >
-            <div className="fw-bold">{row.latestScan}</div>
-            <div className="text-danger" style={{ fontSize: "0.85em" }}>
-              {row.lateInfo}
+            <div className={`fw-bold ${row.complianceBadge}`}>
+              {row.complianceText}
             </div>
-            <div className="text-muted" style={{ fontSize: "0.85em" }}>
-              {row.scanInterval}
+            <div className="text-muted" style={{ fontSize: "0.75em" }}>
+              {row.complianceDays} days
             </div>
           </div>
         ),
@@ -364,30 +419,89 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
     scanInterval: "1 week interval",
   };
 
+  // Helper function to get compliance info
+  const getComplianceInfo = (compliance) => {
+    const complianceNum = parseInt(compliance) || 0;
+    
+    if (complianceNum === 0) {
+      return {
+        text: "On track",
+        badge: "text-success",
+        days: 0
+      };
+    } else if (complianceNum >= 1 && complianceNum <= 7) {
+      return {
+        text: "2-7 days late",
+        badge: "text-warning",
+        days: complianceNum
+      };
+    } else if (complianceNum >= 8 && complianceNum <= 14) {
+      return {
+        text: "1-2 weeks late",
+        badge: "text-warning",
+        days: complianceNum
+      };
+    } else if (complianceNum >= 15 && complianceNum <= 28) {
+      return {
+        text: "2-4 weeks late",
+        badge: "text-danger",
+        days: complianceNum
+      };
+    } else {
+      return {
+        text: "4+ weeks late",
+        badge: "text-danger",
+        days: complianceNum
+      };
+    }
+  };
+
+  // Helper function to get status badges
+  const getStatusBadges = (appActivation, isPatientMonitored) => {
+    const appActivationNum = parseInt(appActivation) || 0;
+    const isMonitored = isPatientMonitored === "monitored" || isPatientMonitored === true || isPatientMonitored === 1;
+    
+    return {
+      appActivation: {
+        text: appActivationNum === 1 ? "Activated" : "Not activated",
+        badge: appActivationNum === 1 ? "bg-success" : "bg-secondary"
+      },
+      monitoring: {
+        text: isMonitored ? "Monitored" : "Not Monitored",
+        badge: isMonitored ? "bg-info" : "bg-warning"
+      }
+    };
+  };
+
   // Map API patients to table data
   const rawData =
     monitoredPatients && Array.isArray(monitoredPatients)
       ? monitoredPatients.map((p, idx) => {
-          console.log('Patient data:', p);
-          console.log('Latest activity:', p.latest_activity);
-          console.log('Aligner type:', p.aligner_type);
+          const complianceInfo = getComplianceInfo(p.compliance);
+          const statusBadges = getStatusBadges(p.app_activation, p.is_patient_monitored);
+          
           return {
             name:
               `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
               p.username ||
               "",
-            doctor: p.doctor_name,
-            latestActivity: p.latest_activity?.description || mockPatientFields.latestActivity,
-            latestActivityTime:
-              p.latest_activity?.created_at || mockPatientFields.latestActivityTime,
-            alignerType: p.aligner_type || 'Day Aligner',
-            latestScan: p.latestScan || mockPatientFields.latestScan,
-            lateInfo: p.lateInfo || mockPatientFields.lateInfo,
-            scanInterval: p.scanInterval || mockPatientFields.scanInterval,
+            doctor: p.doctor_name || "",
+            latestActivity: p.latest_activity?.description || (typeof p.latest_activity === 'string' ? p.latest_activity : "No activity"),
+            latestActivityTime: p.latest_activity?.created_at || "",
+            alignerType: p.aligner_type || 'Not set',
+            alignerStatus: p.aligner_status || 'notset',
             id: p.id,
             email: p.email || "",
             is_patient_monitored: p.is_patient_monitored,
             app_activation: p.app_activation,
+            compliance: p.compliance,
+            complianceText: complianceInfo.text,
+            complianceDays: complianceInfo.days,
+            complianceBadge: complianceInfo.badge,
+            appActivationBadge: statusBadges.appActivation.badge,
+            appActivationText: statusBadges.appActivation.text,
+            monitoringBadge: statusBadges.monitoring.badge,
+            monitoringText: statusBadges.monitoring.text,
           };
         })
       : [];
@@ -405,9 +519,9 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
     let monitoringStatusMatch = true;
     if (filters.monitoringStatus !== 'All') {
       if (filters.monitoringStatus === 'Monitored') {
-        monitoringStatusMatch = item.is_patient_monitored === true || item.is_patient_monitored === 1;
+        monitoringStatusMatch = item.is_patient_monitored === "monitored" || item.is_patient_monitored === true || item.is_patient_monitored === 1;
       } else if (filters.monitoringStatus === 'Not Monitored') {
-        monitoringStatusMatch = item.is_patient_monitored === false || item.is_patient_monitored === 0;
+        monitoringStatusMatch = item.is_patient_monitored === "not_monitored" || item.is_patient_monitored === false || item.is_patient_monitored === 0;
       }
     }
 
@@ -423,11 +537,51 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
 
     // Aligner Type filter
     let alignerTypeMatch = true;
-    if (filters.alignerType !== 'All' && filters.alignerType !== 'Day Aligner') {
+    if (filters.alignerType !== 'All') {
       alignerTypeMatch = item.alignerType === filters.alignerType;
     }
 
-    return searchMatch && monitoringStatusMatch && appActivationMatch && alignerTypeMatch;
+    // Aligner Status filter
+    let alignerStatusMatch = true;
+    if (filters.alignerStatus !== 'All') {
+      if (filters.alignerStatus === 'In progress') {
+        alignerStatusMatch = item.alignerStatus === 'inprogress';
+      } else if (filters.alignerStatus === 'Finished') {
+        alignerStatusMatch = item.alignerStatus === 'finished';
+      } else if (filters.alignerStatus === 'Aligner number not set') {
+        alignerStatusMatch = item.alignerStatus === 'notset';
+      }
+    }
+
+    // Compliance filter
+    let complianceMatch = true;
+    if (filters.compliance !== 'All patients') {
+      const complianceNum = parseInt(item.compliance) || 0;
+      
+      if (filters.compliance === 'On track (0)') {
+        complianceMatch = complianceNum === 0;
+      } else if (filters.compliance === '2-7 days late (1-7)') {
+        complianceMatch = complianceNum >= 1 && complianceNum <= 7;
+      } else if (filters.compliance === '1-2 weeks late (8-14)') {
+        complianceMatch = complianceNum >= 8 && complianceNum <= 14;
+      } else if (filters.compliance === '2-4 weeks late (15-28)') {
+        complianceMatch = complianceNum >= 15 && complianceNum <= 28;
+      } else if (filters.compliance === '4+ weeks late (29+)') {
+        complianceMatch = complianceNum >= 29;
+      }
+    }
+
+    // Email filter
+    let emailMatch = true;
+    if (filters.email !== 'All') {
+      if (filters.email === 'Has email') {
+        emailMatch = item.email && item.email.trim() !== '';
+      } else if (filters.email === 'No email') {
+        emailMatch = !item.email || item.email.trim() === '';
+      }
+    }
+
+    return searchMatch && monitoringStatusMatch && appActivationMatch && alignerTypeMatch && alignerStatusMatch && complianceMatch && emailMatch;
   });
 
   const handlePatientFormChange = (e) => {

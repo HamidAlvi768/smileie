@@ -104,7 +104,7 @@ function App() {
 
   return (
     <>
-      <audio ref={audioRef} src="https://assets.mixkit.co/active_storage/sfx/2574/2574-preview.mp3" preload="auto" />
+      <audio ref={audioRef} src="https://cdn.pixabay.com/audio/2025/07/09/audio_121db7b43f.mp3" preload="auto" />
       <CacheBuster
         currentVersion={version}
         isEnabled={isProduction}

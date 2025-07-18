@@ -439,7 +439,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
                     <Input
                       id="search-input"
                       type="search"
-                      placeholder="Patient name"
+                      placeholder="Patient name, email"
                       value={searchTerm}
                       onChange={handleSearchChange}
                     />

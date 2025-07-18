@@ -75,5 +75,7 @@ export const DELETE_FAQ_API = '/faqs/delete';
 export const GET_TREATMENT_STEPS_API = '/treatment/steps';
 export const GET_SCAN_DETAIL_API = '/treatment/scans';
 
+// change aligner
+export const CHANGE_ALIGNER_API = '/patients/change-aligner';
 //alerts
 export const GET_ALERTS_API = '/app/notifications';

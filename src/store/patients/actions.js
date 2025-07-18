@@ -45,3 +45,8 @@ export const getTreatmentStepsFail = (error) => ({ type: GET_TREATMENT_STEPS_FAI
 export const getScanDetail = (id, step_number) => ({ type: GET_SCAN_DETAIL, payload: { id, step_number } });
 export const getScanDetailSuccess = (data) => ({ type: GET_SCAN_DETAIL_SUCCESS, payload: data });
 export const getScanDetailFail = (error) => ({ type: GET_SCAN_DETAIL_FAIL, payload: error });
+
+// Change aligner actions
+export const changeAligner = (data) => ({ type: 'CHANGE_ALIGNER', payload: data });
+export const changeAlignerSuccess = (result) => ({ type: 'CHANGE_ALIGNER_SUCCESS', payload: result });
+export const changeAlignerFail = (error) => ({ type: 'CHANGE_ALIGNER_FAIL', payload: error });

@@ -1,8 +1,72 @@
 import { call, put, takeEvery } from "redux-saga/effects";
-import { getPatientsAPI, addPatientAPI, getRecentPatientsAPI, getPatientDetailAPI, updatePatientDetailAPI, getMonitoredPatientsAPI, getNotMonitoredPatientsAPI, getConsentFormsAPI, create3DPlanAPI, get3DPlanAPI, update3DPlanAPI, delete3DPlanAPI } from "../../helpers/api_helper";
-import { GET_PATIENTS, ADD_PATIENT, GET_RECENT_PATIENTS, GET_PATIENT_DETAIL, UPDATE_PATIENT_DETAIL, GET_MONITORED_PATIENTS, GET_NOT_MONITORED_PATIENTS, GET_CONSENT_FORMS, CREATE_3D_PLAN, GET_3D_PLAN, UPDATE_3D_PLAN, DELETE_3D_PLAN, GET_TREATMENT_STEPS, GET_SCAN_DETAIL } from "./actionTypes";
-import { getPatientsSuccess, addPatientSuccess, addPatientMessage, getPatients, getRecentPatientsSuccess, getPatientDetailSuccess, updatePatientDetailSuccess, updatePatientDetailFail, getPatientDetail, getMonitoredPatientsSuccess, getNotMonitoredPatientsSuccess, patientsApiFail, getConsentFormsSuccess, getConsentFormsFail, create3DPlanSuccess, create3DPlanFail, get3DPlanSuccess, get3DPlanFail, update3DPlanSuccess, update3DPlanFail, delete3DPlanSuccess, delete3DPlanFail, get3DPlan, getTreatmentStepsSuccess, getTreatmentStepsFail, getScanDetailSuccess, getScanDetailFail } from "./actions";
-import { getTreatmentStepsAPI, getScanDetailAPI } from "../../helpers/api_helper";
+import {
+  getPatientsAPI,
+  addPatientAPI,
+  getRecentPatientsAPI,
+  getPatientDetailAPI,
+  updatePatientDetailAPI,
+  getMonitoredPatientsAPI,
+  getNotMonitoredPatientsAPI,
+  getConsentFormsAPI,
+  create3DPlanAPI,
+  get3DPlanAPI,
+  update3DPlanAPI,
+  delete3DPlanAPI,
+  changeAlignerAPI,
+} from "../../helpers/api_helper";
+import {
+  GET_PATIENTS,
+  ADD_PATIENT,
+  GET_RECENT_PATIENTS,
+  GET_PATIENT_DETAIL,
+  UPDATE_PATIENT_DETAIL,
+  GET_MONITORED_PATIENTS,
+  GET_NOT_MONITORED_PATIENTS,
+  GET_CONSENT_FORMS,
+  CREATE_3D_PLAN,
+  GET_3D_PLAN,
+  UPDATE_3D_PLAN,
+  DELETE_3D_PLAN,
+  GET_TREATMENT_STEPS,
+  GET_SCAN_DETAIL,
+  CHANGE_ALIGNER,
+} from "./actionTypes";
+import {
+  getPatientsSuccess,
+  addPatientSuccess,
+  addPatientMessage,
+  getPatients,
+  getRecentPatientsSuccess,
+  getPatientDetailSuccess,
+  updatePatientDetailSuccess,
+  updatePatientDetailFail,
+  getPatientDetail,
+  getMonitoredPatientsSuccess,
+  getNotMonitoredPatientsSuccess,
+  patientsApiFail,
+  getConsentFormsSuccess,
+  getConsentFormsFail,
+  create3DPlanSuccess,
+  create3DPlanFail,
+  get3DPlanSuccess,
+  get3DPlanFail,
+  update3DPlanSuccess,
+  update3DPlanFail,
+  delete3DPlanSuccess,
+  delete3DPlanFail,
+  get3DPlan,
+  getTreatmentStepsSuccess,
+  getTreatmentStepsFail,
+  getScanDetailSuccess,
+  getScanDetailFail,
+  changeAlignerSuccess,
+  changeAlignerFail,
+  getTreatmentSteps,
+} from "./actions";
+import {
+  getTreatmentStepsAPI,
+  getScanDetailAPI,
+} from "../../helpers/api_helper";
 
 function* fetchPatients() {
   try {
@@ -21,10 +85,12 @@ function* addPatientSaga({ payload }) {
       throw response.message || "Failed to create patient";
     }
     yield put(addPatientSuccess(response));
-    yield put(addPatientMessage(response.message || "Patient created successfully!"));
+    yield put(
+      addPatientMessage(response.message || "Patient created successfully!")
+    );
     yield put(getPatients()); // Refresh the patients list
   } catch (error) {
-    console.error('Add patient error:', error);
+    console.error("Add patient error:", error);
     yield put(patientsApiFail(error));
   }
 }
@@ -85,7 +151,7 @@ function* fetchConsentForms(action) {
   try {
     const response = yield call(getConsentFormsAPI, action.payload);
     // Debug: log API response for consent forms
-    console.log('ConsentForms API response:', response.data);
+    console.log("ConsentForms API response:", response.data);
     yield put(getConsentFormsSuccess(response.data));
   } catch (error) {
     yield put(getConsentFormsFail(error));
@@ -105,7 +171,7 @@ function* create3DPlanSaga({ payload }) {
       yield put(get3DPlan(payload.patient_id));
     }
   } catch (error) {
-    console.error('Create 3D plan error:', error);
+    console.error("Create 3D plan error:", error);
     yield put(create3DPlanFail(error));
   }
 }
@@ -158,10 +224,30 @@ function* fetchTreatmentSteps({ payload }) {
 
 function* fetchScanDetail({ payload }) {
   try {
-    const response = yield call(getScanDetailAPI, payload.id, payload.step_number);
+    const response = yield call(
+      getScanDetailAPI,
+      payload.id,
+      payload.step_number
+    );
     yield put(getScanDetailSuccess(response));
   } catch (error) {
     yield put(getScanDetailFail(error));
+  }
+}
+
+function* changeAlignerSaga({ payload }) {
+  try {
+    const response = yield call(changeAlignerAPI, payload);
+    if (response.status === "error") {
+      throw response.message || "Failed to change aligner";
+    }
+    yield put(changeAlignerSuccess(response));
+    // Refresh treatment steps after successful change
+    if (payload.patient_id) {
+      yield put(getTreatmentSteps(payload.patient_id));
+    }
+  } catch (error) {
+    yield put(changeAlignerFail(error));
   }
 }
 
@@ -180,6 +266,7 @@ function* patientsSaga() {
   yield takeEvery(DELETE_3D_PLAN, delete3DPlanSaga);
   yield takeEvery(GET_TREATMENT_STEPS, fetchTreatmentSteps);
   yield takeEvery(GET_SCAN_DETAIL, fetchScanDetail);
+  yield takeEvery(CHANGE_ALIGNER, changeAlignerSaga);
 }
 
 export default patientsSaga;
