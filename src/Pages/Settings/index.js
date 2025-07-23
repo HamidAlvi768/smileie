@@ -37,7 +37,19 @@ const settingsData = [
         description: "View and manage messages from customers.",
         icon: "ri-mail-send-line",
         url: "/settings/contact-us",
-      }
+      },
+      {
+        name: "Instructions",
+        description: "Update instructions shown to users.",
+        icon: "ri-file-text-line",
+        url: "/settings/instructions",
+      },
+      {
+        name: "Aligner Maintenance & Tips",
+        description: "Update aligner maintenance and tips for users.",
+        icon: "ri-lightbulb-flash-line",
+        url: "/settings/aligner-tips",
+      },
     ],
   },
   {
@@ -120,4 +132,6 @@ const Settings = () => {
   );
 };
 
+export { default as Instructions } from './Instructions';
+export { default as AlignerTips } from './AlignerTips';
 export default Settings; 

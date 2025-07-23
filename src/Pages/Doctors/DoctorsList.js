@@ -72,9 +72,33 @@ const columns = [
     minWidth: "180px",
   },
   {
+    name: "PATIENTS",
+    selector: (row) => row.patient_count || 0,
+    sortable: true,
+    cell: (row) => (
+      <div className="cell-content">
+        <div className="fw-bold" style={{ color: "#1da5fe" }}>
+          {row.patient_count || 0}
+        </div>
+        <div className="text-muted" style={{ fontSize: "0.85em" }}>
+          patients
+        </div>
+      </div>
+    ),
+    minWidth: "120px",
+  },
+  {
     name: "LATEST ACTIVITY",
     selector: (row) => row.latestActivity,
     sortable: true,
+    cell: (row) => (
+      <div className="cell-content">
+        <div className="text-muted" style={{ fontSize: "0.85em" }}>
+          {row.latestActivityTime}
+        </div>
+        <div>{row.latestActivity}</div>
+      </div>
+    ),
     minWidth: "180px",
   },
 ];
@@ -157,9 +181,35 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // Process doctors data to handle latest_activity
+  const processedDoctors = useMemo(() => {
+    return allDoctors.map(doctor => {
+      let latestActivity = "No activity";
+      let latestActivityTime = "";
+
+      if (doctor.latest_activity) {
+        if (typeof doctor.latest_activity === 'object' && doctor.latest_activity !== null) {
+          // Handle object format with detailed activity
+          latestActivity = doctor.latest_activity.description || doctor.latest_activity.action || "Activity";
+          latestActivityTime = doctor.latest_activity.created_at || "";
+        } else if (typeof doctor.latest_activity === 'string') {
+          // Handle string format (e.g., "Account created")
+          latestActivity = doctor.latest_activity;
+          latestActivityTime = doctor.created_at || ""; // Use account creation time as fallback
+        }
+      }
+
+      return {
+        ...doctor,
+        latestActivity,
+        latestActivityTime
+      };
+    });
+  }, [allDoctors]);
+
   // Filter and search logic - frontend only
   const filteredDoctors = useMemo(() => {
-    let filtered = [...allDoctors];
+    let filtered = [...processedDoctors];
 
     // Apply specialty filter
     if (filters.specialty !== "All specialties") {
@@ -185,7 +235,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     }
 
     return filtered;
-  }, [allDoctors, filters, debouncedSearchTerm]);
+  }, [processedDoctors, filters, debouncedSearchTerm]);
 
   // Handle pagination change
   const handlePageChange = useCallback((page) => {

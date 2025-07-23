@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardBody, Badge } from 'reactstrap';
+import { Card, CardBody, Badge, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAlerts, markAlertRead } from '../../../store/alerts/actions';
 
 const Alerts = ({ patientId: propPatientId }) => {
   const dispatch = useDispatch();
   const { alerts, loading } = useSelector(state => state.alerts);
-  const [currentPage] = useState(1); // For future pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(100);
 
   useEffect(() => {
     let patientId = propPatientId;
@@ -72,10 +73,25 @@ const Alerts = ({ patientId: propPatientId }) => {
     return { date, time };
   };
 
+  // Pagination logic
+  const totalPages = Math.ceil(alerts.length / perPage);
+  const startIndex = (currentPage - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  const currentAlerts = alerts.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="history-section">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="mb-0">Alerts</h4>
+        <div className="d-flex align-items-center gap-2">
+          <small className="text-muted">
+            Showing {startIndex + 1}-{Math.min(endIndex, alerts.length)} of {alerts.length} alerts
+          </small>
+        </div>
       </div>
       <Card>
         <CardBody>
@@ -90,30 +106,65 @@ const Alerts = ({ patientId: propPatientId }) => {
               <p className="mb-0">No alerts to display.</p>
             </div>
           ) : (
-            <div className="timeline-list">
-              {alerts.map((alert) => (
-                <div
-                  key={alert.id}
-                  className={`timeline-item d-flex align-items-start ${alert.read_at ? 'read' : 'unread'}`}
-                  onClick={() => handleAlertClick(alert.id, alert.read_at)}
-                >
-                  <div className="timeline-icon me-3 mt-1" style={{ color: '#f39c12' }}>
-                    <i className={`mdi mdi-bell-outline large-icon `}></i>
-                  </div>
-                  <div className="flex-grow-1">
-                    <div className="d-flex align-items-center mb-1">
-                      <span className="fw-bold me-2">{alert.title}</span>
-                      <Badge color="light" className="text-muted small fw-normal">
-                        {formatDateTime(alert.created_at).date} {formatDateTime(alert.created_at).time && <span>{formatDateTime(alert.created_at).time}</span>}
-                      </Badge>
+            <>
+              <div className="timeline-list">
+                {currentAlerts.map((alert) => (
+                  <div
+                    key={alert.id}
+                    className={`timeline-item d-flex align-items-start ${alert.read_at ? 'read' : 'unread'}`}
+                    onClick={() => handleAlertClick(alert.id, alert.read_at)}
+                  >
+                    <div className="flex-grow-1 p-2">
+                      <div className="d-flex align-items-center justify-content-between mb-1">
+                        <span className="fw-bold text-primary">{alert.title}</span>
+                        <Badge color="light" className="text-muted small fw-normal">
+                          {formatDateTime(alert.created_at).date} {formatDateTime(alert.created_at).time && <span>{formatDateTime(alert.created_at).time}</span>}
+                        </Badge>
+                      </div>
+                      <div className="timeline-desc text-muted small">
+                        <small>{alert.message}</small>
+                      </div>
                     </div>
-                    <div className="timeline-desc text-muted small">
-                      {alert.message}
-                    </div>
                   </div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-4">
+                  <Pagination>
+                    <PaginationItem disabled={currentPage === 1}>
+                      <PaginationLink previous onClick={() => handlePageChange(currentPage - 1)} />
+                    </PaginationItem>
+
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <PaginationItem key={pageNum} active={pageNum === currentPage}>
+                          <PaginationLink onClick={() => handlePageChange(pageNum)}>
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+
+                    <PaginationItem disabled={currentPage === totalPages}>
+                      <PaginationLink next onClick={() => handlePageChange(currentPage + 1)} />
+                    </PaginationItem>
+                  </Pagination>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </CardBody>
       </Card>

@@ -125,7 +125,7 @@ function renderBar(barKey, segments, label, showTooltip, setShowTooltip, barRef)
   );
 }
 
-const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare, minimal, onShowStats, selectedDate, onDateChange }) => {
+const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare, minimal, onShowStats, selectedDate, onDateChange, progressPercent, startDate, endDate }) => {
   const containerRef = useRef(null);
   const timelineRef = useRef(null);
   const alignersBarRef = useRef(null);
@@ -245,33 +245,19 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
     <div style={{ border: 'none' }}>
       {/* Only show bars and stats details if not minimal */}
       {!minimal && (
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 12, border: 'none', position: 'relative', zIndex: 2, justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', flex: 1 }}>
-            {renderBar('aligners', bars.aligners, BAR_ICONS.aligners, showTooltip, setShowTooltip, alignersBarRef)}
-            {renderBar('hygiene', bars.hygiene, BAR_ICONS.hygiene, showTooltip, setShowTooltip, hygieneBarRef)}
-            {renderBar('scan', bars.scan, BAR_ICONS.scan, showTooltip, setShowTooltip, scanBarRef)}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12, gap: 16 }}>
+          <span style={{ minWidth: 90, textAlign: 'right', color: '#607181', fontWeight: 500 }}>
+            {startDate || ''}
+          </span>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ flex: 1, height: 16, background: '#e9ecef', borderRadius: 8, overflow: 'hidden', position: 'relative' }}>
+              <div style={{ width: `${progressPercent || 0}%`, height: '100%', background: '#1da5fe', borderRadius: 8, transition: 'width 0.4s' }} />
+            </div>
+            <span style={{ minWidth: 40, color: '#1da5fe', fontWeight: 600 }}>{progressPercent || 0}%</span>
           </div>
-          {/*
-          <button
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#1da5fe',
-              fontWeight: 500,
-              fontSize: 15,
-              cursor: 'pointer',
-              marginLeft: 24,
-              padding: 0,
-              outline: 'none',
-              textDecoration: 'none',
-              transition: 'color 0.2s',
-            }}
-            tabIndex={0}
-            onClick={onShowStats}
-          >
-            See stats details
-          </button>
-          */}
+          <span style={{ minWidth: 110, textAlign: 'left', color: '#607181', fontWeight: 500 }}>
+            {endDate || ''}
+          </span>
         </div>
       )}
       <div ref={containerRef} style={{ height: `${height || 500}px` }} />

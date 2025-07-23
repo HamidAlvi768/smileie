@@ -129,6 +129,23 @@ const PatientForm = ({
     </Col>
     <Col md={4}>
       <FormGroup className="mb-3">
+        <Label for="patient_source">Patient Source</Label>
+        <Input
+          type="select"
+          id="patient_source"
+          value={formState.patient_source}
+          onChange={onChange}
+          required
+        >
+          <option value="">Select source</option>
+          <option value="Referral">Referral</option>
+          <option value="Website">Website</option>
+          <option value="Direct">Direct</option>
+        </Input>
+      </FormGroup>
+    </Col>
+    <Col md={4}>
+      <FormGroup className="mb-3">
         <Label for="country">Country</Label>
         <Select
           id="country"

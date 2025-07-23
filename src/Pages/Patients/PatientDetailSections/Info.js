@@ -5,11 +5,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { updatePatientDetail } from '../../../store/patients/actions';
 import { useToast } from '../../../components/Common/ToastContext';
 import Select from 'react-select';
+import { useRoleAccess } from '../../../Hooks/RoleHooks';
+import RoleBasedRender from '../../../components/Common/RoleBasedRender';
 
 const Info = ({ patient }) => {
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { userRole, canAccessFeature } = useRoleAccess();
 
   // Get patient detail from Redux (already fetched in PatientDetail.js)
   const patientDetail = useSelector(state => state.patients.patientDetail) || {};
@@ -388,10 +391,12 @@ const Info = ({ patient }) => {
     <div className="info-section">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="mb-0">Patient Information</h4>
-        <Button color="primary" size="sm" className="edit-info-btn" onClick={toggleEditModal}>
-          <i className="mdi mdi-pencil me-1"></i>
-          Edit patient info
-        </Button>
+        <RoleBasedRender feature="edit_patients">
+          <Button color="primary" size="sm" className="edit-info-btn" onClick={toggleEditModal}>
+            <i className="mdi mdi-pencil me-1"></i>
+            Edit patient info
+          </Button>
+        </RoleBasedRender>
       </div>
 
       <Card className="info-card mb-4">

@@ -151,8 +151,8 @@ function MyAccount() {
   return (
     <Container className="py-4">
       <Row>
-        <Col lg={8} md={10} className="mx-auto">
-          <h2 className="mb-4 text-center">My Account</h2>
+        <Col lg={12} md={12} className="mx-auto">
+          <h2 className="mb-4 text-left">My Account</h2>
 
           {/* Personal Information Card */}
           <Card className="mb-4">

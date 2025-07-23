@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import sidebarData from "./SidebarData";
+import sidebarData, { getSidebarData } from "./SidebarData";
 //Simple bar
 import SimpleBar from "simplebar-react";
 // MetisMenu
@@ -9,8 +9,14 @@ import withRouter from "../../components/Common/withRouter";
 import { Link } from "react-router-dom";
 //i18n
 import { withTranslation } from "react-i18next";
+import { useRoleAccess } from "../../Hooks/RoleHooks";
+import { useMemo } from "react";
 const Sidebar = (props) => {
   const ref = useRef();
+  const { userRole } = useRoleAccess();
+  
+  // Get role-based sidebar data (memoized to prevent infinite loops)
+  const roleBasedSidebarData = useMemo(() => getSidebarData(userRole), [userRole]);
   const activateParentDropdown = useCallback(item => {
     item.classList.add("active");
     const parent = item.parentElement;
@@ -126,7 +132,7 @@ const Sidebar = (props) => {
         <SimpleBar className="h-100" ref={ref}>
           <div id="sidebar-menu">
             <ul className="metismenu list-unstyled" id="side-menu-item">
-              {(sidebarData || []).map((item, key) => (
+              {(roleBasedSidebarData || []).map((item, key) => (
                 <React.Fragment key={key}>
                   {item.isMainMenu ? (
                     <li className="menu-title">{props.t(item.label)}</li>

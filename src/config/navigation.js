@@ -1,4 +1,5 @@
-export const headerMenuItems = [
+// Base navigation items (will be filtered by role)
+export const baseHeaderMenuItems = [
   {
     id: "dashboard",
     label: "Dashboard",
@@ -66,7 +67,25 @@ export const headerMenuItems = [
   // },
 ];
 
-export const headerRightMenuItems = [
+// Function to get role-based header menu items
+export const getHeaderMenuItems = (userRole) => {
+  if (!userRole) return baseHeaderMenuItems;
+  
+  // Filter out doctors and settings for doctor role
+  if (userRole === 'doctor') {
+    return baseHeaderMenuItems.filter(item => 
+      item.id !== 'doctors' && item.id !== 'dashboard'
+    );
+  }
+  
+  return baseHeaderMenuItems;
+};
+
+// Default export for backward compatibility
+export const headerMenuItems = baseHeaderMenuItems;
+
+// Base right menu items (will be filtered by role)
+export const baseHeaderRightMenuItems = [
   {
     id: "notifications",
     label: "Notifications",
@@ -106,3 +125,18 @@ export const headerRightMenuItems = [
     url: "/auth-login",
   },
 ]; 
+
+// Function to get role-based right menu items
+export const getHeaderRightMenuItems = (userRole) => {
+  if (!userRole) return baseHeaderRightMenuItems;
+  
+  // Filter out settings for doctor role
+  if (userRole === 'doctor') {
+    return baseHeaderRightMenuItems.filter(item => item.id !== 'settings');
+  }
+  
+  return baseHeaderRightMenuItems;
+};
+
+// Default export for backward compatibility
+export const headerRightMenuItems = baseHeaderRightMenuItems; 

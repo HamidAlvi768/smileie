@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getLoggedinUser } from "../helpers/api_helper";
 
 const useProfile = () => {
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState(null);
+
+  useEffect(() => {
   const userProfileSession = getLoggedinUser();
-  const [loading] = useState(userProfileSession ? false : true);
-  const [userProfile] = useState(
-    userProfileSession ? userProfileSession : null
-  );
+    console.log('UserHooks - Retrieved user profile:', userProfileSession);
+    setUserProfile(userProfileSession);
+    setLoading(false);
+  }, []);
 
   return { userProfile, loading };
 };

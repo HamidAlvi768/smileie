@@ -343,11 +343,11 @@ const Scans = ({ patient }) => {
                         {isSkipped ? <span style={{ color: STATUS_COLORS.skipped, fontWeight: 700 }}>Skipped</span> : getStatus(scan, isLate)}
                       </div>
                       <div className="scan-card-date-group mt-auto" style={{ marginTop: 'auto', fontSize: '0.75em', color: '#888' }}>
-                        <div className="scan-card-date">{topDate}</div>
+                        <div className="scan-card-date">{formatDate(scan.start_date)}</div>
                         {isPending ? (
                           <div className="scan-card-date text-muted" style={{ fontSize: '8px', opacity: 0.5 }}>-</div>
                         ) : showUploaded ? (
-                          <div className="scan-card-date text-muted" style={{ fontSize: '8px' }}>{formatDate(scan.created_at)}</div>
+                          <div className="scan-card-date text-muted" style={{ fontSize: '8px' }}>{formatDate(scan.end_date)}</div>
                         ) : (
                           <div className="scan-card-date text-muted" style={{ fontSize: '8px', opacity: 0.5 }}>-</div>
                         )}

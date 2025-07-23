@@ -22,6 +22,8 @@ import { useToast } from "../../components/Common/ToastContext";
 import { getDoctors } from "../../store/doctors/actions";
 import Select from 'react-select';
 import PatientForm from './PatientForm';
+import { useRoleAccess } from "../../Hooks/RoleHooks";
+import RoleBasedRender from "../../components/Common/RoleBasedRender";
 
 const filterOptions = {
   compliance: [
@@ -172,6 +174,8 @@ const customStyles = {
 const PatientsMonitored = ({ pageTitle = "Patients" }) => {
   const [createPatientModal, setCreatePatientModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { userRole, canAccessFeature } = useRoleAccess();
+  
   const toggleCreatePatient = () => {
     if (createPatientModal) {
       // Modal is being closed, reset form
@@ -207,6 +211,7 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
     dob: "",
     doctor_id: "",
     gender: "",
+    patient_source: "",
     address: "",
     address2: "",
     zip_code: "",
@@ -304,7 +309,7 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
                 handleRowClicked(row);
               }}
             >
-              {row.doctor}
+              <span className="fw-bold">Dr.</span> {row.doctor}
             </div>
             <div 
               className="fw-bold"
@@ -603,6 +608,7 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
     if (!form.dob) errors.dob = 'Date of birth is required';
     if (!form.doctor_id) errors.doctor_id = 'Doctor is required';
     if (!form.gender) errors.gender = 'Gender is required';
+    if (!form.patient_source) errors.patient_source = 'Patient source is required';
     if (!form.country) errors.country = 'Country is required';
     if (!form.state) errors.state = 'State is required';
     if (!form.city) errors.city = 'City is required';
@@ -764,13 +770,15 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
                   Clear Filters
                 </Button>
               )}
-              <Button 
-                color="primary" 
-                onClick={toggleCreatePatient}
-                disabled={isLoading}
-              >
-                + New patient
-              </Button>
+              <RoleBasedRender feature="create_patients">
+                <Button 
+                  color="primary" 
+                  onClick={toggleCreatePatient}
+                  disabled={isLoading}
+                >
+                  + New patient
+                </Button>
+              </RoleBasedRender>
             </div>
           </Col>
         </Row>

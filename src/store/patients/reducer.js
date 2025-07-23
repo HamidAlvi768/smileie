@@ -107,7 +107,7 @@ const patientsReducer = (state = INIT_STATE, action) => {
     case GET_SCAN_DETAIL:
       return { ...state, scanDetailLoading: true, scanDetailError: null };
     case GET_SCAN_DETAIL_SUCCESS:
-      return { ...state, scanDetail: action.payload.data, scanDetailLoading: false };
+      return { ...state, scanDetail: action.payload, scanDetailLoading: false };
     case GET_SCAN_DETAIL_FAIL:
       return { ...state, scanDetailError: action.payload, scanDetailLoading: false };
     

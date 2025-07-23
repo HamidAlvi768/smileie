@@ -38,6 +38,14 @@ const ScanDetail = () => {
 
   // Get scan detail from Redux
   const { scanDetail, scanDetailLoading, scanDetailError } = useSelector(state => state.patients);
+  
+  // Extract notes from the API response
+  const scanNotes = useMemo(() => {
+    if (scanDetail && typeof scanDetail === 'object' && scanDetail.notes) {
+      return Array.isArray(scanDetail.notes) ? scanDetail.notes : [];
+    }
+    return [];
+  }, [scanDetail]);
 
   // Debug: Log params and redux state
   console.log('ScanDetail params:', { id, scanId, arch });
@@ -55,10 +63,13 @@ const ScanDetail = () => {
 
   // Map API data to sections/subsections/images
   const dynamicScan = useMemo(() => {
-    if (!Array.isArray(scanDetail) || scanDetail.length === 0) return null;
+    // Handle new API response structure
+    const scanData = Array.isArray(scanDetail) ? scanDetail : (scanDetail?.data || []);
+    if (!Array.isArray(scanData) || scanData.length === 0) return null;
+    
     // Group scans by view_type (front, left, right, upper, lower, etc.)
     const sectionsMap = {};
-    scanDetail.forEach(scan => {
+    scanData.forEach(scan => {
       const view = scan.view_type || 'front';
       if (!sectionsMap[view]) {
         sectionsMap[view] = { name: `${view.charAt(0).toUpperCase() + view.slice(1)} View`, subsections: [] };
@@ -76,7 +87,7 @@ const ScanDetail = () => {
     Object.keys(sectionsMap).forEach(view => {
       const section = sectionsMap[view];
       // If this view exists in API data, filter out fallback-only subsections (not needed anymore, but keep for safety)
-      const hasRealData = scanDetail.some(scan => scan.view_type === view);
+      const hasRealData = scanData.some(scan => scan.view_type === view);
       if (hasRealData) {
         section.subsections = section.subsections.filter(subsection =>
           subsection.images.some(img => typeof img === 'string' && img.startsWith('/uploads'))
@@ -96,7 +107,7 @@ const ScanDetail = () => {
       return true;
     });
     return {
-      timestamp: scanDetail[0]?.created_at || '',
+      timestamp: scanData[0]?.created_at || '',
       sections: sectionsArr
     };
   }, [scanDetail, arch]);
@@ -341,6 +352,34 @@ const ScanDetail = () => {
           ))}
         </CardBody>
       </Card>
+      
+      {/* Notes Section */}
+      {scanNotes.length > 0 && (
+        <Card className="mt-4">
+          <CardBody>
+            <h6 className="mb-3 fw-semibold">
+              <i className="mdi mdi-note-text-outline me-2"></i>
+              Related Notes
+            </h6>
+            <div className="notes-container">
+              {scanNotes.map((note, index) => (
+                <div key={index} className="note-item mb-3 p-3 border rounded bg-light">
+                  <div className="d-flex justify-content-between align-items-start mb-2">
+                    <div className="note-author">
+                      <strong className="text-primary">
+                        {note.note_by && note.note_by !== '-' ? note.note_by : 'Unknown'}
+                      </strong>
+                    </div>
+                  </div>
+                  <div className="note-content">
+                    <p className="mb-0 text-muted">{note.note}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
+      )}
       {/* Full-screen Image Modal */}
       <Modal 
         isOpen={isModalOpen} 

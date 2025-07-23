@@ -19,11 +19,33 @@ function* loginUser({ payload: { user, history } }) {
   try {
     // Use the new loginAPI
     const response = yield call(loginAPI, user.email, user.password);
-    console.log(response)
+    console.log('Login response:', response);
+    console.log('Response structure:', JSON.stringify(response, null, 2));
+    
     if (response && (response.status==="success")) {
-      localStorage.setItem("authUser", JSON.stringify(response.user));
+      // Handle different response structures
+      let userData = null;
+      
+      if (response.user) {
+        userData = response.user;
+      } else if (response.data && response.data.user) {
+        userData = response.data.user;
+      } else if (response.data) {
+        userData = response.data;
+      } else {
+        userData = response;
+      }
+      
+      console.log('User data to store:', userData);
+      localStorage.setItem("authUser", JSON.stringify(userData));
       yield put(loginSuccess(response));
-      history("/dashboard");
+      
+      // Redirect based on user role
+      if (userData.role === 'doctor') {
+        history("/patients");
+      } else {
+        history("/dashboard");
+      }
     } else {
       // If response is missing expected fields, treat as error
       yield put(apiError(response.message));

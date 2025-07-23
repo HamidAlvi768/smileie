@@ -67,7 +67,7 @@ const { layoutType } = useSelector(routepage);
             <Route
               path={route.path}
               element={
-                <AuthProtected>
+                <AuthProtected route={route.path}>
                     <Layout>{route.component}</Layout>
                 </AuthProtected>}
               key={idx}

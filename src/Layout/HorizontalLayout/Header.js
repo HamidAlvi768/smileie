@@ -2,7 +2,12 @@ import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { headerMenuItems, headerRightMenuItems } from "../../config/navigation";
+import { 
+  headerMenuItems, 
+  headerRightMenuItems, 
+  getHeaderMenuItems, 
+  getHeaderRightMenuItems 
+} from "../../config/navigation";
 import {
   setActiveHeaderMenu,
   setNavbarMenuItems,
@@ -11,6 +16,8 @@ import { isPathActive } from '../../utils/pathMatch';
 import HelpMobilePanel from "./HelpMobilePanel";
 import { logoutUser } from '../../store/auth/login/actions';
 import { useDispatch, useSelector } from 'react-redux';
+import { useRoleAccess } from '../../Hooks/RoleHooks';
+import { useMemo } from 'react';
 
 //import images
 import logoSm from "../../assets/images/logo-sm.png";
@@ -25,6 +32,11 @@ const Header = (props) => {
   const navigate = useNavigate();
   const [helpPanelOpen, setHelpPanelOpen] = useState(false);
   const dispatch = useDispatch();
+  const { userRole } = useRoleAccess();
+
+  // Get role-based navigation items (memoized to prevent infinite loops)
+  const roleBasedHeaderMenuItems = useMemo(() => getHeaderMenuItems(userRole), [userRole]);
+  const roleBasedHeaderRightMenuItems = useMemo(() => getHeaderRightMenuItems(userRole), [userRole]);
 
   // Get unread notifications count from Redux
   const notificationCount = useSelector(state => state.notifications?.notificationCount);
@@ -38,7 +50,7 @@ const Header = (props) => {
   // Sync navbarMenuItems with current route on load/route change
   useEffect(() => {
     // Find the active header menu based on the current route
-    let activeMenu = headerMenuItems.find(
+    let activeMenu = roleBasedHeaderMenuItems.find(
       (menu) =>
         menu.navbarItems &&
         menu.navbarItems.some((sub) => location.pathname.startsWith(sub.url))
@@ -46,21 +58,21 @@ const Header = (props) => {
     
     // If not found, check if the current route matches the main menu's own URL (e.g., /dashboard)
     if (!activeMenu) {
-      activeMenu = headerMenuItems.find((menu) =>
+      activeMenu = roleBasedHeaderMenuItems.find((menu) =>
         menu.url && location.pathname === menu.url
       );
     }
     
     // If still not found, check if the current route matches the main menu's own URL (e.g., /quick-replies)
     if (!activeMenu) {
-      activeMenu = headerMenuItems.find((menu) =>
+      activeMenu = roleBasedHeaderMenuItems.find((menu) =>
         location.pathname.startsWith(`/${menu.id}`)
       );
     }
     
     // Special case: if on a patient detail route, set patient-detail menu as active
     if (!activeMenu && /^\/patients\/[\w-]+$/.test(location.pathname)) {
-      activeMenu = headerMenuItems.find((menu) => menu.id === "patient-detail");
+      activeMenu = roleBasedHeaderMenuItems.find((menu) => menu.id === "patient-detail");
     }
     
     if (activeMenu) {
@@ -92,7 +104,7 @@ const Header = (props) => {
       // If no menu matches, clear navbarMenuItems
       props.setNavbarMenuItems([]);
     }
-  }, [location.pathname]);
+  }, [location.pathname, userRole]);
 
   const handleMenuClick = (menu) => {
     props.setActiveHeaderMenu(menu);
@@ -174,7 +186,7 @@ const Header = (props) => {
             </button>
 
             <div className="d-flex align-items-center">
-              {headerMenuItems.map((menu) => (
+              {roleBasedHeaderMenuItems.map((menu) => (
                 <button
                   key={menu.id}
                   type="button"
@@ -192,7 +204,7 @@ const Header = (props) => {
 
           <div className="d-flex">
             {/* Right-side header menus from config */}
-            {headerRightMenuItems.map((menu) => (
+            {roleBasedHeaderRightMenuItems.map((menu) => (
               <div className="dropdown d-inline-block ms-3" key={menu.id}>
                 <button
                   type="button"

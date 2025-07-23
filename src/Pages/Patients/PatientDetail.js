@@ -490,6 +490,7 @@ const PatientDetail = () => {
   const [moveNextModalOpen, setMoveNextModalOpen] = useState(false);
   const [alignerInfo, setAlignerInfo] = useState(null);
   const [loadingAlignerInfo, setLoadingAlignerInfo] = useState(false);
+  const [alignerNote, setAlignerNote] = useState('');
 
   useEffect(() => {
     if (moveNextModalOpen && id) {
@@ -513,6 +514,22 @@ const PatientDetail = () => {
   const currentAligner = typeof patientStats?.step_number !== 'undefined' ? patientStats.step_number : '';
   const totalAligners = typeof patientStats?.total_steps !== 'undefined' ? patientStats.total_steps : '';
   const nextAligner = currentAligner && totalAligners && currentAligner < totalAligners ? currentAligner + 1 : '';
+
+  // Helper function to format dates
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not set';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Not set';
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    } catch (error) {
+      return 'Not set';
+    }
+  };
 
   // Refresh patient stats after successful aligner change
   useEffect(() => {
@@ -619,7 +636,7 @@ const PatientDetail = () => {
                   <div className="mb-4 d-flex align-items-center justify-content-between">
                     <strong className="text-muted">Started:</strong>
                     <div className="d-flex flex-column align-items-end">
-                      <span className="fw-bold">{patientStats?.first_step_started_at || 'Not set'}</span>
+                      <span className="fw-bold">{formatDate(patientStats?.first_step_started_at)}</span>
                     </div>
                   </div>
                   
@@ -647,15 +664,23 @@ const PatientDetail = () => {
                     </div>
                   </div>
                   
-                  <div className="mb-4 d-flex align-items-center justify-content-between">
-                    <strong className="text-muted">Next aligner start:</strong>
-                    <span className="fw-bold">{patientStats?.next_step_started_at || 'Not set'}</span>
-                  </div>
+                  {/* Only show next aligner start if patient is not on the last aligner */}
+                  {typeof patientStats?.step_number !== 'undefined' && 
+                   typeof patientStats?.total_steps !== 'undefined' && 
+                   patientStats?.step_number < patientStats?.total_steps && (
+                    <div className="mb-4 d-flex align-items-center justify-content-between">
+                      <strong className="text-muted">Next aligner start:</strong>
+                      <span className="fw-bold">{formatDate(patientStats?.next_step_started_at)}</span>
+                    </div>
+                  )}
                   
                   <div className="mb-4 d-flex align-items-center justify-content-between">
                     <strong></strong>
                     <div className="d-flex flex-column align-items-end">
-                      {typeof patientStats?.step_number !== 'undefined' && typeof patientStats?.total_steps !== 'undefined' && patientStats?.total_steps !== 0 ? (
+                      {typeof patientStats?.step_number !== 'undefined' && 
+                       typeof patientStats?.total_steps !== 'undefined' && 
+                       patientStats?.total_steps !== 0 && 
+                       patientStats?.step_number < patientStats?.total_steps ? (
                         <>
                           <Button
                             color="primary"
@@ -1050,9 +1075,24 @@ const PatientDetail = () => {
                 </div>
               </div>
               
-              <div className="alert alert-warning mb-0">
+              <div className="alert alert-warning mb-3">
                 <i className="mdi mdi-alert-circle-outline me-2"></i>
                 <strong>Warning:</strong> This action cannot be undone.
+              </div>
+              
+              <div className="mb-3">
+                <Label for="alignerNote" className="form-label">
+                  <strong>Note (Optional):</strong>
+                </Label>
+                <Input
+                  type="textarea"
+                  id="alignerNote"
+                  value={alignerNote}
+                  onChange={(e) => setAlignerNote(e.target.value)}
+                  placeholder="Add a note about this aligner change..."
+                  rows="3"
+                  disabled={changingAligner}
+                />
               </div>
               
               {changeAlignerError && (
@@ -1077,7 +1117,13 @@ const PatientDetail = () => {
             color="primary" 
             onClick={() => {
               if (id && alignerInfo && alignerInfo.current_aligner < alignerInfo.total_aligners) {
-                dispatch(changeAligner({ patient_id: id, next_number: alignerInfo.current_aligner + 1 }));
+                const requestData = {
+                  patient_id: id, 
+                  next_number: alignerInfo.current_aligner + 1,
+                  step_number: alignerInfo.current_aligner + 1,
+                  note: alignerNote.trim() || null
+                };
+                dispatch(changeAligner(requestData));
               }
               setMoveNextModalOpen(false);
             }} 

@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardBody, Button, Badge, Spinner, Alert } from 'reactstrap';
+import { Card, CardBody, Button, Badge, Spinner, Alert, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
 import { getPatientHistoryAPI } from '../../../helpers/api_helper';
-
-const actionTypeMeta = {
-  review: { icon: 'mdi-information-outline', color: '#f39c12' },
-  instruction: { icon: 'mdi-information-outline', color: '#f39c12' },
-  observation: { icon: 'mdi-information-outline', color: '#f39c12' },
-};
 
 const actionTypeOptions = [
   { value: 'all', label: 'ALL ACTIONS' },
@@ -28,6 +22,8 @@ const History = ({ patient }) => {
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(100);
 
   useEffect(() => {
     if (!patient?.id) return;
@@ -50,42 +46,26 @@ const History = ({ patient }) => {
       ? actions
       : actions.filter((a) => a.status === 'to-review');
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredActions.length / perPage);
+  const startIndex = (currentPage - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  const currentActions = filteredActions.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="history-section">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="mb-0">History</h4>
+        <div className="d-flex align-items-center gap-2">
+          <small className="text-muted">
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredActions.length)} of {filteredActions.length} actions
+          </small>
+        </div>
       </div>
-      {/* <div className="d-flex align-items-center gap-3 mb-3 flex-wrap">
-        <div>
-          <select
-            id="action-type-dropdown"
-            className="form-select d-inline-block w-auto"
-            value={actionTypeFilter}
-            onChange={e => setActionTypeFilter(e.target.value)}
-            style={{ minWidth: 200 }}
-          >
-            {actionTypeOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
-        <div className="d-flex gap-2">
-          <Button
-            color={statusFilter === 'all' ? 'primary' : 'light'}
-            size="sm"
-            onClick={() => setStatusFilter('all')}
-          >
-            All Actions
-          </Button>
-          <Button
-            color={statusFilter === 'to-review' ? 'primary' : 'light'}
-            size="sm"
-            onClick={() => setStatusFilter('to-review')}
-          >
-            To Review
-          </Button>
-        </div>
-      </div> */}
       <Card>
         <CardBody>
           {loading ? (
@@ -100,29 +80,61 @@ const History = ({ patient }) => {
               <p className="mb-0">No actions to display.</p>
             </div>
           ) : (
-            <div className="timeline-list">
-              {filteredActions.map((action) => {
-                // Use action.action as type, fallback to 'review'
-                const meta = actionTypeMeta[action.action?.toLowerCase()] || {};
-                return (
+            <>
+              <div className="timeline-list">
+                {currentActions.map((action) => (
                   <div key={action.id} className="timeline-item d-flex align-items-start">
-                    <div className="timeline-icon me-3 mt-1" style={{ color: "rgb(243, 156, 18)" }}>
-                      <i className={`mdi mdi-information-outline large-icon`}></i>
-                    </div>
-                    <div className="flex-grow-1">
-                      <div className="d-flex align-items-center mb-1">
-                        <span className="fw-bold me-2">{action.action}</span>
+                    <div className="flex-grow-1 p-2">
+                      <div className="d-flex align-items-center justify-content-between mb-1">
+                        <span className="fw-bold text-primary">{action.action}</span>
                         <Badge color="light" className="text-muted small fw-normal">
                           {action.created_at ? action.created_at.slice(0, 10) : ''}
                         </Badge>
                       </div>
-                      <div className="timeline-desc text-muted small"> {action.description}
+                      <div className="timeline-desc text-muted small">
+                        <small>{action.description}</small>
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-4">
+                  <Pagination>
+                    <PaginationItem disabled={currentPage === 1}>
+                      <PaginationLink previous onClick={() => handlePageChange(currentPage - 1)} />
+                    </PaginationItem>
+
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <PaginationItem key={pageNum} active={pageNum === currentPage}>
+                          <PaginationLink onClick={() => handlePageChange(pageNum)}>
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+
+                    <PaginationItem disabled={currentPage === totalPages}>
+                      <PaginationLink next onClick={() => handlePageChange(currentPage + 1)} />
+                    </PaginationItem>
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </CardBody>
       </Card>

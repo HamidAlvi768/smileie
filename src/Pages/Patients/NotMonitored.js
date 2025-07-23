@@ -159,6 +159,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     dob: "",
     doctor_id: "",
     gender: "",
+    patient_source: "",
     address: "",
     address2: "",
     zip_code: "",
@@ -286,6 +287,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
     if (!form.dob) errors.dob = 'Date of birth is required';
     if (!form.doctor_id) errors.doctor_id = 'Doctor is required';
     if (!form.gender) errors.gender = 'Gender is required';
+    if (!form.patient_source) errors.patient_source = 'Patient source is required';
     if (!form.country) errors.country = 'Country is required';
     if (!form.state) errors.state = 'State is required';
     if (!form.city) errors.city = 'City is required';
@@ -386,6 +388,7 @@ const NotMonitored = ({ pageTitle = "Not Monitored Patients" }) => {
         dob: "",
         doctor_id: "",
         gender: "",
+        patient_source: "",
         address: "",
         address2: "",
         zip_code: "",

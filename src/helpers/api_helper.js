@@ -44,6 +44,7 @@ axios.defaults.baseURL = config.API_URL;
 const user = JSON.parse(localStorage.getItem("authUser"));
 const myId = user?.id;
 const token = user ? user.access_token : "";
+const userRole = user?.role || "";
 
 // content type
 axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -54,6 +55,8 @@ axios.defaults.headers.get["Cache-Control"] = "no-cache";
 axios.defaults.headers.get["Pragma"] = "no-cache";
 axios.defaults.headers.get["Expires"] = "0";
 axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+// Add user role header for role-based API access
+axios.defaults.headers.common["X-User-Role"] = userRole;
 
 // intercepting to capture errors
 axios.interceptors.response.use(
@@ -96,8 +99,12 @@ axios.interceptors.response.use(
  * @param {*} token
  */
 const setAuthorization = (token) => {
-  
   axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+  
+  // Also update the user role header when setting authorization
+  const user = JSON.parse(localStorage.getItem("authUser"));
+  const userRole = user?.role || "";
+  axios.defaults.headers.common["X-User-Role"] = userRole;
 };
 
 class APIClient {
@@ -108,28 +115,32 @@ class APIClient {
     const currentTime = url.includes("?")
       ? `&_=${Date.now()}`
       : `?_=${Date.now()}`;
-    return axios.get(`${url}${currentTime}`, params);
+    const roleParam = `&role=${userRole}`;
+    return axios.get(`${url}${currentTime}${roleParam}`, params);
   };
 
   /**
    * post given data to url
    */
   create = (url, data) => {
-    return axios.post(url, data);
+    const roleParam = url.includes("?") ? `&role=${userRole}` : `?role=${userRole}`;
+    return axios.post(`${url}${roleParam}`, data);
   };
 
   /**
    * Updates data
    */
   update = (url, data) => {
-    return axios.put(url, data);
+    const roleParam = url.includes("?") ? `&role=${userRole}` : `?role=${userRole}`;
+    return axios.put(`${url}${roleParam}`, data);
   };
 
   /**
    * Delete
    */
   delete = (url, config) => {
-    return axios.delete(url, { ...config });
+    const roleParam = url.includes("?") ? `&role=${userRole}` : `?role=${userRole}`;
+    return axios.delete(`${url}${roleParam}`, { ...config });
   };
 }
 
@@ -159,12 +170,13 @@ export const updatePlanAPI = (plan) =>
 // Chat messages API
 export const getMessagesAPI = async (patientId) => {
   const response = await fetch(
-    `${config.API_URL}chat/messages?myid=${myId}&otherid=${patientId}`,
+    `${config.API_URL}chat/messages?myid=${myId}&otherid=${patientId}&role=${userRole}`,
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "X-User-Role": userRole,
         // no cache
         "Cache-Control": "no-cache",
         Pragma: "no-cache",
@@ -189,11 +201,12 @@ export const sendMessageAPI = async (patientId, message, file) => {
     message,
     file: file || null,
   };
-  const response = await fetch(`${config.API_URL}chat/messages/send`, {
+  const response = await fetch(`${config.API_URL}chat/messages/send?role=${userRole}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
+      "X-User-Role": userRole,
       // Add auth headers if needed
     },
     body: JSON.stringify(payload),
@@ -272,7 +285,7 @@ export const deleteFaqAPI = (id) => api.delete(`${DELETE_FAQ_API}?id=${id}`);
 export const getTreatmentStepsAPI = (patientId) =>
   api.get(`${GET_TREATMENT_STEPS_API}?id=${patientId}`);
 export const getScanDetailAPI = (id, step_number) =>
-  axios.get(`${GET_SCAN_DETAIL_API}?id=${id}&step_number=${step_number}`);
+  axios.get(`${GET_SCAN_DETAIL_API}?id=${id}&step_number=${step_number}&role=${userRole}`);
 
 // Alerts API
 export const getAlertsAPI = (userId) =>
@@ -297,4 +310,31 @@ export const getPatientAlignersAPI = async (patientId) => {
 
 export const getPatientMonitoringScansAPI = async (patientId) => {
   return api.get(`/patients/monitoring?id=${patientId}`);
+};
+
+export const getPatientProgressAPI = async (patientId) => {
+  return axios.get(`https://smileie.jantrah.com/backend/api/patients/progress?id=${patientId}`);
+};
+
+export const saveInstructionsAPI = async (title, content) => {
+  return axios.post('https://smileie.jantrah.com/backend/api/page/set', {
+    title,
+    content
+  });
+};
+
+export const getInstructionsAPI = async () => {
+  return axios.get('https://smileie.jantrah.com/backend/api/page/get?slug=instructions');
+};
+
+export const saveAlignerTipsAPI = async (title, content) => {
+  return axios.post('https://smileie.jantrah.com/backend/api/page/set', {
+    title,
+    content,
+    slug: 'aligner-maintenance-tips'
+  });
+};
+
+export const getAlignerTipsAPI = async () => {
+  return axios.get('https://smileie.jantrah.com/backend/api/page/get?slug=aligner-maintenance-tips');
 };
