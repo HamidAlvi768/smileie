@@ -3512,7 +3512,20 @@ const PatientDetail = () => {
       {/* Image Modal */}
       <Modal isOpen={imageModalOpen} toggle={() => setImageModalOpen(false)} centered size="lg">
         <ModalBody style={{ padding: 0, background: "#222" }}>
-          <img src={imageModalSrc} alt="Enlarged" style={{ width: "100%", height: "auto", display: "block", maxHeight: "80vh", margin: "0 auto" }} />
+          <img
+            src={imageModalSrc}
+            alt="Enlarged"
+            style={{
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+              width: "auto",
+              height: "auto",
+              display: "block",
+              margin: "0 auto",
+              objectFit: "contain",
+              borderRadius: "8px"
+            }}
+          />
         </ModalBody>
       </Modal>
     </div>

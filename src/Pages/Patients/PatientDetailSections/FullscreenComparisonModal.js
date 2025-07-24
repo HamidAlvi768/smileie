@@ -258,18 +258,52 @@ const FullscreenComparisonModal = ({
   rightData
 }) => {
   // Add local selectedDate state for both sides
-  const [leftSelectedDate, setLeftSelectedDate] = useState(leftData?.imageViewerProps?.images?.[0]?.date || '');
-  const [rightSelectedDate, setRightSelectedDate] = useState(rightData?.imageViewerProps?.images?.[0]?.date || '');
+  const [leftSelectedDate, setLeftSelectedDate] = useState(leftData?.imageViewerProps?.selectedDate || '');
+  const [rightSelectedDate, setRightSelectedDate] = useState(rightData?.imageViewerProps?.selectedDate || '');
 
   // Add local image index state for both sides
   const [leftSelectedImageIndex, setLeftSelectedImageIndex] = useState(0);
   const [rightSelectedImageIndex, setRightSelectedImageIndex] = useState(0);
 
-  // Ensure images arrays exist and are valid - with better debugging
-  const leftImages = Array.isArray(leftData?.imageViewerProps?.images) ?
+  // Update local state when props change
+  useEffect(() => {
+    console.log("🔄 Comparison Modal - Props changed:");
+    console.log("  - Left selectedDate from props:", leftData?.imageViewerProps?.selectedDate);
+    console.log("  - Right selectedDate from props:", rightData?.imageViewerProps?.selectedDate);
+    
+    if (leftData?.imageViewerProps?.selectedDate) {
+      console.log("  - Updating leftSelectedDate to:", leftData.imageViewerProps.selectedDate);
+      setLeftSelectedDate(leftData.imageViewerProps.selectedDate);
+    }
+    if (rightData?.imageViewerProps?.selectedDate) {
+      console.log("  - Updating rightSelectedDate to:", rightData.imageViewerProps.selectedDate);
+      setRightSelectedDate(rightData.imageViewerProps.selectedDate);
+    }
+  }, [leftData?.imageViewerProps?.selectedDate, rightData?.imageViewerProps?.selectedDate]);
+
+  // Get images for the currently selected dates
+  const getImagesForDate = (allImages, selectedDate) => {
+    const images = allImages.filter(img => img.date === selectedDate);
+    console.log(`📅 Getting images for date ${selectedDate}:`, images);
+    return images;
+  };
+
+  const allLeftImages = Array.isArray(leftData?.imageViewerProps?.images) ?
     leftData.imageViewerProps.images.filter(img => img && img.src && img.src !== '') : [];
-  const rightImages = Array.isArray(rightData?.imageViewerProps?.images) ?
+  const allRightImages = Array.isArray(rightData?.imageViewerProps?.images) ?
     rightData.imageViewerProps.images.filter(img => img && img.src && img.src !== '') : [];
+
+  const leftImages = getImagesForDate(allLeftImages, leftSelectedDate);
+  const rightImages = getImagesForDate(allRightImages, rightSelectedDate);
+
+  // Reset image index when date changes
+  useEffect(() => {
+    setLeftSelectedImageIndex(0);
+  }, [leftSelectedDate]);
+
+  useEffect(() => {
+    setRightSelectedImageIndex(0);
+  }, [rightSelectedDate]);
 
   // Keyboard navigation for up/down arrows
   useEffect(() => {
@@ -293,23 +327,15 @@ const FullscreenComparisonModal = ({
   console.log('🔍 Comparison Modal Debug:');
   console.log('  - Left Data:', leftData);
   console.log('  - Right Data:', rightData);
-  console.log('  - Left Images:', leftImages);
-  console.log('  - Right Images:', rightImages);
+  console.log('  - All Left Images:', allLeftImages);
+  console.log('  - All Right Images:', allRightImages);
+  console.log('  - Left Images for selected date:', leftImages);
+  console.log('  - Right Images for selected date:', rightImages);
   console.log('  - Left Selected Date:', leftSelectedDate);
   console.log('  - Right Selected Date:', rightSelectedDate);
   console.log('  - Left Selected Image Index:', leftSelectedImageIndex);
   console.log('  - Right Selected Image Index:', rightSelectedImageIndex);
   console.log('  - Config WEB_APP_URL:', config.WEB_APP_URL);
-
-  // Update selected dates when data changes
-  useEffect(() => {
-    if (leftImages.length > 0 && !leftSelectedDate) {
-      setLeftSelectedDate(leftImages[0].date);
-    }
-    if (rightImages.length > 0 && !rightSelectedDate) {
-      setRightSelectedDate(rightImages[0].date);
-    }
-  }, [leftImages, rightImages, leftSelectedDate, rightSelectedDate]);
 
   // Handlers for left side
   const handleLeftImageClick = () => {
@@ -351,7 +377,7 @@ const FullscreenComparisonModal = ({
       const link = document.createElement('a');
       link.href = rightImages[rightSelectedImageIndex].src;
       link.download = 'right-scan.jpg';
-      document.body.appendChild(link);
+      document.body.removeChild(link);
       link.click();
       document.body.removeChild(link);
     }
@@ -391,7 +417,14 @@ const FullscreenComparisonModal = ({
                 {...leftData.timelineProps}
                 minimal={true}
                 selectedDate={leftSelectedDate}
-                onDateChange={setLeftSelectedDate}
+                onDateChange={(date) => {
+                  console.log("🔄 Left timeline date changed to:", date);
+                  setLeftSelectedDate(date);
+                  // Also update the parent component's selected date
+                  if (leftData?.imageViewerProps?.setSelectedDate) {
+                    leftData.imageViewerProps.setSelectedDate(date);
+                  }
+                }}
               />
             </div>
             <div className="comparison-viewer-wrapper">
@@ -406,7 +439,7 @@ const FullscreenComparisonModal = ({
               ) : (
                 <div className="text-center text-muted py-5">
                   <i className="mdi mdi-image-off-outline" style={{ fontSize: '3em', color: '#ccc' }}></i>
-                  <p className="mt-3">No scans available for this date</p>
+                  <p className="mt-3">No scans available for {leftSelectedDate || 'this date'}</p>
                 </div>
               )}
               {/* Other components can go here */}
@@ -420,7 +453,14 @@ const FullscreenComparisonModal = ({
                 {...rightData.timelineProps}
                 minimal={true}
                 selectedDate={rightSelectedDate}
-                onDateChange={setRightSelectedDate}
+                onDateChange={(date) => {
+                  console.log("🔄 Right timeline date changed to:", date);
+                  setRightSelectedDate(date);
+                  // Also update the parent component's selected date
+                  if (rightData?.imageViewerProps?.setSelectedDate) {
+                    rightData.imageViewerProps.setSelectedDate(date);
+                  }
+                }}
               />
             </div>
             <div className="comparison-viewer-wrapper">
@@ -435,7 +475,7 @@ const FullscreenComparisonModal = ({
               ) : (
                 <div className="text-center text-muted py-5">
                   <i className="mdi mdi-image-off-outline" style={{ fontSize: '3em', color: '#ccc' }}></i>
-                  <p className="mt-3">No scans available for this date</p>
+                  <p className="mt-3">No scans available for {rightSelectedDate || 'this date'}</p>
                 </div>
               )}
               {/* Other components can go here */}

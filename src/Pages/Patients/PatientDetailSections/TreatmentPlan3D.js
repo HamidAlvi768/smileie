@@ -36,6 +36,7 @@ const Stepper = ({ currentStep, maxStepReached, onStepClick }) => (
 );
 
 const ARCH_TYPE_OPTIONS = [
+  { value: '', label: 'Select Arch Type' },
   { value: 'day_dual', label: 'Day time dual arch' },
   { value: 'night_dual', label: 'Night time dual arch' },
   { value: 'day_upper', label: 'Day time upper arch' },
@@ -65,10 +66,15 @@ const TreatmentPlan3D = ({ patient }) => {
     deleting3DPlan
   } = useSelector(state => state.patients);
 
+  // Get patient info from Redux
+  const patientDetail = useSelector(state => state.patients.patientDetail);
+  const patientAlignerType = patientDetail?.aligner_type || '';
+
   // Local state for form
   const [reelLink, setReelLink] = useState('');
   const [description, setDescription] = useState('');
-  const [archType, setArchType] = useState('both');
+  // Use patientAlignerType as default if no 3D plan arch_type
+  const [archType, setArchType] = useState(threeDPlan?.arch_type || patientAlignerType || 'both');
   const [totalAligners, setTotalAligners] = useState(0);
   const [editing, setEditing] = useState(false);
 
@@ -76,7 +82,8 @@ const TreatmentPlan3D = ({ patient }) => {
   const [urlError, setUrlError] = useState('');
 
   // Local state for 3rd step fields
-  const [archTypeStep3, setArchTypeStep3] = useState('day_dual');
+  // Use patientAlignerType as default if no 3D plan arch_type
+  const [archTypeStep3, setArchTypeStep3] = useState(threeDPlan?.arch_type || patientAlignerType || 'day_dual');
   const [upperAligners, setUpperAligners] = useState(0);
   const [lowerAligners, setLowerAligners] = useState(0);
   // Track if step 3 was saved successfully
@@ -113,34 +120,38 @@ const TreatmentPlan3D = ({ patient }) => {
     if (threeDPlan) {
       setReelLink(threeDPlan.plan_url || '');
       setDescription(threeDPlan.description || '');
-      setArchType(threeDPlan.arch_type || 'both');
+      setArchType(threeDPlan.arch_type || patientAlignerType || 'both');
       setTotalAligners(threeDPlan.total_aligners || 0);
       setEditing(false);
+    } else if (patientAlignerType) {
+      setArchType(patientAlignerType);
     }
-  }, [threeDPlan]);
+  }, [threeDPlan, patientAlignerType]);
 
   // When threeDPlan changes, update local state for step 3
   useEffect(() => {
     if (threeDPlan) {
-      setArchTypeStep3(threeDPlan.arch_type || 'day_dual');
+      setArchTypeStep3(threeDPlan.arch_type || patientAlignerType || 'day_dual');
       setUpperAligners(threeDPlan.upper_aligners || 0);
       setLowerAligners(threeDPlan.lower_aligners || 0);
+    } else if (patientAlignerType) {
+      setArchTypeStep3(patientAlignerType);
     }
-  }, [threeDPlan]);
+  }, [threeDPlan, patientAlignerType]);
 
   // Add after the useEffect that updates local state from threeDPlan
   useEffect(() => {
     if (!threeDPlan && patient?.id) {
       setReelLink('');
       setDescription('');
-      setArchType('both');
+      setArchType(patientAlignerType || 'both');
       setTotalAligners(0);
-      setArchTypeStep3('day_dual');
+      setArchTypeStep3(patientAlignerType || 'day_dual');
       setUpperAligners(0);
       setLowerAligners(0);
       setEditing(false);
     }
-  }, [threeDPlan, patient?.id]);
+  }, [threeDPlan, patient?.id, patientAlignerType]);
 
   // Automatically go to step 2 after successful save in step 1
   useEffect(() => {
@@ -208,6 +219,11 @@ const TreatmentPlan3D = ({ patient }) => {
     // Only return the date part, e.g., 'July 10, 2025'
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
+
+  // Helper: determine which aligner fields to enable
+  const isDual = archTypeStep3.includes('dual');
+  const isUpper = archTypeStep3.includes('upper');
+  const isLower = archTypeStep3.includes('lower');
 
   return (
     <div className="treatment-plan-3d-section">
@@ -375,7 +391,7 @@ const TreatmentPlan3D = ({ patient }) => {
                             min="0"
                             value={upperAligners}
                             onChange={e => setUpperAligners(Number(e.target.value))}
-                            disabled={!(archTypeStep3.includes('dual') || archTypeStep3.includes('upper'))}
+                            disabled={!(isDual || isUpper)}
                           />
                         </FormGroup>
                       </div>
@@ -388,7 +404,7 @@ const TreatmentPlan3D = ({ patient }) => {
                             min="0"
                             value={lowerAligners}
                             onChange={e => setLowerAligners(Number(e.target.value))}
-                            disabled={!(archTypeStep3.includes('dual') || archTypeStep3.includes('lower'))}
+                            disabled={!(isDual || isLower)}
                           />
                         </FormGroup>
                       </div>
