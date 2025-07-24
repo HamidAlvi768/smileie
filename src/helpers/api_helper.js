@@ -338,3 +338,15 @@ export const saveAlignerTipsAPI = async (title, content) => {
 export const getAlignerTipsAPI = async () => {
   return axios.get('https://smileie.jantrah.com/backend/api/page/get?slug=aligner-maintenance-tips');
 };
+
+export const getImpressionsGuideAPI = async () => {
+  return axios.get('https://smileie.jantrah.com/backend/api/page/get?slug=impressions-guide');
+};
+
+export const saveImpressionsGuideAPI = async (title, content) => {
+  return axios.post('https://smileie.jantrah.com/backend/api/page/set', {
+    title,
+    content,
+    slug: 'impressions-guide'
+  });
+};

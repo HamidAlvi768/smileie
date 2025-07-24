@@ -123,7 +123,7 @@ import OrderDetail from "../Pages/Orders/OrderDetail";
 import OrderList from "../Pages/Orders/OrderList";
 import FAQs from "../Pages/Settings/FAQs";
 import ContactUs from "../Pages/Settings/ContactUs";
-import { Instructions, AlignerTips } from "../Pages/Settings";
+import { Instructions, AlignerTips, ImpressionsGuide } from "../Pages/Settings";
 
 function RedirectToMainPage() {
   return <Navigate to="/notifications/messages" />;
@@ -153,6 +153,7 @@ const authProtectedRoutes = [
   { path: "/settings/contact-us", component: <ContactUs /> },
   { path: "/settings/instructions", component: <Instructions /> },
   { path: "/settings/aligner-tips", component: <AlignerTips /> },
+  { path: "/settings/impressions-guide", component: <ImpressionsGuide /> },
 
   // Calender
   { path: "/calendar", component: <Calender /> },

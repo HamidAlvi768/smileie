@@ -50,6 +50,12 @@ const settingsData = [
         icon: "ri-lightbulb-flash-line",
         url: "/settings/aligner-tips",
       },
+      {
+        name: "Impressions Guide",
+        description: "Update impressions guide for users.",
+        icon: "ri-book-open-line",
+        url: "/settings/impressions-guide",
+      },
     ],
   },
   {
@@ -86,17 +92,19 @@ const Settings = () => {
         <Container fluid={true}>
           <Breadcrumbs
             title="Smileie"
-            breadcrumbItem="Settings"
+            breadcrumbItem="General Settings"
           />
 
           {settingsData.map((sectionData, sectionIdx) => (
             <div key={sectionIdx} className="mb-4">
-              <h4 className="mb-3">{sectionData.section}</h4>
+              {sectionData.section !== 'General Settings' && (
+                <h4 className="mb-3">{sectionData.section}</h4>
+              )}
               <Row>
                 {sectionData.cards.map((card, cardIdx) => (
                   <Col xl={4} sm={6} key={cardIdx}>
                     <Link to={card.url} className="text-decoration-none">
-                      <Card className="card-hover-shadow position-relative">
+                      <Card className="card-hover-shadow position-relative" style={{ minHeight: 140, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         {card.count && (
                           <div className="position-absolute top-0 end-0 p-3">
                             <span className="badge bg-primary fs-6">{card.count}</span>
@@ -134,4 +142,5 @@ const Settings = () => {
 
 export { default as Instructions } from './Instructions';
 export { default as AlignerTips } from './AlignerTips';
+export { default as ImpressionsGuide } from './ImpressionsGuide';
 export default Settings; 

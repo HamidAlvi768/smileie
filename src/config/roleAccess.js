@@ -32,6 +32,7 @@ export const ROUTE_ACCESS = {
   '/settings/contact-us': [ROLES.ADMIN],
   '/settings/instructions': [ROLES.ADMIN],
   '/settings/aligner-tips': [ROLES.ADMIN],
+  '/settings/impressions-guide': [ROLES.ADMIN],
 
   // Calendar - Admin and Doctor
   '/calendar': [ROLES.ADMIN, ROLES.DOCTOR],
