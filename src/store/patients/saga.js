@@ -13,6 +13,7 @@ import {
   update3DPlanAPI,
   delete3DPlanAPI,
   changeAlignerAPI,
+  getTreatmentIssuesAPI,
 } from "../../helpers/api_helper";
 import {
   GET_PATIENTS,
@@ -62,6 +63,8 @@ import {
   changeAlignerSuccess,
   changeAlignerFail,
   getTreatmentSteps,
+  getTreatmentIssuesSuccess,
+  getTreatmentIssuesFail,
 } from "./actions";
 import {
   getTreatmentStepsAPI,
@@ -251,6 +254,15 @@ function* changeAlignerSaga({ payload }) {
   }
 }
 
+function* fetchTreatmentIssues({ payload }) {
+  try {
+    const response = yield call(getTreatmentIssuesAPI, payload);
+    yield put(getTreatmentIssuesSuccess(response));
+  } catch (error) {
+    yield put(getTreatmentIssuesFail(error));
+  }
+}
+
 function* patientsSaga() {
   yield takeEvery(GET_PATIENTS, fetchPatients);
   yield takeEvery(ADD_PATIENT, addPatientSaga);
@@ -267,6 +279,7 @@ function* patientsSaga() {
   yield takeEvery(GET_TREATMENT_STEPS, fetchTreatmentSteps);
   yield takeEvery(GET_SCAN_DETAIL, fetchScanDetail);
   yield takeEvery(CHANGE_ALIGNER, changeAlignerSaga);
+  yield takeEvery('GET_TREATMENT_ISSUES', fetchTreatmentIssues);
 }
 
 export default patientsSaga;

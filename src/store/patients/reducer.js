@@ -31,6 +31,10 @@ const INIT_STATE = {
   changingAligner: false,
   changeAlignerError: null,
   changeAlignerResult: null,
+  // Treatment Issues state
+  treatmentIssues: [],
+  treatmentIssuesLoading: false,
+  treatmentIssuesError: null,
 };
 
 const patientsReducer = (state = INIT_STATE, action) => {
@@ -117,6 +121,13 @@ const patientsReducer = (state = INIT_STATE, action) => {
       return { ...state, changingAligner: false, changeAlignerResult: action.payload, changeAlignerError: null };
     case 'CHANGE_ALIGNER_FAIL':
       return { ...state, changingAligner: false, changeAlignerError: action.payload };
+    
+    case 'GET_TREATMENT_ISSUES':
+      return { ...state, treatmentIssuesLoading: true, treatmentIssuesError: null };
+    case 'GET_TREATMENT_ISSUES_SUCCESS':
+      return { ...state, treatmentIssues: action.payload.data || [], treatmentIssuesLoading: false, treatmentIssuesError: null };
+    case 'GET_TREATMENT_ISSUES_FAIL':
+      return { ...state, treatmentIssuesLoading: false, treatmentIssuesError: action.payload };
     
     case 'CLEAR_PATIENT_MESSAGES':
       return { ...state, successMessage: null, error: null };

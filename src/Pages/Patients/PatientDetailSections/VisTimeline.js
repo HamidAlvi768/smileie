@@ -314,7 +314,7 @@ const VisTimeline = ({ timelinePoints, hygienePoints, height, barData, onCompare
               if (typeof onCompare === 'function') onCompare();
             }}
             style={{
-              marginLeft: 18,
+              marginLeft: 32,
               background: 'none',
               border: 'none',
               color: compare ? '#1da5fe' : '#607181',

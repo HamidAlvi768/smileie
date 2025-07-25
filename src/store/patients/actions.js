@@ -50,3 +50,8 @@ export const getScanDetailFail = (error) => ({ type: GET_SCAN_DETAIL_FAIL, paylo
 export const changeAligner = (data) => ({ type: 'CHANGE_ALIGNER', payload: data });
 export const changeAlignerSuccess = (result) => ({ type: 'CHANGE_ALIGNER_SUCCESS', payload: result });
 export const changeAlignerFail = (error) => ({ type: 'CHANGE_ALIGNER_FAIL', payload: error });
+
+// Treatment Issues actions
+export const getTreatmentIssues = (patientId) => ({ type: 'GET_TREATMENT_ISSUES', payload: patientId });
+export const getTreatmentIssuesSuccess = (issues) => ({ type: 'GET_TREATMENT_ISSUES_SUCCESS', payload: issues });
+export const getTreatmentIssuesFail = (error) => ({ type: 'GET_TREATMENT_ISSUES_FAIL', payload: error });

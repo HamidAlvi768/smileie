@@ -77,5 +77,7 @@ export const GET_SCAN_DETAIL_API = '/treatment/scans';
 
 // change aligner
 export const CHANGE_ALIGNER_API = '/patients/change-aligner';
+// treatment issues
+export const GET_TREATMENT_ISSUES_API = '/treatment/issues';
 //alerts
 export const GET_ALERTS_API = '/app/notifications';

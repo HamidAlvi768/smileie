@@ -37,6 +37,7 @@ import {
   GET_ALERTS_API,
   GET_PATIENT_STATS_API,
   CHANGE_ALIGNER_API,
+  GET_TREATMENT_ISSUES_API,
 } from "./url_helper";
 
 // default
@@ -350,3 +351,6 @@ export const saveImpressionsGuideAPI = async (title, content) => {
     slug: 'impressions-guide'
   });
 };
+
+export const getTreatmentIssuesAPI = (patientId) =>
+  api.get(`${GET_TREATMENT_ISSUES_API}?id=${patientId}`);

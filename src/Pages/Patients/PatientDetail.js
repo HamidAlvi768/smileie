@@ -28,7 +28,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { setNavbarMenuItems } from "../../store/navigation/actions";
-import { getPatientDetail, changeAligner } from "../../store/patients/actions";
+import { getPatientDetail, changeAligner, getTreatmentIssues } from "../../store/patients/actions";
 import Monitoring from "./PatientDetailSections/Monitoring";
 import Protocol from "./PatientDetailSections/Protocol";
 import Info from "./PatientDetailSections/Info";
@@ -169,7 +169,7 @@ const PatientDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
 
-  const { patientDetail, loadingDetail, error, changingAligner, changeAlignerError, changeAlignerResult } = useSelector((state) => state.patients);
+  const { patientDetail, loadingDetail, error, changingAligner, changeAlignerError, changeAlignerResult, treatmentIssues, treatmentIssuesLoading, treatmentIssuesError } = useSelector((state) => state.patients);
 
   const staticPatientData = {
     id: "P-00123",
@@ -254,6 +254,7 @@ const PatientDetail = () => {
     quickReply: false,
     aligner: false,
     image: false,
+    issues: false,
   });
 
   const toggleModal = (modalName, explicitState) => {
@@ -291,6 +292,13 @@ const PatientDetail = () => {
         : "20",
     });
     toggleModal("aligner", true);
+  };
+
+  const openIssuesModal = () => {
+    if (id) {
+      dispatch(getTreatmentIssues(id));
+    }
+    toggleModal("issues", true);
   };
 
   const filteredReplies = quickReplyOptions.filter(
@@ -477,6 +485,13 @@ const PatientDetail = () => {
       });
   }, [id]);
 
+  // Load treatment issues when component mounts or patient ID changes
+  useEffect(() => {
+    if (id) {
+      dispatch(getTreatmentIssues(id));
+    }
+  }, [id, dispatch]);
+
   // Debug: Log patientStats values before rendering Monitoring Information
   if (patientStats) {
     console.log('Rendering aligner_type:', patientStats.aligner_type);
@@ -530,6 +545,14 @@ const PatientDetail = () => {
       return 'Not set';
     }
   };
+
+  // Check if there are issues for the current step
+  const hasCurrentStepIssues = React.useMemo(() => {
+    if (!treatmentIssues || !Array.isArray(treatmentIssues) || typeof patientStats?.step_number === 'undefined') {
+      return false;
+    }
+    return treatmentIssues.some(issue => issue.step_number === patientStats.step_number);
+  }, [treatmentIssues, patientStats?.step_number]);
 
   // Refresh patient stats after successful aligner change
   useEffect(() => {
@@ -676,28 +699,65 @@ const PatientDetail = () => {
                   
                   <div className="mb-4 d-flex align-items-center justify-content-between">
                     <strong></strong>
-                    <div className="d-flex flex-column align-items-end">
+                    <div className="d-flex align-items-center justify-content-between" style={{ width: '100%', maxWidth: '300px' }}>
+                      <div className="d-flex flex-column align-items-center">
+                        <Button
+                          color="info"
+                          size="sm"
+                          className="px-3 py-2"
+                          onClick={openIssuesModal}
+                          disabled={treatmentIssuesLoading}
+                        >
+                          {treatmentIssuesLoading ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm me-2"></span>
+                              Loading...
+                            </>
+                          ) : (
+                            <>
+                              <i className="mdi mdi-alert-circle-outline me-1"></i>
+                              Issues
+                            </>
+                          )}
+                        </Button>
+                        <small className="text-muted mt-1" style={{ fontSize: '0.7rem' }}>
+                          View issues
+                        </small>
+                      </div>
+                      
                       {typeof patientStats?.step_number !== 'undefined' && 
                        typeof patientStats?.total_steps !== 'undefined' && 
                        patientStats?.total_steps !== 0 && 
                        patientStats?.step_number < patientStats?.total_steps ? (
                         <>
-                          <Button
-                            color="primary"
-                            size="sm"
-                            className="px-3 py-2"
-                            onClick={() => setMoveNextModalOpen(true)}
-                            disabled={changingAligner}
-                          >
-                            {changingAligner ? (
-                              <>
-                                <span className="spinner-border spinner-border-sm me-2"></span>
-                                Processing...
-                              </>
+                          <div className="d-flex flex-column align-items-center">
+                            <Button
+                              color="primary"
+                              size="sm"
+                              className="px-3 py-2"
+                              onClick={() => setMoveNextModalOpen(true)}
+                              disabled={changingAligner || !hasCurrentStepIssues}
+                              title={!hasCurrentStepIssues ? "No issues found for current step" : ""}
+                            >
+                              {changingAligner ? (
+                                <>
+                                  <span className="spinner-border spinner-border-sm me-2"></span>
+                                  Processing...
+                                </>
+                              ) : (
+                                'Move to Next'
+                              )}
+                            </Button>
+                            {!hasCurrentStepIssues && !changingAligner ? (
+                              <small className="text-muted mt-1" style={{ fontSize: '0.7rem' }}>
+                                No issues for step {patientStats?.step_number}
+                              </small>
                             ) : (
-                              'Move to Next'
+                              <small className="text-muted mt-1" style={{ fontSize: '0.7rem' }}>
+                                Advance treatment
+                              </small>
                             )}
-                          </Button>
+                          </div>
                         </>
                       ) : null}
                     </div>
@@ -1137,6 +1197,77 @@ const PatientDetail = () => {
             ) : (
               'Confirm Move to Next'
             )}
+          </Button>
+        </div>
+      </Modal>
+
+      {/* Treatment Issues Modal */}
+      <Modal isOpen={modalStates.issues} toggle={() => toggleModal("issues")} centered size="lg">
+        <div className="modal-header">
+          <h5 className="modal-title">Treatment Issues</h5>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => toggleModal("issues", false)}
+            aria-label="Close"
+          ></button>
+        </div>
+        <div className="modal-body">
+          {treatmentIssuesLoading ? (
+            <div className="text-center py-4">
+              <span className="spinner-border spinner-border-sm me-2"></span>
+              Loading issues...
+            </div>
+          ) : treatmentIssuesError ? (
+            <div className="alert alert-danger">
+              <i className="mdi mdi-close-circle-outline me-2"></i>
+              {treatmentIssuesError.toString()}
+            </div>
+          ) : treatmentIssues && treatmentIssues.length > 0 ? (
+            <div className="table-responsive">
+              <table className="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Step #</th>
+                    <th>Issue</th>
+                    <th>Message</th>
+                    <th>Created At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {treatmentIssues.map((issue, index) => (
+                    <tr key={index}>
+                      <td>
+                        <span className="badge bg-primary">{issue.step_number}</span>
+                      </td>
+                      <td>
+                        <strong>{issue.issue}</strong>
+                      </td>
+                      <td>{issue.message}</td>
+                      <td>
+                        {issue.created_at ? (
+                          <small className="text-muted">
+                            {formatDate(issue.created_at)}
+                          </small>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <i className="mdi mdi-check-circle-outline text-success" style={{ fontSize: '3rem' }}></i>
+              <p className="mt-3 text-muted">No treatment issues found.</p>
+            </div>
+          )}
+        </div>
+        <div className="modal-footer">
+          <Button color="light" onClick={() => toggleModal("issues", false)}>
+            Close
           </Button>
         </div>
       </Modal>

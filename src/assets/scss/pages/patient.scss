@@ -2462,18 +2462,38 @@
     position: absolute;
     top: 20px;
     right: 20px;
-    background: none;
-    border: none;
-    font-size: 24px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e9ecef;
+    font-size: 18px;
     color: #666;
     cursor: pointer;
     z-index: 1000;
-    padding: 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
+    padding: 12px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+      color: #e74c3c;
+      border-color: #e74c3c;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
     }
   }
 

@@ -172,9 +172,8 @@ const ImageViewer = ({
         <img
           src={mainImage}
           alt="Main intraoral"
-          className={`image-viewer-main-image ${
-            onMainImageClick ? "clickable" : ""
-          }`}
+          className={`image-viewer-main-image ${onMainImageClick ? "clickable" : ""
+            }`}
           style={{ cursor: onMainImageClick ? "zoom-in" : "default" }}
           onClick={onMainImageClick}
         />
@@ -222,9 +221,8 @@ const ImageViewer = ({
               src={img.src}
               alt={`Thumbnail ${idx + 1}`}
               onClick={() => handleThumbnailClick(idx)}
-              className={`thumbnail-image ${
-                idx === safeImageIndex ? "active" : ""
-              }`}
+              className={`thumbnail-image ${idx === safeImageIndex ? "active" : ""
+                }`}
             />
           ))
         ) : (
@@ -501,9 +499,8 @@ const Monitoring = ({ patient }) => {
       timelinePoints: scanDates.map((date) => ({
         alignerIndex: date,
         dataObjectLabel: date,
-        tooltip: `Scans from ${date} (${scansByDate[date]?.length || 0} scan${
-          scansByDate[date]?.length !== 1 ? "s" : ""
-        })`,
+        tooltip: `Scans from ${date} (${scansByDate[date]?.length || 0} scan${scansByDate[date]?.length !== 1 ? "s" : ""
+          })`,
         date: date,
         scanCount: scansByDate[date]?.length || 0,
       })),
@@ -511,7 +508,7 @@ const Monitoring = ({ patient }) => {
       height: 120,
     },
     imageViewerProps: {
-      images: scanDates.length > 0 ? 
+      images: scanDates.length > 0 ?
         // Get all images from all dates, not just the current selected date
         scanDates.flatMap((date) => {
           const dateScans = scansByDate[date] || [];
@@ -557,9 +554,8 @@ const Monitoring = ({ patient }) => {
       timelinePoints: scanDates.map((date) => ({
         alignerIndex: date,
         dataObjectLabel: date,
-        tooltip: `Scans from ${date} (${scansByDate[date]?.length || 0} scan${
-          scansByDate[date]?.length !== 1 ? "s" : ""
-        })`,
+        tooltip: `Scans from ${date} (${scansByDate[date]?.length || 0} scan${scansByDate[date]?.length !== 1 ? "s" : ""
+          })`,
         date: date,
         scanCount: scansByDate[date]?.length || 0,
       })),
@@ -567,7 +563,7 @@ const Monitoring = ({ patient }) => {
       height: 120,
     },
     imageViewerProps: {
-      images: scanDates.length > 0 ? 
+      images: scanDates.length > 0 ?
         // Get all images from all dates, not just the current selected date
         scanDates.flatMap((date) => {
           const dateScans = scansByDate[date] || [];
@@ -655,7 +651,7 @@ const Monitoring = ({ patient }) => {
   };
 
   return (
-    <div className="monitoring-section" style={{gap:"10px"}}>
+    <div className="monitoring-section" style={{ gap: "10px" }}>
       <Card className="monitoring-main-card">
         <CardBody>
           <div className="timeline-section mb-3">
@@ -673,9 +669,8 @@ const Monitoring = ({ patient }) => {
                 timelinePoints={scanDates.map((date) => ({
                   alignerIndex: date,
                   dataObjectLabel: date,
-                  tooltip: `Scans from ${date} (${
-                    scansByDate[date]?.length || 0
-                  } scan${scansByDate[date]?.length !== 1 ? "s" : ""})`,
+                  tooltip: `Scans from ${date} (${scansByDate[date]?.length || 0
+                    } scan${scansByDate[date]?.length !== 1 ? "s" : ""})`,
                   date: date,
                   scanCount: scansByDate[date]?.length || 0,
                 }))}
@@ -695,12 +690,6 @@ const Monitoring = ({ patient }) => {
               />
             ) : (
               <div className="text-center text-muted py-4">
-                <i
-                  className="mdi mdi-timeline-outline"
-                  style={{ fontSize: "2em", color: "#ccc" }}
-                ></i>
-                <br />
-                No scan dates available for timeline.
               </div>
             )}
           </div>
@@ -803,9 +792,8 @@ const Monitoring = ({ patient }) => {
                         src={thumbUrl}
                         alt={`Scan ${idx + 1}`}
                         onClick={() => handleThumbnailClick(idx)}
-                        className={`thumbnail-image${
-                          isActive ? " active" : ""
-                        }`}
+                        className={`thumbnail-image${isActive ? " active" : ""
+                          }`}
                         style={{
                           height: 56,
                           width: 56,

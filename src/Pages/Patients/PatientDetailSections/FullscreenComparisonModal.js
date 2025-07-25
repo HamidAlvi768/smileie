@@ -420,10 +420,7 @@ const FullscreenComparisonModal = ({
                 onDateChange={(date) => {
                   console.log("🔄 Left timeline date changed to:", date);
                   setLeftSelectedDate(date);
-                  // Also update the parent component's selected date
-                  if (leftData?.imageViewerProps?.setSelectedDate) {
-                    leftData.imageViewerProps.setSelectedDate(date);
-                  }
+                  // Don't update the parent component's selected date to keep sides independent
                 }}
               />
             </div>
@@ -456,10 +453,7 @@ const FullscreenComparisonModal = ({
                 onDateChange={(date) => {
                   console.log("🔄 Right timeline date changed to:", date);
                   setRightSelectedDate(date);
-                  // Also update the parent component's selected date
-                  if (rightData?.imageViewerProps?.setSelectedDate) {
-                    rightData.imageViewerProps.setSelectedDate(date);
-                  }
+                  // Don't update the parent component's selected date to keep sides independent
                 }}
               />
             </div>
