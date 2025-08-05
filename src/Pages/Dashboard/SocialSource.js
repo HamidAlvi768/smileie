@@ -1,8 +1,7 @@
 import React from "react";
 import RadialChart from "./RadialChart";
 import { Card, CardBody, Col, Row } from "reactstrap";
-import { useSelector, useDispatch } from 'react-redux';
-import { getStats } from '../../store/stats/actions';
+import { useSelector } from 'react-redux';
 
 // Map API source names to icons/colors
 const sourceIconMap = {
@@ -13,11 +12,7 @@ const sourceIconMap = {
 };
 
 const SocialSource = () => {
-  const dispatch = useDispatch();
-  const stats = useSelector(state => state.stats.stats);
-  React.useEffect(() => {
-    dispatch(getStats());
-  }, [dispatch]);
+  const stats = useSelector((state) => state.stats.stats);
   const sources = stats && stats.patient_sources ? stats.patient_sources : [];
 
   // Prepare data for chart

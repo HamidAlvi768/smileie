@@ -40,6 +40,7 @@ import ScheduledActions from "./PatientDetailSections/ScheduledActions";
 import Scans from "./PatientDetailSections/Scans";
 import ScanDetail from "./PatientDetailSections/ScanDetail";
 import History from "./PatientDetailSections/History";
+import Referrals from "./PatientDetailSections/Referrals";
 import {
   fetchMessages,
   sendMessage,
@@ -49,6 +50,7 @@ import config, { WEB_APP_URL } from "../../config.js";
 import PatientOrders from "./PatientDetailSections/Orders.js";
 import ConsentForms from "./PatientDetailSections/ConsentForms";
 import TreatmentPlan3D from "./PatientDetailSections/TreatmentPlan3D";
+import InitialTeeth from "./PatientDetailSections/InitialTeeth";
 import { getPatientStatsAPI, getPatientAlignersAPI } from '../../helpers/api_helper';
 
 const OBSERVATION_SUB_OBSERVATIONS_DATA = {
@@ -72,12 +74,14 @@ const OBSERVATION_SUB_OBSERVATIONS_DATA = {
 const NAVBAR_ITEMS_TEMPLATE = [
   { id: "monitoring", label: "Monitoring", url: "/patients/:id/monitoring" },
   { id: "info", label: "Info", url: "/patients/:id/info" },
+  { id: "order", label: "Orders", url: "/patients/:id/order" },
+  { id: "impressions", label: "Initial Teeth", url: "/patients/:id/impressions" },
   { id: "consent-forms", label: "Consent Forms", url: "/patients/:id/consent-forms" },
   { id: "treatment-plan-3d", label: "3D Treatment Plan", url: "/patients/:id/treatment-plan-3d" },
   { id: "scans", label: "Treatment Process", url: "/patients/:id/scans" },
-  { id: "order", label: "Orders", url: "/patients/:id/order" },
   { id: "history", label: "History", url: "/patients/:id/history" },
   { id: "alerts", label: "Alerts", url: "/patients/:id/alerts" },
+  { id: "referrals", label: "Referrals", url: "/patients/:id/referrals" },
 ];
 
 const QUICK_REPLY_OPTIONS_DATA = [
@@ -673,6 +677,13 @@ const PatientDetail = () => {
                   </div>
                   
                   <div className="mb-4 d-flex align-items-center justify-content-between">
+                    <strong className="text-muted">Coupon Code:</strong>
+                    <span className="badge bg-info text-white">
+                      {patientStats?.coupon_code || 'Not set'}
+                    </span>
+                  </div>
+                  
+                  <div className="mb-4 d-flex align-items-center justify-content-between">
                     <strong className="text-muted">Aligner Progress:</strong>
                     <div className="d-flex flex-column align-items-end">
                       {typeof patientStats?.step_number !== 'undefined' && typeof patientStats?.total_steps !== 'undefined' ? (
@@ -808,10 +819,18 @@ const PatientDetail = () => {
                 element={<ScanDetail />}
               />
               <Route
+                path="impressions"
+                element={<InitialTeeth patientId={id} patient={patient} />}
+              />
+              <Route
                 path="order"
-                element={<PatientOrders order={SAMPLE_ORDER} />}
+                element={<PatientOrders patientId={id} />}
               />
               <Route path="history" element={<History patient={patient} />} />
+              <Route
+                path="referrals"
+                element={<Referrals patientId={id} />}
+              />
               <Route
                 path="*"
                 element={<Navigate to={`/patients/${id}/monitoring`} replace />}

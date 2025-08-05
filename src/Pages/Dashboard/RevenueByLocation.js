@@ -10,7 +10,6 @@ import {
 
 import { Link } from 'react-router-dom';
 import { getPatients } from '../../store/patients/actions';
-import { getStats } from '../../store/stats/actions';
 import { getCountryCode } from './countries';
 
 // Function to get full country name from country code
@@ -217,16 +216,15 @@ const getCountryName = (countryCode) => {
 // Data aggregated by country using ISO 3166-1 alpha-2 codes
 const RevenueByLocation = () => {
     const dispatch = useDispatch();
-    const stats = useSelector(state => state.stats.stats);
-    const statsLoading = useSelector(state => state.stats.loading);
+    const stats = useSelector((state) => state.stats.stats);
+    const statsLoading = useSelector((state) => state.stats.loading);
     
     // Get all patients list from Redux
     const patients = useSelector(state => state.patients && state.patients.patients ? state.patients.patients : []);
     const patientsLoading = useSelector(state => state.patients.loading);
 
-    // Fetch stats and patients data on component mount
+    // Fetch patients data on component mount
     useEffect(() => {
-        dispatch(getStats());
         dispatch(getPatients());
     }, [dispatch]);
 
@@ -414,7 +412,7 @@ const RevenueByLocation = () => {
                                         .slice(0, 3)
                                         .map(([code, count]) => (
                                             <span key={code} className="badge bg-light text-dark">
-                                                {getCountryName(code)}: {count} patients
+                                                {getCountryName(code)}: {count}
                                             </span>
                                         ))}
                                 </div>

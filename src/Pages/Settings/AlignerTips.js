@@ -59,7 +59,7 @@ const AlignerTips = () => {
   return (
     <div className="page-content no-navbar">
       <Container fluid={true}>
-        <Breadcrumbs title="Settings" breadcrumbItem="Aligner Maintenance & Tips" />
+        <Breadcrumbs title="Smileie" breadcrumbItem="Settings" breadcrumbItem2="Aligner Maintenance & Tips" />
         <Card>
           <CardBody>
             <h4 className="mb-3">Edit Aligner Maintenance & Tips</h4>

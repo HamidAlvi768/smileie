@@ -2,15 +2,10 @@ import React from "react";
 import LineColumnArea from "./LineColumnArea";
 
 import { Card, CardBody, Col, Row } from "reactstrap";
-import { useSelector, useDispatch } from 'react-redux';
-import { getStats } from '../../store/stats/actions';
+import { useSelector } from 'react-redux';
 
 const OverView = () => {
-  const dispatch = useDispatch();
-  const stats = useSelector(state => state.stats.stats);
-  React.useEffect(() => {
-    dispatch(getStats());
-  }, [dispatch]);
+  const stats = useSelector((state) => state.stats.stats);
   const overview = stats && stats.overview ? stats.overview : {};
   const OverViewData = [
     {
@@ -39,32 +34,6 @@ const OverView = () => {
                 <h5 className="card-title">Overview</h5>
               </div>
               <div className="flex-shrink-0">
-                <div>
-                  <button
-                    type="button"
-                    className="btn btn-soft-secondary btn-sm me-1"
-                  >
-                    ALL
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-soft-primary btn-sm me-1"
-                  >
-                    1M
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-soft-secondary btn-sm me-1"
-                  >
-                    3M
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-soft-secondary btn-sm me-1 active"
-                  >
-                    6M
-                  </button>
-                </div>
               </div>
             </div>
             <div>

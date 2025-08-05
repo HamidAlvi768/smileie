@@ -13,12 +13,24 @@ const AuthProtected = (props) => {
     redirect is un-auth access protected routes via url
     */
 
-  // If still loading, show loading state
+  // If still loading, show shimmer loading state
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+        <div className="shimmer-card" style={{ width: "400px", height: "300px" }}>
+          <div className="shimmer-header">
+            <div className="shimmer-avatar"></div>
+            <div className="shimmer-content">
+              <div className="shimmer-line" style={{ width: '70%' }}></div>
+              <div className="shimmer-line" style={{ width: '50%' }}></div>
+            </div>
+          </div>
+          <div className="shimmer-body">
+            <div className="shimmer-line" style={{ width: '90%' }}></div>
+            <div className="shimmer-line" style={{ width: '80%' }}></div>
+            <div className="shimmer-line" style={{ width: '75%' }}></div>
+            <div className="shimmer-line" style={{ width: '85%' }}></div>
+          </div>
         </div>
       </div>
     );

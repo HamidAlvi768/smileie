@@ -38,7 +38,35 @@ import {
   GET_PATIENT_STATS_API,
   CHANGE_ALIGNER_API,
   GET_TREATMENT_ISSUES_API,
+  GET_ORDERS_API,
+  ADD_ORDER_API,
+  GET_IMPRESSIONS_API,
+  GET_CONTACT_US_API,
+  GET_USER_PROFILE_API,
+  UPDATE_USER_PROFILE_API,
+  PASSWORD_RESET_API,
+  LOGIN_API,
+  GET_PATIENT_PROGRESS_API,
+  GET_PATIENT_HISTORY_API,
+  GET_PAGE_API,
+  SET_PAGE_API,
+  GET_REFERRALS_API,
+  UPDATE_REFERRAL_STATUS_API,
+  GET_REFERRAL_AMOUNT_API,
+  PAY_REFERRALS_API,
 } from "./url_helper";
+
+/**
+ * Utility function to properly concatenate URLs and avoid double slashes
+ * @param {string} baseUrl - The base URL
+ * @param {string} endpoint - The endpoint path
+ * @returns {string} - Properly concatenated URL
+ */
+const buildApiUrl = (baseUrl, endpoint) => {
+  const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${cleanBase}${cleanEndpoint}`;
+};
 
 // default
 axios.defaults.baseURL = config.API_URL;
@@ -106,6 +134,30 @@ const setAuthorization = (token) => {
   const user = JSON.parse(localStorage.getItem("authUser"));
   const userRole = user?.role || "";
   axios.defaults.headers.common["X-User-Role"] = userRole;
+};
+
+/**
+ * Updates axios headers with current user data from localStorage
+ * This should be called after login to ensure headers are updated
+ */
+export const updateAxiosHeaders = () => {
+  const user = JSON.parse(localStorage.getItem("authUser"));
+  const token = user ? user.access_token : "";
+  const userRole = user?.role || "";
+  
+  console.log('🔄 Updating axios headers with token:', token ? '***' : 'none', 'role:', userRole);
+  
+  axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+  axios.defaults.headers.common["X-User-Role"] = userRole;
+};
+
+/**
+ * Clears axios headers (used on logout)
+ */
+export const clearAxiosHeaders = () => {
+  console.log('🧹 Clearing axios headers');
+  delete axios.defaults.headers.common["Authorization"];
+  delete axios.defaults.headers.common["X-User-Role"];
 };
 
 class APIClient {
@@ -229,15 +281,43 @@ export const deleteGeneralTypeAPI = (id) =>
   api.delete(`${DELETE_GENERAL_TYPE_API}?id=${id}`);
 
 export const loginAPI = async (email, password) => {
-  const response = await fetch(`${config.API_URL}users/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  });
-  if (!response.ok) throw new Error("Failed to login");
-  return response.json();
+  try {
+    console.log('🔐 Login API called with:', { email, password: '***' });
+    
+    // Use utility function to build proper URL
+    const fullUrl = buildApiUrl(config.API_URL, LOGIN_API);
+    console.log('🔗 API URL:', fullUrl);
+    
+    const response = await fetch(fullUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    
+    console.log('📡 Response status:', response.status);
+    console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+    
+    const data = await response.json();
+    console.log('📦 Response data:', data);
+    
+    if (!response.ok) {
+      console.error('❌ Login failed - HTTP error:', response.status);
+      throw new Error(data.message || `Login failed with status ${response.status}`);
+    }
+    
+    if (data.status === 'error') {
+      console.error('❌ Login failed - API error:', data.message);
+      throw new Error(data.message || 'Login failed');
+    }
+    
+    console.log('✅ Login successful');
+    return data;
+  } catch (error) {
+    console.error('💥 Login API error:', error);
+    throw error;
+  }
 };
 
 // Patients API
@@ -286,7 +366,7 @@ export const deleteFaqAPI = (id) => api.delete(`${DELETE_FAQ_API}?id=${id}`);
 export const getTreatmentStepsAPI = (patientId) =>
   api.get(`${GET_TREATMENT_STEPS_API}?id=${patientId}`);
 export const getScanDetailAPI = (id, step_number) =>
-  axios.get(`${GET_SCAN_DETAIL_API}?id=${id}&step_number=${step_number}&role=${userRole}`);
+  api.get(`${GET_SCAN_DETAIL_API}?id=${id}&step_number=${step_number}`);
 
 // Alerts API
 export const getAlertsAPI = (userId) =>
@@ -294,7 +374,7 @@ export const getAlertsAPI = (userId) =>
 
 // Patient History API
 export const getPatientHistoryAPI = (patientId) =>
-  api.get(`https://smileie.jantrah.com/backend/api/patients/history?id=${patientId}`);
+  api.get(`${GET_PATIENT_HISTORY_API}?id=${patientId}`);
 
 export const getPatientStatsAPI = (patientId) =>
   api.get(`${GET_PATIENT_STATS_API}?id=${patientId}`);
@@ -314,22 +394,23 @@ export const getPatientMonitoringScansAPI = async (patientId) => {
 };
 
 export const getPatientProgressAPI = async (patientId) => {
-  return axios.get(`https://smileie.jantrah.com/backend/api/patients/progress?id=${patientId}`);
+  return api.get(`${GET_PATIENT_PROGRESS_API}?id=${patientId}`);
 };
 
 export const saveInstructionsAPI = async (title, content) => {
-  return axios.post('https://smileie.jantrah.com/backend/api/page/set', {
+  return api.create(SET_PAGE_API, {
     title,
-    content
+    content,
+    slug: 'instructions'
   });
 };
 
 export const getInstructionsAPI = async () => {
-  return axios.get('https://smileie.jantrah.com/backend/api/page/get?slug=instructions');
+  return api.get(`${GET_PAGE_API}?slug=instructions`);
 };
 
 export const saveAlignerTipsAPI = async (title, content) => {
-  return axios.post('https://smileie.jantrah.com/backend/api/page/set', {
+  return api.create(SET_PAGE_API, {
     title,
     content,
     slug: 'aligner-maintenance-tips'
@@ -337,15 +418,15 @@ export const saveAlignerTipsAPI = async (title, content) => {
 };
 
 export const getAlignerTipsAPI = async () => {
-  return axios.get('https://smileie.jantrah.com/backend/api/page/get?slug=aligner-maintenance-tips');
+  return api.get(`${GET_PAGE_API}?slug=aligner-maintenance-tips`);
 };
 
 export const getImpressionsGuideAPI = async () => {
-  return axios.get('https://smileie.jantrah.com/backend/api/page/get?slug=impressions-guide');
+  return api.get(`${GET_PAGE_API}?slug=impressions-guide`);
 };
 
 export const saveImpressionsGuideAPI = async (title, content) => {
-  return axios.post('https://smileie.jantrah.com/backend/api/page/set', {
+  return api.create(SET_PAGE_API, {
     title,
     content,
     slug: 'impressions-guide'
@@ -354,3 +435,60 @@ export const saveImpressionsGuideAPI = async (title, content) => {
 
 export const getTreatmentIssuesAPI = (patientId) =>
   api.get(`${GET_TREATMENT_ISSUES_API}?id=${patientId}`);
+
+// Orders API
+export const getOrdersAPI = (patientId) =>
+  api.get(`${GET_ORDERS_API}?id=${patientId}`);
+
+export const addOrderAPI = (orderData) => {
+  // Ensure the payload includes all required fields
+  const payload = {
+    patient_id: orderData.patient_id,
+    tracking_id: orderData.tracking_id || '',
+    main_concern: orderData.main_concern,
+    comment: orderData.comment || '',
+    date: orderData.date || new Date().toISOString().split('T')[0]
+  };
+  return api.create(`${ADD_ORDER_API}?id=${orderData.patient_id}`, payload);
+};
+
+// Impressions API
+export const getImpressionsAPI = (patientId) => {
+  return api.get(`${GET_IMPRESSIONS_API}?id=${patientId}`);
+};
+
+// Referrals API functions
+export const getReferralsAPI = (patientId) => {
+  return api.get(`${GET_REFERRALS_API}?id=${patientId}`);
+};
+
+export const updateReferralStatusAPI = (referralId, status) => {
+  return api.get(`${UPDATE_REFERRAL_STATUS_API}?id=${referralId}&status=${status}`);
+};
+
+export const getReferralAmountAPI = (patientId) => {
+  return api.get(`${GET_REFERRAL_AMOUNT_API}?id=${patientId}`);
+};
+
+export const payReferralsAPI = (patientId) => {
+  return api.get(`${PAY_REFERRALS_API}?id=${patientId}`);
+};
+
+// Generic Records API functions
+export const getSpecialtiesAPI = () => {
+  console.log('Calling getSpecialtiesAPI with endpoint:', `${GET_GENERAL_TYPES_API}?type=specialty`);
+  return api.get(`${GET_GENERAL_TYPES_API}?type=specialty`);
+};
+
+export const getPracticesAPI = () => {
+  console.log('Calling getPracticesAPI with endpoint:', `${GET_GENERAL_TYPES_API}?type=practice`);
+  return api.get(`${GET_GENERAL_TYPES_API}?type=practice`);
+};
+
+// Contact Us API
+export const getContactUsAPI = () => api.get(GET_CONTACT_US_API);
+
+// Account/User Management APIs
+export const getUserProfileAPI = (userId) => api.get(`${GET_USER_PROFILE_API}?id=${userId}`);
+export const updateUserProfileAPI = (userId, userData) => api.update(`${UPDATE_USER_PROFILE_API}?id=${userId}`, userData);
+export const passwordResetAPI = (email) => api.create(PASSWORD_RESET_API, { email });

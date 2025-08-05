@@ -14,6 +14,7 @@ import {
   FormGroup,
   Label,
   Form,
+  Tooltip,
 } from "reactstrap";
 import DataTable from "react-data-table-component";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +25,48 @@ import Select from 'react-select';
 import PatientForm from './PatientForm';
 import { useRoleAccess } from "../../Hooks/RoleHooks";
 import RoleBasedRender from "../../components/Common/RoleBasedRender";
+
+// Enhanced components
+import { withPageTransition } from "../../components/Common/PageTransition";
+import ShimmerLoader from "../../components/Common/ShimmerLoader";
+import { useOptimizedAPI } from "../../Hooks/useOptimizedAPI";
+
+// Shimmer effect styles
+const shimmerStyles = `
+  .shimmer-input {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border: 1px solid #e9ecef;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  .shimmer-table-row {
+    background: linear-gradient(90deg, #f8f9fa 25%, #e9ecef 50%, #f8f9fa 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    height: 56px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  
+  .shimmer-table-cell {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    height: 16px;
+    border-radius: 2px;
+    margin: 4px 0;
+  }
+`;
 
 const filterOptions = {
   compliance: [
@@ -68,7 +111,36 @@ const columns = [
         <div className="text-muted" style={{ fontSize: "0.85em" }}>
           {row.doctor}
         </div>
-        <div className="fw-bold">{row.name}</div>
+        <div className="d-flex align-items-center gap-2">
+          <div className="fw-bold">{row.name}</div>
+          {row.coupon_code && (
+            <span className="badge bg-info text-white px-2 py-1" style={{ fontSize: "0.7rem" }}>
+              {row.coupon_code}
+            </span>
+          )}
+          {row.sourceBadge && (
+            <span 
+              className={`badge ${row.sourceBadge.color} text-white px-2 py-1 d-inline-flex align-items-center`} 
+              style={{ fontSize: "0.7rem", cursor: "help" }}
+              id={`source-badge-${row.id}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <i className={`${row.sourceBadge.icon} me-1`} style={{ fontSize: "0.8rem" }}></i>
+            </span>
+          )}
+          {row.sourceBadge && (
+            <Tooltip
+              placement="top"
+              isOpen={tooltipOpen[`source-badge-${row.id}`]}
+              target={`source-badge-${row.id}`}
+              toggle={() => toggleTooltip(`source-badge-${row.id}`)}
+              autohide={false}
+              delay={{ show: 100, hide: 100 }}
+            >
+              {row.sourceBadge.tooltip}
+            </Tooltip>
+          )}
+        </div>
         <div className="text-muted" style={{ fontSize: "0.75em" }}>
           {row.email}
         </div>
@@ -173,8 +245,24 @@ const customStyles = {
 
 const PatientsMonitored = ({ pageTitle = "Patients" }) => {
   const [createPatientModal, setCreatePatientModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
+  const [tooltipOpen, setTooltipOpen] = useState({});
   const { userRole, canAccessFeature } = useRoleAccess();
+  
+  const toggleTooltip = (id) => {
+    setTooltipOpen(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+  
+  // Inject shimmer styles
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = shimmerStyles;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
   
   const toggleCreatePatient = () => {
     if (createPatientModal) {
@@ -187,6 +275,7 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const monitoredPatients = useSelector((state) => state.patients.monitoredPatients);
+  const monitoredLoading = useSelector((state) => state.patients.loading);
   const monitoredError = useSelector((state) => state.patients.error);
   const successMessage = useSelector((state) => state.patients.successMessage);
   const doctors = useSelector((state) => state.doctor.doctors) || [];
@@ -204,6 +293,7 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
 
   // Form state for create patient
   const initialPatientForm = {
+    coupon_code: "",
     first_name: "",
     last_name: "",
     email: "",
@@ -266,19 +356,36 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
     setCurrentPage(1);
   };
 
-  // Scroll to top on mount and fetch data
+  // Use optimized API hook for patients data
+  const { data: patientsData, loading: patientsLoading, error: patientsError } = useOptimizedAPI(
+    () => dispatch(getMonitoredPatients()),
+    [],
+    { cacheTime: 2 * 60 * 1000, refetchOnMount: true }
+  );
+
+  // Use optimized API hook for doctors data
+  const { data: doctorsData, loading: doctorsLoading } = useOptimizedAPI(
+    () => dispatch(getDoctors()),
+    [],
+    { cacheTime: 10 * 60 * 1000, refetchOnMount: true }
+  );
+
+  // Scroll to top on mount and ensure data is loaded
   useEffect(() => {
     window.scrollTo(0, 0);
-    setIsLoading(true);
-    dispatch(getMonitoredPatients());
-    dispatch(getDoctors());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (monitoredPatients || monitoredError) {
-      setIsLoading(false);
+    
+    // Ensure we fetch data if not already loaded
+    if (!monitoredPatients) {
+      dispatch(getMonitoredPatients());
     }
-  }, [monitoredPatients, monitoredError]);
+  }, [dispatch, monitoredPatients]);
+
+  // Update loading state based on Redux state and API hooks
+  useEffect(() => {
+    // Show loading if Redux is loading, API hooks are loading, or we don't have data yet
+    const shouldShowLoading = monitoredLoading || patientsLoading || doctorsLoading || !monitoredPatients;
+    setIsLoading(shouldShowLoading);
+  }, [monitoredLoading, patientsLoading, doctorsLoading, monitoredPatients]);
 
   // Add a handler for row click
   const handleRowClicked = (row) => {
@@ -312,14 +419,41 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
               <span className="fw-bold">Dr.</span> {row.doctor}
             </div>
             <div 
-              className="fw-bold"
+              className="d-flex align-items-center gap-2"
               style={{ cursor: "pointer" }}
               onClick={(e) => {
                 e.stopPropagation();
                 handleRowClicked(row);
               }}
             >
-              {row.name}
+              <div className="fw-bold">{row.name}</div>
+              {row.coupon_code && (
+                <span className="badge bg-info text-white px-2 py-1" style={{ fontSize: "0.7rem" }}>
+                  {row.coupon_code}
+                </span>
+              )}
+              {row.sourceBadge && (
+                <span 
+                  className={`badge ${row.sourceBadge.color} text-white px-2 py-1 d-inline-flex align-items-center`} 
+                  style={{ fontSize: "0.7rem", cursor: "help" }}
+                  id={`source-badge-${row.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <i className={`${row.sourceBadge.icon} me-1`} style={{ fontSize: "0.8rem" }}></i>
+                </span>
+              )}
+              {row.sourceBadge && (
+                <Tooltip
+                  placement="top"
+                  isOpen={tooltipOpen[`source-badge-${row.id}`]}
+                  target={`source-badge-${row.id}`}
+                  toggle={() => toggleTooltip(`source-badge-${row.id}`)}
+                  autohide={false}
+                  delay={{ show: 100, hide: 100 }}
+                >
+                  {row.sourceBadge.tooltip}
+                </Tooltip>
+              )}
             </div>
             <div className="text-muted" style={{ fontSize: "0.75em" }}>
               {row.email}
@@ -478,12 +612,45 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
     };
   };
 
+  // Helper function to get patient source badge
+  const getPatientSourceBadge = (patientSource) => {
+    const source = (patientSource || "").toLowerCase();
+    
+    switch (source) {
+      case 'referral':
+        return {
+          icon: 'ri-user-received-line',
+          color: 'bg-primary',
+          tooltip: 'Referral'
+        };
+      case 'direct':
+        return {
+          icon: 'ri-user-line',
+          color: 'bg-success',
+          tooltip: 'Direct'
+        };
+      case 'website':
+        return {
+          icon: 'ri-global-line',
+          color: 'bg-info',
+          tooltip: 'Website'
+        };
+      default:
+        return {
+          icon: 'ri-user-question-line',
+          color: 'bg-secondary',
+          tooltip: 'Unknown Source'
+        };
+    }
+  };
+
   // Map API patients to table data
   const rawData =
     monitoredPatients && Array.isArray(monitoredPatients)
       ? monitoredPatients.map((p, idx) => {
           const complianceInfo = getComplianceInfo(p.compliance);
           const statusBadges = getStatusBadges(p.app_activation, p.is_patient_monitored);
+          const sourceBadge = getPatientSourceBadge(p.patient_source);
           
           return {
             name:
@@ -497,6 +664,8 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
             alignerStatus: p.aligner_status || 'notset',
             id: p.id,
             email: p.email || "",
+            coupon_code: p.coupon_code || null,
+            patient_source: p.patient_source || "",
             is_patient_monitored: p.is_patient_monitored,
             app_activation: p.app_activation,
             compliance: p.compliance,
@@ -507,6 +676,7 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
             appActivationText: statusBadges.appActivation.text,
             monitoringBadge: statusBadges.monitoring.badge,
             monitoringText: statusBadges.monitoring.text,
+            sourceBadge: sourceBadge,
           };
         })
       : [];
@@ -829,13 +999,17 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
                     <label className="form-label" htmlFor="search-input">
                       Search Patients
                     </label>
-                    <Input
-                      id="search-input"
-                      type="search"
-                      placeholder="Patient name"
-                      value={searchTerm}
-                      onChange={handleSearchChange}
-                    />
+                    {isLoading ? (
+                      <div className="shimmer-input" style={{ height: '38px', borderRadius: '4px' }}></div>
+                    ) : (
+                      <Input
+                        id="search-input"
+                        type="search"
+                        placeholder="Patient name"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                      />
+                    )}
                   </div>
                 </Col>
                 {filterRowKeys.map((key) => (
@@ -843,16 +1017,20 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
                     <label className="form-label" htmlFor={`filter-${key}`}>
                       {filterLabels[key] || key}
                     </label>
-                    <Input 
-                      id={`filter-${key}`} 
-                      type="select"
-                      value={filters[key]}
-                      onChange={(e) => handleFilterChange(key, e.target.value)}
-                    >
-                      {filterOptions[key].map((opt) => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </Input>
+                    {isLoading ? (
+                      <div className="shimmer-input" style={{ height: '38px', borderRadius: '4px' }}></div>
+                    ) : (
+                      <Input 
+                        id={`filter-${key}`} 
+                        type="select"
+                        value={filters[key]}
+                        onChange={(e) => handleFilterChange(key, e.target.value)}
+                      >
+                        {filterOptions[key].map((opt) => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </Input>
+                    )}
                   </Col>
                 ))}
               </Row>
@@ -872,7 +1050,47 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
               highlightOnHover
               responsive
               progressPending={isLoading}
-              progressComponent={<div className="text-center p-4">Loading...</div>}
+              progressComponent={
+                <div className="p-4">
+                  <div className="shimmer-table-container">
+                    {/* Table header shimmer */}
+                    <div className="d-flex mb-3" style={{ borderBottom: '2px solid #e9ecef', paddingBottom: '12px' }}>
+                      {['Patient Name', 'Status', 'Latest Activity', 'Aligner Type', 'Compliance'].map((header, index) => (
+                        <div key={index} className="shimmer-table-cell" style={{ 
+                          flex: index === 0 ? 2 : 1, 
+                          marginRight: index < 4 ? '16px' : '0',
+                          height: '20px'
+                        }}></div>
+                      ))}
+                    </div>
+                    {/* Table rows shimmer */}
+                    {Array.from({ length: 8 }).map((_, rowIndex) => (
+                      <div key={rowIndex} className="d-flex align-items-center mb-3" style={{ padding: '12px 0' }}>
+                        <div className="d-flex align-items-center" style={{ flex: 2, marginRight: '16px' }}>
+                          <div className="shimmer-table-cell" style={{ width: '60%', height: '14px', marginRight: '8px' }}></div>
+                          <div className="shimmer-table-cell" style={{ width: '30%', height: '12px' }}></div>
+                        </div>
+                        <div className="d-flex flex-column" style={{ flex: 1, marginRight: '16px' }}>
+                          <div className="shimmer-table-cell" style={{ width: '80%', height: '12px', marginBottom: '4px' }}></div>
+                          <div className="shimmer-table-cell" style={{ width: '60%', height: '12px' }}></div>
+                        </div>
+                        <div className="d-flex flex-column" style={{ flex: 1, marginRight: '16px' }}>
+                          <div className="shimmer-table-cell" style={{ width: '70%', height: '12px', marginBottom: '4px' }}></div>
+                          <div className="shimmer-table-cell" style={{ width: '90%', height: '12px' }}></div>
+                        </div>
+                        <div className="d-flex flex-column" style={{ flex: 1, marginRight: '16px' }}>
+                          <div className="shimmer-table-cell" style={{ width: '85%', height: '12px', marginBottom: '4px' }}></div>
+                          <div className="shimmer-table-cell" style={{ width: '50%', height: '12px' }}></div>
+                        </div>
+                        <div className="d-flex flex-column" style={{ flex: 1 }}>
+                          <div className="shimmer-table-cell" style={{ width: '75%', height: '12px', marginBottom: '4px' }}></div>
+                          <div className="shimmer-table-cell" style={{ width: '40%', height: '12px' }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              }
               customStyles={{
                 ...customStyles,
                 rows: {
@@ -981,4 +1199,5 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
   );
 };
 
-export default PatientsMonitored;
+// Export with page transition
+export default withPageTransition(PatientsMonitored);

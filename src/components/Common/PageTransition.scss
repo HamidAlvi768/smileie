@@ -1,0 +1,205 @@
+// Page Transition Styles
+.page-transition {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: inherit;
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+  
+  &.fadeIn {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+  }
+  
+  &.fadeOut {
+    opacity: 0;
+    transform: translateY(5px);
+    visibility: hidden;
+  }
+  
+  &.transitioning {
+    pointer-events: none;
+  }
+}
+
+// Slide Transition Styles
+.slide-transition {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background: inherit;
+  transition: transform 0.25s ease-in-out, opacity 0.25s ease-in-out;
+  
+  &.slideIn {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  &.slideOut {
+    transform: translateX(-100%);
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  &.right {
+    &.slideIn {
+      transform: translateX(0);
+    }
+    
+    &.slideOut {
+      transform: translateX(100%);
+    }
+  }
+  
+  &.left {
+    &.slideIn {
+      transform: translateX(0);
+    }
+    
+    &.slideOut {
+      transform: translateX(-100%);
+    }
+  }
+  
+  &.up {
+    &.slideIn {
+      transform: translateY(0);
+    }
+    
+    &.slideOut {
+      transform: translateY(-100%);
+    }
+  }
+  
+  &.down {
+    &.slideIn {
+      transform: translateY(0);
+    }
+    
+    &.slideOut {
+      transform: translateY(100%);
+    }
+  }
+  
+  &.transitioning {
+    pointer-events: none;
+  }
+}
+
+// Scale Transition Styles
+.scale-transition {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  transform-origin: center;
+  background: inherit;
+  transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+  
+  &.scaleIn {
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  &.scaleOut {
+    transform: scale(0.98);
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  &.transitioning {
+    pointer-events: none;
+  }
+}
+
+// Loading Transition Styles
+.loading-transition {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: inherit;
+  transition: opacity 0.15s ease-in-out;
+  
+  &.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  &.loaded {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// Global transition container to prevent gray screen
+.transition-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: inherit;
+  overflow: hidden;
+}
+
+// Ensure smooth transitions by preventing layout shifts
+.page-content {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: inherit;
+}
+
+// Prevent flash of unstyled content during transitions
+* {
+  transition: none;
+}
+
+.page-transition *,
+.slide-transition *,
+.scale-transition *,
+.loading-transition * {
+  transition: inherit;
+}
+
+// Dark theme support
+[data-bs-theme="dark"] {
+  .page-transition,
+  .slide-transition,
+  .scale-transition,
+  .loading-transition {
+    background: var(--bs-body-bg, #1a1a1a);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .page-transition,
+  .slide-transition,
+  .scale-transition,
+  .loading-transition {
+    transition-duration: 0.15s;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .page-transition,
+  .slide-transition,
+  .scale-transition,
+  .loading-transition {
+    transition-duration: 0.1s;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .page-transition,
+  .slide-transition,
+  .scale-transition,
+  .loading-transition {
+    transition: none !important;
+    animation: none !important;
+  }
+} 

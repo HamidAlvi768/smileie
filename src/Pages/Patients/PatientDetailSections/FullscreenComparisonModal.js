@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, ModalBody, Button, ButtonGroup } from 'reactstrap';
-import VisTimeline from './VisTimeline';
+import { Modal, ModalBody, Button, ButtonGroup, Input, Label, ModalHeader, ModalFooter } from 'reactstrap';
 import { ImageViewer, IndicesPanel, ObservationsGoals } from './Monitoring';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -164,15 +163,6 @@ const ComparisonImageViewer = ({ images, selectedImageIndex, onImageClick, onThu
           padding: '8px 0'
         }}>
           <div style={{
-            fontSize: '12px',
-            fontWeight: 'bold',
-            color: '#666',
-            textAlign: 'center',
-            marginBottom: '8px'
-          }}>
-            Thumbnails
-          </div>
-          <div style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '8px',
@@ -265,6 +255,12 @@ const FullscreenComparisonModal = ({
   const [leftSelectedImageIndex, setLeftSelectedImageIndex] = useState(0);
   const [rightSelectedImageIndex, setRightSelectedImageIndex] = useState(0);
 
+  // Add fullscreen image modal state
+  const [fullscreenModalOpen, setFullscreenModalOpen] = useState(false);
+  const [fullscreenImageData, setFullscreenImageData] = useState(null);
+  const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
+  const [fullscreenImages, setFullscreenImages] = useState([]);
+
   // Update local state when props change
   useEffect(() => {
     console.log("🔄 Comparison Modal - Props changed:");
@@ -340,8 +336,7 @@ const FullscreenComparisonModal = ({
   // Handlers for left side
   const handleLeftImageClick = () => {
     if (leftImages[leftSelectedImageIndex]) {
-      // Open fullscreen modal or handle image click
-      console.log('Left image clicked:', leftImages[leftSelectedImageIndex]);
+      openFullscreenModal(leftImages, leftSelectedImageIndex, 'left');
     }
   };
 
@@ -363,8 +358,7 @@ const FullscreenComparisonModal = ({
   // Handlers for right side
   const handleRightImageClick = () => {
     if (rightImages[rightSelectedImageIndex]) {
-      // Open fullscreen modal or handle image click
-      console.log('Right image clicked:', rightImages[rightSelectedImageIndex]);
+      openFullscreenModal(rightImages, rightSelectedImageIndex, 'right');
     }
   };
 
@@ -383,101 +377,329 @@ const FullscreenComparisonModal = ({
     }
   };
 
+  // Fullscreen modal handlers
+  const openFullscreenModal = (images, startIndex, side) => {
+    if (images && images.length > 0) {
+      setFullscreenImages(images);
+      setFullscreenImageIndex(startIndex);
+      setFullscreenImageData({ side, date: side === 'left' ? leftSelectedDate : rightSelectedDate });
+      setFullscreenModalOpen(true);
+    }
+  };
+
+  const closeFullscreenModal = () => {
+    setFullscreenModalOpen(false);
+    setFullscreenImageData(null);
+    setFullscreenImages([]);
+  };
+
+  const goToNextFullscreenImage = () => {
+    if (fullscreenImageIndex < fullscreenImages.length - 1) {
+      setFullscreenImageIndex(fullscreenImageIndex + 1);
+    }
+  };
+
+  const goToPreviousFullscreenImage = () => {
+    if (fullscreenImageIndex > 0) {
+      setFullscreenImageIndex(fullscreenImageIndex - 1);
+    }
+  };
+
+  // Keyboard navigation for fullscreen modal
+  useEffect(() => {
+    if (!fullscreenModalOpen) return;
+    
+    const handleKeyDown = (event) => {
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault();
+          goToPreviousFullscreenImage();
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          goToNextFullscreenImage();
+          break;
+        case 'Escape':
+          event.preventDefault();
+          closeFullscreenModal();
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [fullscreenModalOpen, fullscreenImageIndex, fullscreenImages.length]);
+
   return (
-    <Modal isOpen={isOpen} toggle={toggle} fullscreen className="comparison-modal" fade={false}>
-      <ModalBody className="comparison-modal-body">
-        {/* Close Button */}
-        <button onClick={toggle} className="comparison-modal-close-btn" aria-label="Close">
-          <FontAwesomeIcon icon={faTimes} />
-        </button>
+    <>
+      <Modal isOpen={isOpen} toggle={toggle} fullscreen className="comparison-modal" fade={false}>
+        <ModalBody className="comparison-modal-body">
+          {/* Close Button */}
+          <button onClick={toggle} className="comparison-modal-close-btn" aria-label="Close">
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
 
-        {/* Patient Header Row */}
-        <div className="comparison-modal-header">
-          <div className="d-flex align-items-center justify-content-center w-100">
-            {/* Single Patient Info */}
-            <div className="d-flex align-items-center">
-              <span className="header-icon-wrapper">
-                <FontAwesomeIcon icon={faUserCircle} className="header-icon" />
-              </span>
-              <span className="header-patient-name">
-                {leftData?.patientName || 'Patient'}
-              </span>
-              <span className="header-patient-id">
-                {leftData?.patientId || 'ID'}
-              </span>
+          {/* Patient Header Row */}
+          <div className="comparison-modal-header">
+            <div className="d-flex align-items-center justify-content-center w-100">
+              {/* Single Patient Info */}
+              <div className="d-flex align-items-center">
+                <span className="header-icon-wrapper">
+                  <FontAwesomeIcon icon={faUserCircle} className="header-icon" />
+                </span>
+                <span className="header-patient-name">
+                  {leftData?.patientName || 'Patient'}
+                </span>
+                <span className="header-patient-id">
+                  {leftData?.patientId || 'ID'}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="comparison-modal-content">
-          {/* Left Side */}
-          <div className="comparison-side comparison-side-left">
-            <div className="comparison-timeline-wrapper">
-              <VisTimeline
-                {...leftData.timelineProps}
-                minimal={true}
-                selectedDate={leftSelectedDate}
-                onDateChange={(date) => {
-                  console.log("🔄 Left timeline date changed to:", date);
-                  setLeftSelectedDate(date);
-                  // Don't update the parent component's selected date to keep sides independent
+          <div className="comparison-modal-content">
+            {/* Left Side */}
+            <div className="comparison-side comparison-side-left">
+              <div className="comparison-date-selection-wrapper mb-3">
+                <div className="d-flex align-items-center gap-2">
+                  <Label className="mb-0 fw-semibold" style={{width:"100px"}}>Left Date:</Label>
+                  <Input
+                    type="select"
+                    value={leftSelectedDate}
+                    onChange={(e) => {
+                      console.log("🔄 Left date changed to:", e.target.value);
+                      setLeftSelectedDate(e.target.value);
+                      setLeftSelectedImageIndex(0);
+                    }}
+                    style={{ 
+                      minWidth: '200px',
+                      border: '1px solid #ced4da',
+                      borderRadius: '6px',
+                      padding: '6px 10px',
+                      fontSize: '14px',
+                      backgroundColor: '#fff',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {leftData?.timelineProps?.timelinePoints?.map((point) => (
+                      <option key={point.date} value={point.date}>
+                        {point.date} ({point.scanCount || 0} scan{point.scanCount !== 1 ? "s" : ""})
+                      </option>
+                    )) || []}
+                  </Input>
+                </div>
+              </div>
+              <div className="comparison-viewer-wrapper">
+                {leftImages.length > 0 ? (
+                  <ComparisonImageViewer
+                    images={leftImages}
+                    selectedImageIndex={leftSelectedImageIndex}
+                    onImageClick={handleLeftImageClick}
+                    onThumbnailClick={handleLeftThumbnailClick}
+                    onDownload={handleLeftDownload}
+                  />
+                ) : (
+                  <div className="text-center text-muted py-5">
+                    <i className="mdi mdi-image-off-outline" style={{ fontSize: '3em', color: '#ccc' }}></i>
+                    <p className="mt-3">No scans available for {leftSelectedDate || 'this date'}</p>
+                  </div>
+                )}
+                {/* Other components can go here */}
+              </div>
+            </div>
+
+            {/* Right Side */}
+            <div className="comparison-side comparison-side-right">
+              <div className="comparison-date-selection-wrapper mb-3">
+                <div className="d-flex align-items-center gap-2">
+                  <Label className="mb-0 fw-semibold" style={{width:"100px"}}>Right Date:</Label>
+                  <Input
+                    type="select"
+                    value={rightSelectedDate}
+                    onChange={(e) => {
+                      console.log("🔄 Right date changed to:", e.target.value);
+                      setRightSelectedDate(e.target.value);
+                      setRightSelectedImageIndex(0);
+                    }}
+                    style={{ 
+                      minWidth: '200px',
+                      border: '1px solid #ced4da',
+                      borderRadius: '6px',
+                      padding: '6px 10px',
+                      fontSize: '14px',
+                      backgroundColor: '#fff',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {rightData?.timelineProps?.timelinePoints?.map((point) => (
+                      <option key={point.date} value={point.date}>
+                        {point.date} ({point.scanCount || 0} scan{point.scanCount !== 1 ? "s" : ""})
+                      </option>
+                    )) || []}
+                  </Input>
+                </div>
+              </div>
+              <div className="comparison-viewer-wrapper">
+                {rightImages.length > 0 ? (
+                  <ComparisonImageViewer
+                    images={rightImages}
+                    selectedImageIndex={rightSelectedImageIndex}
+                    onImageClick={handleRightImageClick}
+                    onThumbnailClick={handleRightThumbnailClick}
+                    onDownload={handleRightDownload}
+                  />
+                ) : (
+                  <div className="text-center text-muted py-5">
+                    <i className="mdi mdi-image-off-outline" style={{ fontSize: '3em', color: '#ccc' }}></i>
+                    <p className="mt-3">No scans available for {rightSelectedDate || 'this date'}</p>
+                  </div>
+                )}
+                {/* Other components can go here */}
+              </div>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
+
+      {/* Fullscreen Image Modal */}
+      <Modal 
+        isOpen={fullscreenModalOpen} 
+        toggle={closeFullscreenModal} 
+        size="xl" 
+        centered
+        className="fullscreen-image-modal"
+        style={{ 
+          maxWidth: '95vw', 
+          maxHeight: '95vh',
+          width: '90vw',
+          height: '90vh'
+        }}
+      >
+        <ModalHeader toggle={closeFullscreenModal} style={{ padding: '15px 20px' }}>
+          <div className="d-flex align-items-center">
+            <span>Fullscreen Image Viewer</span>
+            {fullscreenImages.length > 0 && (
+              <span className="ms-2 text-muted">
+                ({fullscreenImageIndex + 1} of {fullscreenImages.length})
+              </span>
+            )}
+          </div>
+        </ModalHeader>
+        <ModalBody className="p-0" style={{ 
+          background: '#000', 
+          height: 'calc(90vh - 120px)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          overflow: 'hidden'
+        }}>
+          {fullscreenImages[fullscreenImageIndex] && (
+            <div className="position-relative" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img
+                src={fullscreenImages[fullscreenImageIndex].src}
+                alt={`Fullscreen scan ${fullscreenImageIndex + 1}`}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  width: 'auto',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  display: 'block'
                 }}
               />
-            </div>
-            <div className="comparison-viewer-wrapper">
-              {leftImages.length > 0 ? (
-                <ComparisonImageViewer
-                  images={leftImages}
-                  selectedImageIndex={leftSelectedImageIndex}
-                  onImageClick={handleLeftImageClick}
-                  onThumbnailClick={handleLeftThumbnailClick}
-                  onDownload={handleLeftDownload}
-                />
-              ) : (
-                <div className="text-center text-muted py-5">
-                  <i className="mdi mdi-image-off-outline" style={{ fontSize: '3em', color: '#ccc' }}></i>
-                  <p className="mt-3">No scans available for {leftSelectedDate || 'this date'}</p>
-                </div>
-              )}
-              {/* Other components can go here */}
-            </div>
-          </div>
-
-          {/* Right Side */}
-          <div className="comparison-side comparison-side-right">
-            <div className="comparison-timeline-wrapper">
-              <VisTimeline
-                {...rightData.timelineProps}
-                minimal={true}
-                selectedDate={rightSelectedDate}
-                onDateChange={(date) => {
-                  console.log("🔄 Right timeline date changed to:", date);
-                  setRightSelectedDate(date);
-                  // Don't update the parent component's selected date to keep sides independent
+              
+              {/* Navigation Buttons */}
+              <Button
+                color="light"
+                className="position-absolute"
+                style={{
+                  top: '50%',
+                  left: '20px',
+                  transform: 'translateY(-50%)',
+                  zIndex: 1000,
+                  opacity: 0.8
                 }}
-              />
-            </div>
-            <div className="comparison-viewer-wrapper">
-              {rightImages.length > 0 ? (
-                <ComparisonImageViewer
-                  images={rightImages}
-                  selectedImageIndex={rightSelectedImageIndex}
-                  onImageClick={handleRightImageClick}
-                  onThumbnailClick={handleRightThumbnailClick}
-                  onDownload={handleRightDownload}
-                />
-              ) : (
-                <div className="text-center text-muted py-5">
-                  <i className="mdi mdi-image-off-outline" style={{ fontSize: '3em', color: '#ccc' }}></i>
-                  <p className="mt-3">No scans available for {rightSelectedDate || 'this date'}</p>
+                onClick={goToPreviousFullscreenImage}
+                disabled={fullscreenImageIndex === 0}
+              >
+                <i className="mdi mdi-chevron-left"></i>
+              </Button>
+              
+              <Button
+                color="light"
+                className="position-absolute"
+                style={{
+                  top: '50%',
+                  right: '20px',
+                  transform: 'translateY(-50%)',
+                  zIndex: 1000,
+                  opacity: 0.8
+                }}
+                onClick={goToNextFullscreenImage}
+                disabled={fullscreenImageIndex === fullscreenImages.length - 1}
+              >
+                <i className="mdi mdi-chevron-right"></i>
+              </Button>
+
+              {/* Image Info Overlay */}
+              <div className="position-absolute" style={{
+                bottom: '20px',
+                left: '20px',
+                right: '20px',
+                background: 'rgba(0,0,0,0.7)',
+                color: 'white',
+                padding: '15px',
+                borderRadius: '8px'
+              }}>
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 className="mb-1">
+                      {fullscreenImageData?.side === 'left' ? 'Left' : 'Right'} Side Scan
+                    </h6>
+                    <small>{fullscreenImageData?.date}</small>
+                  </div>
+                  <div className="text-end">
+                    <small>Image {fullscreenImageIndex + 1}</small>
+                  </div>
                 </div>
-              )}
-              {/* Other components can go here */}
+              </div>
+            </div>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <div className="d-flex justify-content-between align-items-center w-100">
+            <small className="text-muted">
+              Use arrow keys or click buttons to navigate • Press ESC to close
+            </small>
+            <div>
+              <Button 
+                color="info" 
+                size="sm"
+                onClick={() => {
+                  if (fullscreenImages[fullscreenImageIndex]) {
+                    const link = document.createElement("a");
+                    link.href = fullscreenImages[fullscreenImageIndex].src;
+                    link.download = `fullscreen-scan-${fullscreenImageIndex + 1}.jpg`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }
+                }}
+                className="me-2"
+              >
+                <i className="mdi mdi-download me-1"></i>
+                Download
+              </Button>
+              <Button color="secondary" onClick={closeFullscreenModal}>
+                Close
+              </Button>
             </div>
           </div>
-        </div>
-      </ModalBody>
-    </Modal>
+        </ModalFooter>
+      </Modal>
+    </>
   );
 };
 

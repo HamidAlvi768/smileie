@@ -1,8 +1,13 @@
-import React, { useState, useRef } from "react";
-import { Container, Row, Col, Card, CardBody, Form, FormGroup, Label, Input, Button } from "reactstrap";
+import React, { useState, useRef, useEffect } from "react";
+import { Container, Row, Col, Card, CardBody, Form, FormGroup, Label, Input, Button, Alert } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import logoSm from '../../assets/images/logo-sm-1.png';
 import favicon from '../../assets/images/favicon.png';
+
+// Enhanced components
+import { withPageTransition } from "../../components/Common/PageTransition";
+import ShimmerLoader from "../../components/Common/ShimmerLoader";
+import EnhancedLayout, { EnhancedCard } from "../../components/Common/EnhancedLayout";
 
 const ApplicationSettings = () => {
   const [formData, setFormData] = useState({
@@ -20,9 +25,19 @@ const ApplicationSettings = () => {
 
   const [logoFile, setLogoFile] = useState(null);
   const [faviconFile, setFaviconFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState(null);
 
   const logoInputRef = useRef(null);
   const faviconInputRef = useRef(null);
+
+  // Simulate loading state for demo
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -49,38 +64,64 @@ const ApplicationSettings = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
+    setIsSaving(true);
+    setSaveStatus(null);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
     console.log('Form Data:', formData);
     console.log('Logo File:', logoFile);
     console.log('Favicon File:', faviconFile);
-    // You can add API call here to save the settings
+      
+      setSaveStatus({ type: 'success', message: 'Settings saved successfully!' });
+    } catch (error) {
+      setSaveStatus({ type: 'danger', message: 'Failed to save settings. Please try again.' });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   document.title = "Application Settings | Smileie";
 
   return (
-    <React.Fragment>
-      <div className="page-content no-navbar">
+    <EnhancedLayout title="Application Settings" subtitle="Configure your application preferences">
         <Container fluid={true}>
-          <Breadcrumbs 
-            title="Smileie" 
-            breadcrumbItem="Settings" 
-            breadcrumbItem2="Application Settings"
-          />
+        <Row className="mb-3 align-items-center">
+          <Col md={8} xs={6}>
+            <h4 className="mb-0">Application Settings</h4>
+            <p className="text-muted mb-0">Configure your application preferences and branding</p>
+          </Col>
+          <Col md={4} xs={6} className="text-end">
+            <div className="d-flex align-items-center justify-content-end">
+              <div className="me-2">
+                <small className="text-muted">Last updated</small>
+                <div className="fw-bold">Just now</div>
+              </div>
+            </div>
+          </Col>
+        </Row>
 
-          <Row>
-            <Col>
-              <Card>
-                <CardBody>
-                  <h4 className="card-title mb-4">Application Settings</h4>
-                  
+        {saveStatus && (
+          <Alert color={saveStatus.type} className="mb-3">
+            <i className={`fas fa-${saveStatus.type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2`}></i>
+            {saveStatus.message}
+          </Alert>
+        )}
+
+        <EnhancedCard 
+          title="General Settings"
+          subtitle="Basic application configuration"
+          loading={isLoading}
+        >
                   <Form onSubmit={handleSubmit}>
                     <Row>
-                      <Col md={3}>
+              <Col md={6}>
                         <FormGroup>
-                          <Label for="websiteName">Website Name</Label>
+                  <Label for="websiteName" className="form-label">Website Name</Label>
                           <Input
                             id="websiteName"
                             name="websiteName"
@@ -88,13 +129,14 @@ const ApplicationSettings = () => {
                             value={formData.websiteName}
                             onChange={handleInputChange}
                             required
+                    className="form-control"
                           />
                         </FormGroup>
                       </Col>
                     
-                      <Col md={3}>
+              <Col md={6}>
                         <FormGroup>
-                          <Label for="contactEmail">Contact Email</Label>
+                  <Label for="contactEmail" className="form-label">Contact Email</Label>
                           <Input
                             id="contactEmail"
                             name="contactEmail"
@@ -102,197 +144,242 @@ const ApplicationSettings = () => {
                             value={formData.contactEmail}
                             onChange={handleInputChange}
                             required
+                    className="form-control"
                           />
                         </FormGroup>
                       </Col>
-                      <Col md={3}>
+            </Row>
+
+            <Row>
+              <Col md={6}>
                         <FormGroup>
-                          <Label for="contactPhone">Contact Phone</Label>
+                  <Label for="contactPhone" className="form-label">Contact Phone</Label>
                           <Input
                             id="contactPhone"
                             name="contactPhone"
                             type="tel"
                             value={formData.contactPhone}
                             onChange={handleInputChange}
-                            required
+                    className="form-control"
                           />
                         </FormGroup>
                       </Col>
-                      <Col md={3}>
+            
+              <Col md={6}>
                         <FormGroup>
-                          <Label for="whatsappNumber">WhatsApp Number</Label>
+                  <Label for="whatsappNumber" className="form-label">WhatsApp Number</Label>
                           <Input
                             id="whatsappNumber"
                             name="whatsappNumber"
                             type="tel"
                             value={formData.whatsappNumber}
                             onChange={handleInputChange}
-                            required
+                    className="form-control"
+                  />
+                </FormGroup>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md={6}>
+                <FormGroup>
+                  <Label for="registrationNumber" className="form-label">Registration Number</Label>
+                  <Input
+                    id="registrationNumber"
+                    name="registrationNumber"
+                    type="text"
+                    value={formData.registrationNumber}
+                    onChange={handleInputChange}
+                    className="form-control"
                           />
                         </FormGroup>
                       </Col>
-                      <Col md={3}>
+            </Row>
+
+            <hr className="my-4" />
+
+            <h5 className="mb-3">Address Information</h5>
+            <Row>
+              <Col md={12}>
                         <FormGroup>
-                          <Label for="address">Address</Label>
+                  <Label for="address" className="form-label">Address</Label>
                           <Input
                             id="address"
                             name="address"
                             type="text"
                             value={formData.address}
                             onChange={handleInputChange}
-                            required
+                    className="form-control"
                           />
                         </FormGroup>
                       </Col>
-                      <Col md={3}>
+            </Row>
+
+            <Row>
+              <Col md={4}>
                         <FormGroup>
-                          <Label for="city">City</Label>
+                  <Label for="city" className="form-label">City</Label>
                           <Input
                             id="city"
                             name="city"
                             type="text"
                             value={formData.city}
                             onChange={handleInputChange}
-                            required
+                    className="form-control"
                           />
                         </FormGroup>
                       </Col>
-                      <Col md={3}>
+            
+              <Col md={4}>
                         <FormGroup>
-                          <Label for="state">State</Label>
+                  <Label for="state" className="form-label">State</Label>
                           <Input
                             id="state"
                             name="state"
                             type="text"
                             value={formData.state}
                             onChange={handleInputChange}
-                            required
+                    className="form-control"
+                  />
+                </FormGroup>
+              </Col>
+            
+              <Col md={4}>
+                <FormGroup>
+                  <Label for="postalCode" className="form-label">Postal Code</Label>
+                  <Input
+                    id="postalCode"
+                    name="postalCode"
+                    type="text"
+                    value={formData.postalCode}
+                    onChange={handleInputChange}
+                    className="form-control"
                           />
                         </FormGroup>
                       </Col>
-                      <Col md={3}>
+            </Row>
+
+            <Row>
+              <Col md={6}>
                         <FormGroup>
-                          <Label for="country">Country</Label>
+                  <Label for="country" className="form-label">Country</Label>
                           <Input
                             id="country"
                             name="country"
                             type="text"
                             value={formData.country}
                             onChange={handleInputChange}
-                            required
+                    className="form-control"
                           />
                         </FormGroup>
                       </Col>
                     </Row>
 
+            <hr className="my-4" />
+
+            <h5 className="mb-3">Branding</h5>
                     <Row>
                       <Col md={6}>
                         <FormGroup>
-                          <Label for="logo">Logo</Label>
+                  <Label className="form-label">Logo</Label>
+                  <div className="d-flex align-items-center">
                           <div 
-                            className="d-flex align-items-center cursor-pointer" 
+                      className="me-3 cursor-pointer"
                             onClick={() => handleImageClick('logo')}
                             style={{ cursor: 'pointer' }}
                           >
-                            <div className="me-3">
-                              {logoFile ? (
-                                <img 
-                                  src={URL.createObjectURL(logoFile)} 
-                                  alt="Logo Preview" 
-                                  className="rounded-circle avatar-lg" 
-                                  style={{ width: '80px', height: '80px', objectFit: 'none' }}
-                                />
-                              ) : (
-                                <img
-                                  src={logoSm}
-                                  alt="Default Logo"
-                                  className="rounded-circle avatar-lg"
-                                  style={{ width: '80px', height: '80px', objectFit: 'none' }}
-                                />
-                              )}
+                      <img 
+                        src={logoFile ? URL.createObjectURL(logoFile) : logoSm} 
+                        alt="Logo" 
+                        className="img-fluid" 
+                        style={{ maxWidth: '100px', maxHeight: '60px' }}
+                      />
                             </div>
                             <div>
-                              <Input
-                                id="logo"
-                                name="logo"
+                      <Button 
+                        type="button" 
+                        color="outline-primary" 
+                        size="sm"
+                        onClick={() => handleImageClick('logo')}
+                      >
+                        <i className="fas fa-upload me-1"></i>Upload Logo
+                      </Button>
+                      <input
+                        ref={logoInputRef}
                                 type="file"
                                 accept="image/*"
                                 onChange={(e) => handleFileChange(e, 'logo')}
-                                className="d-none" // Hide the actual input
-                                innerRef={logoInputRef}
+                        style={{ display: 'none' }}
                               />
-                              <label htmlFor="logo" className="btn btn-light-primary waves-effect waves-light">
-                                <i className="ri-upload-cloud-line align-middle me-1"></i> Upload Logo
-                              </label>
                             </div>
                           </div>
-                          <small className="text-muted d-block mt-2">
-                            Recommended size: 200x60px, Max size: 2MB
-                          </small>
                         </FormGroup>
                       </Col>
+            
                       <Col md={6}>
                         <FormGroup>
-                          <Label for="favicon">Favicon</Label>
+                  <Label className="form-label">Favicon</Label>
+                  <div className="d-flex align-items-center">
                           <div 
-                            className="d-flex align-items-center cursor-pointer" 
+                      className="me-3 cursor-pointer"
                             onClick={() => handleImageClick('favicon')}
                             style={{ cursor: 'pointer' }}
                           >
-                            <div className="me-3">
-                              {faviconFile ? (
-                                <img 
-                                  src={URL.createObjectURL(faviconFile)} 
-                                  alt="Favicon Preview" 
-                                  className="rounded-circle avatar-lg" 
-                                  style={{ width: '80px', height: '80px', objectFit: 'cover' }}
-                                />
-                              ) : (
-                                <img
-                                  src={favicon}
-                                  alt="Default Favicon"
-                                  className="rounded-circle avatar-lg"
-                                  style={{ width: '80px', height: '80px', objectFit: 'cover' }}
-                                />
-                              )}
+                      <img 
+                        src={faviconFile ? URL.createObjectURL(faviconFile) : favicon} 
+                        alt="Favicon" 
+                        className="img-fluid" 
+                        style={{ maxWidth: '32px', maxHeight: '32px' }}
+                      />
                             </div>
                             <div>
-                              <Input
-                                id="favicon"
-                                name="favicon"
+                      <Button 
+                        type="button" 
+                        color="outline-primary" 
+                        size="sm"
+                        onClick={() => handleImageClick('favicon')}
+                      >
+                        <i className="fas fa-upload me-1"></i>Upload Favicon
+                      </Button>
+                      <input
+                        ref={faviconInputRef}
                                 type="file"
                                 accept="image/*"
                                 onChange={(e) => handleFileChange(e, 'favicon')}
-                                className="d-none" // Hide the actual input
-                                innerRef={faviconInputRef}
+                        style={{ display: 'none' }}
                               />
-                              <label htmlFor="favicon" className="btn btn-light-primary waves-effect waves-light">
-                                <i className="ri-upload-cloud-line align-middle me-1"></i> Upload Favicon
-                              </label>
                             </div>
                           </div>
-                          <small className="text-muted d-block mt-2">
-                            Recommended size: 32x32px, Max size: 1MB
-                          </small>
                         </FormGroup>
                       </Col>
                     </Row>
 
-                    <div className="text-end">
-                      <Button type="submit" color="primary">
-                        <i className="ri-save-line me-1"></i>
+            <div className="d-flex justify-content-end mt-4">
+              <Button 
+                type="submit" 
+                color="primary" 
+                disabled={isSaving}
+                className="px-4"
+              >
+                {isSaving ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin me-2"></i>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save me-2"></i>
                         Save Settings
+                  </>
+                )}
                       </Button>
                     </div>
                   </Form>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
+        </EnhancedCard>
         </Container>
-      </div>
-    </React.Fragment>
+    </EnhancedLayout>
   );
 };
 
-export default ApplicationSettings; 
+// Export with page transition
+export default withPageTransition(ApplicationSettings); 

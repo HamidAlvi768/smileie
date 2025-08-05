@@ -1185,7 +1185,7 @@ const PatientDetail = () => {
               />
               <Route
                 path="order"
-                element={<PatientOrders order={SAMPLE_ORDER} />}
+                element={<PatientOrders patientId={id} />}
               />
               <Route path="history" element={<History patient={patient} />} />
               <Route

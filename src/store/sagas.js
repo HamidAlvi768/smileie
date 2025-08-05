@@ -15,6 +15,9 @@ import tutorialsSaga from "./tutorials/saga";
 import faqsSaga from './faqs/sagas';
 import notificationsSaga from './notifications/saga';
 import alertsSaga from './alerts/saga';
+import ordersSaga from './orders/saga';
+import referralsSaga from './referrals/saga';
+import genericRecordsSaga from './genericRecords/saga';
 
 export default function* rootSaga() {
   yield all([
@@ -34,5 +37,8 @@ export default function* rootSaga() {
     faqsSaga(),
     fork(notificationsSaga),
     fork(alertsSaga),
+    fork(ordersSaga),
+    fork(referralsSaga),
+    fork(genericRecordsSaga),
   ]);
 }

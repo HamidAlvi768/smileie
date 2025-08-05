@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { getStats } from "../../store/stats/actions";
+import React, { useState, useEffect } from "react";
 import { Card, CardBody, Col, Row } from "reactstrap";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 // Simple CountUp animation component
 const CountUp = ({ end, duration = 1000 }) => {
@@ -29,13 +28,8 @@ const CountUp = ({ end, duration = 1000 }) => {
 };
 
 const UserPanel = () => {
-  const dispatch = useDispatch();
   const stats = useSelector((state) => state.stats.stats);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    dispatch(getStats());
-  }, [dispatch]);
 
   const handleViewAll = () => {
     navigate("/patients");
@@ -135,16 +129,17 @@ const UserPanel = () => {
                 <div className="flex-shrink-0 me-3 align-self-center">
                   <div className="avatar-sm">
                     <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
-                      <i className="ri-scan-2-line"></i>
+                      {/* Referral icon */}
+                      <i className="ri-share-forward-line"></i>
                     </div>
                   </div>
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <div className="d-flex align-items-center mb-1">
-                    <p className="mb-0">Today's Scans</p>
+                    <p className="mb-0">Referrals</p>
                   </div>
                   <div className="d-flex align-items-center">
-                    <h5 className="mb-0"><CountUp end={stats.scans ?? 0} /></h5>
+                    <h5 className="mb-0"><CountUp end={stats.referrals ?? 0} /></h5>
                   </div>
                 </div>
               </div>

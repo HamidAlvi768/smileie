@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardBody, Button, Modal, ModalBody } from 'reactstrap';
+import { Card, CardBody, Button, Modal, ModalBody, Badge } from 'reactstrap';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { useDispatch, useSelector } from 'react-redux';
@@ -115,6 +115,21 @@ const ScanDetail = () => {
   // Debug: Log dynamicScan result
   console.log('dynamicScan:', dynamicScan);
 
+  // Determine what content is available
+  const hasScans = useMemo(() => {
+    return dynamicScan && dynamicScan.sections && dynamicScan.sections.length > 0 && 
+           dynamicScan.sections.some(section => 
+             section.subsections && section.subsections.length > 0 &&
+             section.subsections.some(subsection => 
+               subsection.images && subsection.images.length > 0
+             )
+           );
+  }, [dynamicScan]);
+
+  const hasNotes = useMemo(() => {
+    return scanNotes && scanNotes.length > 0;
+  }, [scanNotes]);
+
   // Flatten all images from all sections into a single array for easier filtering later
   const allImages = useMemo(() => {
     if (!dynamicScan) return [];
@@ -220,15 +235,16 @@ const ScanDetail = () => {
   // Helper to format timestamp without seconds
   function formatTimestamp(ts) {
     if (!ts) return '';
+    // Return the timestamp as it comes from API without any formatting
+    return ts;
+  }
+
+  // Helper to format note timestamp
+  function formatNoteTimestamp(ts) {
+    if (!ts) return '';
     const d = new Date(ts);
-    if (isNaN(d.getTime())) return ts;
-    // Format: YYYY-MM-DD HH:mm
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
   // Loading and error/empty state logic (after all hooks)
@@ -241,6 +257,11 @@ const ScanDetail = () => {
             <a href="#" className="small me-3" onClick={() => navigate(-1)}>
               <i className="mdi mdi-arrow-left"></i> Back to the list
             </a>
+          </div>
+        </div>
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
           </div>
         </div>
       </div>
@@ -263,116 +284,206 @@ const ScanDetail = () => {
     );
   }
 
-  if (!dynamicScan) {
+  // Check if we have any content at all
+  if (!hasScans && !hasNotes) {
     return (
       <div className="scan-detail-section">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h5 className="mb-1">No scan data available</h5>
+            <h5 className="mb-1">No data available</h5>
             <a href="#" className="small me-3" onClick={() => navigate(-1)}>
               <i className="mdi mdi-arrow-left"></i> Back to the list
             </a>
           </div>
         </div>
+        <Card>
+          <CardBody className="text-center py-5">
+            <div className="mb-3">
+              <i className="mdi mdi-file-document-outline" style={{ fontSize: '3rem', color: '#6c757d' }}></i>
+            </div>
+            <h6 className="text-muted">No scans or notes found for this record</h6>
+            <p className="text-muted small">This scan record doesn't contain any images or notes.</p>
+          </CardBody>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="scan-detail-section">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h5 className="mb-1">Scan taken on {formatTimestamp(dynamicScan.timestamp)}</h5>
-          <a href="#" className="small me-3" onClick={() => navigate(-1)}>
-            <i className="mdi mdi-arrow-left"></i> Back to the list
-          </a>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 className="mb-1">
+              {hasScans ? `Scan taken on ${formatTimestamp(dynamicScan?.timestamp)}` : `Scan taken on ${formatTimestamp(scanDetail?.created_at || scanDetail?.[0]?.created_at || '')}`}
+              {arch && (
+                <span style={{ color: '#d9534f', marginLeft: 8 }}>
+                  ({arch === 'upper' ? 'Upper Arch' : arch === 'lower' ? 'Lower Arch' : arch})
+                </span>
+              )}
+            </h5>
+            <div className="d-flex align-items-center gap-2">
+              <a href="#" className="small me-3" onClick={() => navigate(-1)}>
+                <i className="mdi mdi-arrow-left"></i> Back to the list
+              </a>
+              {/* Content type badges */}
+              {hasScans && (
+                <Badge color="primary" className="me-2">
+                  <i className="mdi mdi-camera me-1"></i>
+                  {allImages.length} Image{allImages.length !== 1 ? 's' : ''}
+                </Badge>
+              )}
+              {hasNotes && (
+                <Badge color="success" className="me-2">
+                  <i className="mdi mdi-note-text me-1"></i>
+                  {scanNotes.length} Note{scanNotes.length !== 1 ? 's' : ''}
+                </Badge>
+              )}
+            </div>
+          </div>
+          {hasScans && allImages.length > 0 && (
+            <a href="#" className="small text-primary fw-bold" onClick={handleDownloadAllPhotos}>
+              <i className="mdi mdi-download me-1"></i>Download all photos
+            </a>
+          )}
         </div>
-        <a href="#" className="small text-primary fw-bold" onClick={handleDownloadAllPhotos}>
-          <i className="mdi mdi-download me-1"></i>Download all photos
-        </a>
-      </div>
-      <Card>
-        <CardBody>
-          {dynamicScan.sections.map((section) => (
-            <div key={section.name} className="mb-4 border bg-light-subtle p-3 rounded">
-              <div className="section-header mb-2">
-                <h6 className="mb-0 fw-semibold">
-                  {section.name}
-                  {arch && (
-                    <span style={{ color: '#d9534f', marginLeft: 8 }}>
-                      ({arch === 'upper' ? 'Upper Arch' : arch === 'lower' ? 'Lower Arch' : arch})
-                    </span>
-                  )}
-                </h6>
-              </div>
-              {section.subsections.map((subsection, subIdx) => (
-                <div key={subsection.name} className="mb-2 ms-3">
-                  <div 
-                    className="mb-1"
-                    style={{
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      color: '#3b4453',
-                      letterSpacing: '0.01em',
-                    }}
-                  >
-                    {subsection.name}
-                  </div>
-                  <div className="p-3 border rounded bg-light-subtle-darker">
-                    <div className="d-flex flex-wrap gap-3">
-                      {subsection.images.map((img, imgIdx) => (
-                        <img
-                          key={imgIdx}
-                          src={typeof img === 'string' && img.startsWith('/uploads') ? `${WEB_APP_URL}${img}` : img}
-                          alt={`${section.name} - ${subsection.name} ${imgIdx + 1}`}
-                          className="scan-thumbnail"
-                          style={{ 
-                            width: 120, 
-                            height: 90, 
-                            objectFit: 'cover', 
-                            borderRadius: 6, 
-                            border: '1px solid #eee',
-                            cursor: 'pointer',
-                            transition: 'transform 0.2s ease-in-out'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.transform = 'scale(1.05)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.transform = 'scale(1)';
-                          }}
-                          onClick={() => openModal(section.name, subsection.name, imgIdx)}
-                        />
-                      ))}
+
+      {/* Scans Section */}
+      {hasScans && (
+        <Card className="mb-4">
+          <CardBody>
+            <div className="d-flex align-items-center mb-3">
+              <h6 className="mb-0 fw-semibold">
+                <i className="mdi mdi-camera me-2 text-primary"></i>
+                Scan Images
+              </h6>
+              <Badge color="primary" className="ms-2">
+                {allImages.length} total
+              </Badge>
+            </div>
+            {dynamicScan.sections.map((section) => (
+              <div key={section.name} className="mb-4 border bg-light-subtle p-3 rounded">
+                <div className="section-header mb-2">
+                  <h6 className="mb-0 fw-semibold">
+                    {section.name}
+                    {arch && (
+                      <span style={{ color: '#d9534f', marginLeft: 8 }}>
+                        ({arch === 'upper' ? 'Upper Arch' : arch === 'lower' ? 'Lower Arch' : arch})
+                      </span>
+                    )}
+                  </h6>
+                </div>
+                {section.subsections.map((subsection, subIdx) => (
+                  <div key={subsection.name} className="mb-2 ms-3">
+                    <div 
+                      className="mb-1"
+                      style={{
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        color: '#3b4453',
+                        letterSpacing: '0.01em',
+                      }}
+                    >
+                      {subsection.name}
+                    </div>
+                    <div className="p-3 border rounded bg-light-subtle-darker">
+                      <div className="d-flex flex-wrap gap-3">
+                        {subsection.images.map((img, imgIdx) => (
+                          <img
+                            key={imgIdx}
+                            src={typeof img === 'string' && img.startsWith('/uploads') ? `${WEB_APP_URL}${img}` : img}
+                            alt={`${section.name} - ${subsection.name} ${imgIdx + 1}`}
+                            className="scan-thumbnail"
+                            style={{ 
+                              width: 120, 
+                              height: 90, 
+                              objectFit: 'cover', 
+                              borderRadius: 6, 
+                              border: '1px solid #eee',
+                              cursor: 'pointer',
+                              transition: 'transform 0.2s ease-in-out'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.transform = 'scale(1)';
+                            }}
+                            onClick={() => openModal(section.name, subsection.name, imgIdx)}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </CardBody>
-      </Card>
+                ))}
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+      )}
       
-      {/* Notes Section */}
-      {scanNotes.length > 0 && (
-        <Card className="mt-4">
+      {/* Notes Section - Enhanced UI */}
+      {hasNotes && (
+        <Card className={hasScans ? "mt-4" : ""}>
           <CardBody>
-            <h6 className="mb-3 fw-semibold">
-              <i className="mdi mdi-note-text-outline me-2"></i>
-              Related Notes
-            </h6>
+            <div className="d-flex align-items-center mb-3">
+              <h6 className="mb-0 fw-semibold">
+                <i className="mdi mdi-note-text-outline me-2 text-success"></i>
+                Clinical Notes & Observations
+              </h6>
+              <Badge color="success" className="ms-2">
+                {scanNotes.length} note{scanNotes.length !== 1 ? 's' : ''}
+              </Badge>
+            </div>
             <div className="notes-container">
               {scanNotes.map((note, index) => (
-                <div key={index} className="note-item mb-3 p-3 border rounded bg-light">
-                  <div className="d-flex justify-content-between align-items-start mb-2">
+                <div key={index} className="note-item mb-3 p-4 border rounded" 
+                     style={{ 
+                       backgroundColor: '#f8f9fa',
+                       borderLeft: '4px solid #28a745',
+                       boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                     }}>
+                  <div className="d-flex justify-content-between align-items-start mb-3">
                     <div className="note-author">
-                      <strong className="text-primary">
-                        {note.note_by && note.note_by !== '-' ? note.note_by : 'Unknown'}
-                      </strong>
+                      <div className="d-flex align-items-center">
+                        <div className="avatar-sm me-2" 
+                             style={{
+                               width: '32px',
+                               height: '32px',
+                               borderRadius: '50%',
+                               backgroundColor: '#28a745',
+                               display: 'flex',
+                               alignItems: 'center',
+                               justifyContent: 'center',
+                               color: 'white',
+                               fontSize: '14px',
+                               fontWeight: 'bold'
+                             }}>
+                          {(note.note_by && note.note_by !== '-' ? note.note_by : 'U').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <strong className="text-success d-block">
+                            {note.note_by && note.note_by !== '-' ? note.note_by : 'Unknown Author'}
+                          </strong>
+                          {note.created_at && (
+                            <small className="text-muted">
+                              {formatNoteTimestamp(note.created_at)}
+                            </small>
+                          )}
+                        </div>
+                      </div>
                     </div>
+                    <Badge color="light" className="text-dark">
+                      Note #{index + 1}
+                    </Badge>
                   </div>
                   <div className="note-content">
-                    <p className="mb-0 text-muted">{note.note}</p>
+                    <p className="mb-0" style={{ 
+                      lineHeight: '1.6',
+                      color: '#495057',
+                      fontSize: '0.95rem'
+                    }}>
+                      {note.note}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -380,6 +491,7 @@ const ScanDetail = () => {
           </CardBody>
         </Card>
       )}
+
       {/* Full-screen Image Modal */}
       <Modal 
         isOpen={isModalOpen} 

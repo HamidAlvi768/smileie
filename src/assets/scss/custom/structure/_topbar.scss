@@ -182,6 +182,22 @@
     padding: 3px;
 }
 
+.header-profile-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    width: 36px;
+    background-color: var(--#{$prefix}tertiary-bg);
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        background-color: var(--#{$prefix}header-dark-bg);
+        color: rgba($white, 0.9) !important;
+    }
+}
+
 .user-dropdown {
     .dropdown-item {
         i {

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getDoctors, addDoctor, clearDoctorError } from "../../store/doctors/actions";
+import { getSpecialties, getPractices } from "../../store/genericRecords/actions";
 import {
   Card,
   CardBody,
@@ -20,18 +21,11 @@ import {
 import DataTable from "react-data-table-component";
 import { useToast } from "../../components/Common/ToastContext";
 
-const filterOptions = {
-  specialty: [
-    "All specialties",
-    "Orthodontist",
-    "General Dentist",
-    "Oral Surgeon",
-    "Pediatric Dentist",
-    "Periodontist",
-    "Prosthodontist",
-  ],
-  practice: ["All practices", "Smileie UK", "Smileie US", "Smileie AU"],
-};
+// Filter options will be populated from API data
+const getFilterOptions = (specialties, practices) => ({
+  specialty: ["All specialties", ...specialties.map(spec => spec.title)],
+  practice: ["All practices", ...practices.map(prac => prac.title)],
+});
 
 const filterLabels = {
   specialty: "Specialty",
@@ -149,6 +143,19 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     successMessage = null,
   } = doctorsData;
 
+  // Generic records state
+  const genericRecordsData = useSelector((state) => {
+    console.log('Redux state accessed:', state.genericRecords);
+    return state.genericRecords;
+  });
+  const {
+    specialties = [],
+    practices = [],
+    specialtiesLoading = false,
+    practicesLoading = false,
+    error: genericRecordsError = null
+  } = genericRecordsData;
+
   // Local state for pagination and filters
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
@@ -205,7 +212,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
         latestActivityTime
       };
     });
-  }, [allDoctors]);
+  }, [allDoctors.length]); // Only recalculate when doctors array length changes
 
   // Filter and search logic - frontend only
   const filteredDoctors = useMemo(() => {
@@ -235,7 +242,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     }
 
     return filtered;
-  }, [processedDoctors, filters, debouncedSearchTerm]);
+  }, [processedDoctors, filters.specialty, filters.practice, debouncedSearchTerm]);
 
   // Handle pagination change
   const handlePageChange = useCallback((page) => {
@@ -305,11 +312,31 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     }
   }, [dispatch, showToast]);
 
-  // Fetch doctors on component mount
+
+
+  // Only fetch once on component mount
   useEffect(() => {
+    console.log('Component mounted - fetching data...');
+    console.log('Dispatching getSpecialties action...');
+    console.log('Dispatching getPractices action...');
     fetchDoctors();
-    window.scrollTo(0, 0); // Scroll to top like NotMonitored.js
-  }, [fetchDoctors]);
+    dispatch(getSpecialties());
+    dispatch(getPractices());
+    window.scrollTo(0, 0);
+  }, []); // Empty dependency array - only run once
+
+  // Debug effect to log state changes (only when data changes, not on every render)
+  useEffect(() => {
+    console.log('=== REDUX STATE DEBUG ===');
+    console.log('Specialties:', specialties);
+    console.log('Practices:', practices);
+    console.log('Specialties Loading:', specialtiesLoading);
+    console.log('Practices Loading:', practicesLoading);
+    console.log('Generic Records Error:', genericRecordsError);
+    console.log('Specialties length:', specialties?.length);
+    console.log('Practices length:', practices?.length);
+    console.log('========================');
+  }, [specialties, practices, specialtiesLoading, practicesLoading, genericRecordsError]);
 
   // Handle success/error states from Redux
   useEffect(() => {
@@ -336,6 +363,17 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
       dispatch(clearDoctorError());
     }
   }, [error, showToast, dispatch]);
+
+  // Handle generic records errors
+  useEffect(() => {
+    if (genericRecordsError) {
+      showToast({
+        message: typeof genericRecordsError === 'string' ? genericRecordsError : 'Failed to fetch data',
+        type: 'error',
+        title: 'Error',
+      });
+    }
+  }, [genericRecordsError, showToast]);
 
   const handleFilterChange = useCallback(
     (e) => {
@@ -420,13 +458,18 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     setCurrentPage(1);
   }, []);
 
+  // Get dynamic filter options from API data
+  const filterOptions = useMemo(() => {
+    return getFilterOptions(specialties || [], practices || []);
+  }, [specialties.length, practices.length]); // Only recalculate when length changes
+
   const hasActiveFilters = useMemo(() => {
     return (
       filters.specialty !== "All specialties" ||
       filters.practice !== "All practices" ||
       debouncedSearchTerm.trim() !== ""
     );
-  }, [filters, debouncedSearchTerm]);
+  }, [filters.specialty, filters.practice, debouncedSearchTerm]);
 
   return (
     <div className="page-content no-navbar">
@@ -447,6 +490,22 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                 Clear Filters
               </Button>
             )}
+            {/* <Button 
+              color="outline-info" 
+              size="sm" 
+              className="me-2"
+              onClick={() => {
+                console.log('Manual fetch triggered');
+                console.log('Current specialties:', specialties);
+                console.log('Current practices:', practices);
+                console.log('Current loading states:', { specialtiesLoading, practicesLoading });
+                dispatch(getSpecialties());
+                dispatch(getPractices());
+              }}
+              disabled={specialtiesLoading || practicesLoading}
+            >
+              Refresh Data ({specialties.length}/{practices.length})
+            </Button> */}
             <Button color="primary" onClick={toggleCreateDoctor} disabled={isSubmitting}>
               + New doctor
             </Button>
@@ -463,7 +522,9 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
               <Row>
                 <Col md={6}>
                   <FormGroup className="mb-3">
-                    <Label for="full_name">Doctor Name *</Label>
+                    <Label for="full_name">
+                      Doctor Name <span style={{ color: 'red' }}>*</span>
+                    </Label>
                     <Input
                       type="text"
                       id="full_name"
@@ -476,26 +537,9 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                 </Col>
                 <Col md={6}>
                   <FormGroup className="mb-3">
-                    <Label for="specialty">Specialty *</Label>
-                    <Input
-                      type="select"
-                      id="specialty"
-                      value={form.specialty}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="">Select specialty</option>
-                      {filterOptions.specialty.slice(1).map((spec) => (
-                        <option key={spec} value={spec}>
-                          {spec}
-                        </option>
-                      ))}
-                    </Input>
-                  </FormGroup>
-                </Col>
-                <Col md={6}>
-                  <FormGroup className="mb-3">
-                    <Label for="email">Email *</Label>
+                    <Label for="email">
+                      Email <span style={{ color: 'red' }}>*</span>
+                    </Label>
                     <Input
                       type="email"
                       id="email"
@@ -520,21 +564,110 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                 </Col>
                 <Col md={6}>
                   <FormGroup className="mb-3">
-                    <Label for="practice">Practice *</Label>
+                    <Label for="specialty">
+                      Specialty <span style={{ color: 'red' }}>*</span>
+                      {genericRecordsError && (
+                        <Button
+                          color="link"
+                          size="sm"
+                          className="ms-2 p-0"
+                          onClick={() => dispatch(getSpecialties())}
+                          disabled={specialtiesLoading}
+                        >
+                          <i className="fas fa-sync-alt"></i>
+                        </Button>
+                      )}
+                    </Label>
+                    <Input
+                      type="select"
+                      id="specialty"
+                      value={form.specialty}
+                      onChange={handleInputChange}
+                      required
+                      disabled={specialtiesLoading}
+                    >
+                      <option value="">
+                        {specialtiesLoading ? "Loading specialties..." : "Select specialty"}
+                      </option>
+                      {specialtiesLoading && (
+                        <option value="" disabled>
+                          Loading specialties...
+                        </option>
+                      )}
+                      {Array.isArray(specialties) && specialties.length > 0 ? (
+                        specialties.map((spec) => {
+                          console.log('Rendering specialty option:', spec);
+                          return (
+                            <option key={spec.id || spec.title} value={spec.title}>
+                              {spec.title}
+                            </option>
+                          );
+                        })
+                      ) : (
+                        <option value="" disabled>
+                          {specialtiesLoading ? "Loading..." : genericRecordsError ? "Error loading specialties" : "No specialties available"}
+                        </option>
+                      )}
+                    </Input>
+                    {formErrors.specialty && (
+                      <div className="text-danger mt-1" style={{ fontSize: "0.875rem" }}>
+                        {formErrors.specialty}
+                      </div>
+                    )}
+                  </FormGroup>
+                </Col>
+                <Col md={6}>
+                  <FormGroup className="mb-3">
+                    <Label for="practice">
+                      Practice <span style={{ color: 'red' }}>*</span>
+                      {genericRecordsError && (
+                        <Button
+                          color="link"
+                          size="sm"
+                          className="ms-2 p-0"
+                          onClick={() => dispatch(getPractices())}
+                          disabled={practicesLoading}
+                        >
+                          <i className="fas fa-sync-alt"></i>
+                        </Button>
+                      )}
+                    </Label>
                     <Input
                       type="select"
                       id="practice"
                       value={form.practice}
                       onChange={handleInputChange}
                       required
+                      disabled={practicesLoading}
                     >
-                      <option value="">Select practice</option>
-                      {filterOptions.practice.slice(1).map((p) => (
-                        <option key={p} value={p}>
-                          {p}
+                      <option value="">
+                        {practicesLoading ? "Loading practices..." : "Select practice"}
+                      </option>
+                      {practicesLoading && (
+                        <option value="" disabled>
+                          Loading practices...
                         </option>
-                      ))}
+                      )}
+                      {Array.isArray(practices) && practices.length > 0 ? (
+                        practices.map((prac) => {
+                          console.log('Rendering practice option:', prac);
+                          return (
+                            <option key={prac.id || prac.title} value={prac.title}>
+                              {prac.title}
+                            </option>
+                          );
+                        })
+                      ) : (
+                        <option value="" disabled>
+                          {practicesLoading ? "Loading..." : genericRecordsError ? "Error loading practices" : "No practices available"}
+                        </option>
+                      )}
                     </Input>
+                    {formErrors.practice && (
+                      <div className="text-danger mt-1" style={{ fontSize: "0.875rem" }}>
+                        {formErrors.practice}
+                      </div>
+                    )}
                   </FormGroup>
                 </Col>
               </Row>

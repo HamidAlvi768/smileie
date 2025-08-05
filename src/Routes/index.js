@@ -46,36 +46,42 @@ const { layoutType } = useSelector(routepage);
   const Layout = getLayout(layoutType);
 
   return (
-    <Routes>
-      <Route>
-        {publicRoutes.map((route, idx) => (
-          <Route
-            path={route.path}
-            element={
-              <NonAuthLayout>
-                  {route.component}
-              </NonAuthLayout>
-          }
-            key={idx}
-            exact={true}
-          />
-        ))}
-      </Route>
-
-      <Route>
-          {authProtectedRoutes.map((route, idx) => (
+    <div className="routes-container" style={{ 
+      background: 'inherit',
+      minHeight: '100vh',
+      position: 'relative'
+    }}>
+      <Routes>
+        <Route>
+          {publicRoutes.map((route, idx) => (
             <Route
               path={route.path}
               element={
-                <AuthProtected route={route.path}>
-                    <Layout>{route.component}</Layout>
-                </AuthProtected>}
+                <NonAuthLayout>
+                    {route.component}
+                </NonAuthLayout>
+            }
               key={idx}
               exact={true}
             />
           ))}
-      </Route>
-    </Routes>
+        </Route>
+
+        <Route>
+            {authProtectedRoutes.map((route, idx) => (
+              <Route
+                path={route.path}
+                element={
+                  <AuthProtected route={route.path}>
+                      <Layout>{route.component}</Layout>
+                  </AuthProtected>}
+                key={idx}
+                exact={true}
+              />
+            ))}
+        </Route>
+      </Routes>
+    </div>
   );
 };
 

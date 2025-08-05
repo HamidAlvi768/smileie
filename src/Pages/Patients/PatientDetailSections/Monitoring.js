@@ -11,10 +11,8 @@ import {
   FormGroup,
   Label,
 } from "reactstrap";
-import VisTimeline from "./VisTimeline";
 import FullscreenImageModal from "./FullscreenImageModal";
 import FullscreenComparisonModal from "./FullscreenComparisonModal";
-import DetailedStatsModal from "./DetailedStatsModal";
 import {
   getPatientMonitoringScansAPI,
   getPatientProgressAPI,
@@ -100,6 +98,102 @@ const QUICK_REPLIES = [
 ];
 
 // --- PRESENTATIONAL COMPONENTS ---
+
+const ProgressBar = ({ progressData, loading }) => {
+  console.log("ProgressBar Component - Received data:", { progressData, loading });
+  
+  if (loading) {
+    console.log("ProgressBar: Showing loading state");
+    return (
+      <div className="progress-container mb-3">
+        <div className="text-center py-3">
+          <span className="spinner-border spinner-border-sm me-2"></span>
+          Loading progress...
+        </div>
+      </div>
+    );
+  }
+
+  if (!progressData || !progressData.start_date || !progressData.end_date) {
+    console.log("ProgressBar: No valid data to display", progressData);
+    return null;
+  }
+
+  console.log("ProgressBar: Rendering with data", progressData);
+
+  const progressPercentage = Math.min(Math.max(progressData.progress || 0, 0), 100);
+
+  return (
+    <div className="progress-container mb-3">
+      <div className="progress-bar-wrapper" style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '15px',
+        padding: '10px 0'
+      }}>
+        {/* Start Date - Left */}
+        <div className="progress-date-left" style={{
+          color: '#666',
+          fontSize: '14px',
+          fontWeight: '500',
+          minWidth: '120px',
+          textAlign: 'left'
+        }}>
+          {progressData.start_date}
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="progress-track" style={{
+          position: 'relative',
+          flex: '1',
+          height: '20px',
+          backgroundColor: '#e9ecef',
+          borderRadius: '4px',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div 
+            className="progress-fill"
+            style={{
+              position: 'absolute',
+              left: '0',
+              top: '0',
+              height: '100%',
+              width: `${progressPercentage}%`,
+              backgroundColor: '#1da5fe',
+              borderRadius: '4px',
+              transition: 'width 0.3s ease'
+            }}
+          />
+          
+          {/* Percentage inside the bar */}
+          <span style={{
+            color: '#1da5fe',
+            fontWeight: '600',
+            fontSize: '14px',
+            zIndex: 1,
+            position: 'relative'
+          }}>
+            {progressPercentage}%
+          </span>
+        </div>
+        
+        {/* End Date - Right */}
+        <div className="progress-date-right" style={{
+          color: '#666',
+          fontSize: '14px',
+          fontWeight: '500',
+          minWidth: '120px',
+          textAlign: 'right'
+        }}>
+          {progressData.end_date}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ImageViewer = ({
   images,
@@ -333,7 +427,12 @@ const Monitoring = ({ patient }) => {
   const [sendVideoModalOpen, setSendVideoModalOpen] = useState(false);
   const [fullscreenModalOpen, setFullscreenModalOpen] = useState(false);
   const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
-  const [statsModalOpen, setStatsModalOpen] = useState(false);
+
+  // Add fullscreen image modal state
+  const [fullscreenImageModalOpen, setFullscreenImageModalOpen] = useState(false);
+  const [fullscreenImageData, setFullscreenImageData] = useState(null);
+  const [fullscreenImageIndex, setFullscreenImageIndex] = useState(0);
+  const [fullscreenImages, setFullscreenImages] = useState([]);
 
   // State for Send Photo Modal
   const [photoQuickReply, setPhotoQuickReply] = useState("");
@@ -397,19 +496,53 @@ const Monitoring = ({ patient }) => {
     setLoadingProgress(true);
     getPatientProgressAPI(realPatientId)
       .then((res) => {
-        if (res.status === "success" && res.data) {
-          setProgressData({
+        console.log("Progress API Response:", res);
+        console.log("Progress API Response Data:", res.data);
+        console.log("Progress API Response Status:", res.status);
+        
+        // Handle different response formats
+        let progressInfo = { start_date: "", end_date: "", progress: 0 };
+        
+        if (res.data && res.data.status === "success" && res.data.data) {
+          // Format: { status: "success", data: { start_date, end_date, progress } }
+          progressInfo = {
+            start_date: res.data.data.start_date || "",
+            end_date: res.data.data.end_date || "",
+            progress: typeof res.data.data.progress === "number" ? res.data.data.progress : 0,
+          };
+        } else if (res.data && res.data.start_date) {
+          // Format: { start_date, end_date, progress }
+          progressInfo = {
             start_date: res.data.start_date || "",
             end_date: res.data.end_date || "",
-            progress:
-              typeof res.data.progress === "number" ? res.data.progress : 0,
-          });
-        } else {
-          setProgressData({ start_date: "", end_date: "", progress: 0 });
+            progress: typeof res.data.progress === "number" ? res.data.progress : 0,
+          };
+        } else if (res.status === "success" && res.data) {
+          // Original format
+          progressInfo = {
+            start_date: res.data.start_date || "",
+            end_date: res.data.end_date || "",
+            progress: typeof res.data.progress === "number" ? res.data.progress : 0,
+          };
         }
+        
+        console.log("Setting progress data:", progressInfo);
+        setProgressData(progressInfo);
+        
+        // If no valid data from API, show sample data for testing
+        if (!progressInfo.start_date || !progressInfo.end_date) {
+          console.log("No valid API data, showing sample data for testing");
+          setProgressData({
+            start_date: "2025-07-29",
+            end_date: "2026-01-24",
+            progress: 25
+          });
+        }
+        
         setLoadingProgress(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Progress API Error:", error);
         setProgressData({ start_date: "", end_date: "", progress: 0 });
         setLoadingProgress(false);
       });
@@ -480,16 +613,75 @@ const Monitoring = ({ patient }) => {
   const handleOpenFullscreenModal = () => setFullscreenModalOpen(true);
   const handleCloseFullscreenModal = () => setFullscreenModalOpen(false);
   const handleOpenComparisonModal = () => {
-    console.log("Opening comparison modal with data:");
-    console.log("scansForDate:", scansForDate);
-    console.log("selectedDate:", selectedDate);
-    console.log("scansByDate:", scansByDate);
-    console.log("mainImageUrl:", mainImageUrl);
     setComparisonModalOpen(true);
   };
   const handleCloseComparisonModal = () => setComparisonModalOpen(false);
-  const handleOpenStatsModal = () => setStatsModalOpen(true);
-  const handleCloseStatsModal = () => setStatsModalOpen(false);
+
+  // Fullscreen image modal handlers
+  const openFullscreenImageModal = () => {
+    if (scansForDate.length > 0) {
+      const images = scansForDate.map((scan) => {
+        if (!scan || !scan.scan_url) return null;
+        return {
+          src: scan.scan_url.startsWith("http")
+            ? scan.scan_url
+            : config.WEB_APP_URL + scan.scan_url,
+          date: selectedDate,
+          id: scan.id,
+        };
+      }).filter(Boolean);
+      
+      setFullscreenImages(images);
+      setFullscreenImageIndex(selectedImageIndex);
+      setFullscreenImageData({ date: selectedDate });
+      setFullscreenImageModalOpen(true);
+    }
+  };
+
+  const closeFullscreenImageModal = () => {
+    setFullscreenImageModalOpen(false);
+    setFullscreenImageData(null);
+    setFullscreenImages([]);
+  };
+
+  const goToNextFullscreenImage = () => {
+    if (fullscreenImageIndex < fullscreenImages.length - 1) {
+      setFullscreenImageIndex(fullscreenImageIndex + 1);
+    }
+  };
+
+  const goToPreviousFullscreenImage = () => {
+    if (fullscreenImageIndex > 0) {
+      setFullscreenImageIndex(fullscreenImageIndex - 1);
+    }
+  };
+
+  // Keyboard navigation for fullscreen modal
+  useEffect(() => {
+    if (!fullscreenImageModalOpen) return;
+    
+    const handleKeyDown = (event) => {
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault();
+          goToPreviousFullscreenImage();
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          goToNextFullscreenImage();
+          break;
+        case 'Escape':
+          event.preventDefault();
+          closeFullscreenImageModal();
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [fullscreenImageModalOpen, fullscreenImageIndex, fullscreenImages.length]);
 
   // Prepare real data for both sides using actual scan data
   const leftData = {
@@ -654,9 +846,12 @@ const Monitoring = ({ patient }) => {
     <div className="monitoring-section" style={{ gap: "10px" }}>
       <Card className="monitoring-main-card">
         <CardBody>
-          <div className="timeline-section mb-3">
+          {/* Progress Bar */}
+          <ProgressBar progressData={progressData} loading={loadingProgress} />
+          
+          <div className="date-selection-section mb-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
-              <h6 className="mb-0">Scan Timeline</h6>
+              <h6 className="mb-0">Scan Date Selection</h6>
               {selectedDate && (
                 <small className="text-muted">
                   Selected: {selectedDate} ({scansForDate.length} scan
@@ -665,31 +860,68 @@ const Monitoring = ({ patient }) => {
               )}
             </div>
             {scanDates.length > 0 ? (
-              <VisTimeline
-                timelinePoints={scanDates.map((date) => ({
-                  alignerIndex: date,
-                  dataObjectLabel: date,
-                  tooltip: `Scans from ${date} (${scansByDate[date]?.length || 0
-                    } scan${scansByDate[date]?.length !== 1 ? "s" : ""})`,
-                  date: date,
-                  scanCount: scansByDate[date]?.length || 0,
-                }))}
-                hygienePoints={[]}
-                height={120}
-                selectedDate={selectedDate}
-                onDateChange={(date) => {
-                  console.log("Timeline date changed to:", date);
-                  setSelectedDate(date);
-                  setSelectedImageIndex(0); // Reset to first image when date changes
-                }}
-                onCompare={handleOpenComparisonModal}
-                onShowStats={handleOpenStatsModal}
-                progressPercent={progressData.progress}
-                startDate={progressData.start_date}
-                endDate={progressData.end_date}
-              />
+              <div className="d-flex align-items-center gap-3">
+                <div className="d-flex align-items-center gap-2">
+                  <Label className="mb-0 fw-semibold" style={{width:'100%'}}>Select Date:</Label>
+                  <Input
+                    type="select"
+                    value={selectedDate}
+                    onChange={(e) => {
+                      console.log("Date changed to:", e.target.value);
+                      setSelectedDate(e.target.value);
+                      setSelectedImageIndex(0); // Reset to first image when date changes
+                    }}
+                    style={{ 
+                      minWidth: '250px',
+                      border: '1px solid #ced4da',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      fontSize: '14px',
+                      backgroundColor: '#fff',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {scanDates.map((date) => (
+                      <option key={date} value={date}>
+                        {date} ({scansByDate[date]?.length || 0} scan{scansByDate[date]?.length !== 1 ? "s" : ""})
+                      </option>
+                    ))}
+                  </Input>
+                </div>
+                <div className="d-flex gap-2">
+                  <Button
+                    color="primary"
+                    size="sm"
+                    onClick={handleOpenComparisonModal}
+                    style={{
+                      border: '1px solid #1da5fe',
+                      backgroundColor: '#1da5fe',
+                      color: '#fff',
+                      fontWeight: '500',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      boxShadow: '0 2px 4px rgba(29, 165, 254, 0.2)',
+                      transition: 'all 0.2s ease-in-out'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = '#0d8fd8';
+                      e.target.style.borderColor = '#0d8fd8';
+                      e.target.style.boxShadow = '0 4px 8px rgba(29, 165, 254, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = '#1da5fe';
+                      e.target.style.borderColor = '#1da5fe';
+                      e.target.style.boxShadow = '0 2px 4px rgba(29, 165, 254, 0.2)';
+                    }}
+                  >
+                    <i className="mdi mdi-compare me-1"></i>
+                    Compare
+                  </Button>
+                </div>
+              </div>
             ) : (
               <div className="text-center text-muted py-4">
+                No scan dates available
               </div>
             )}
           </div>
@@ -729,7 +961,7 @@ const Monitoring = ({ patient }) => {
                           borderRadius: 8,
                           boxShadow: "0 2px 8px #0001",
                         }}
-                        onClick={handleOpenFullscreenModal}
+                        onClick={openFullscreenImageModal}
                       />
                       <div
                         style={{
@@ -823,11 +1055,7 @@ const Monitoring = ({ patient }) => {
           </div> */}
           <div className="monitoring-details-flex">
             <div className="monitoring-observations-wrapper">
-              {/* long but meaning full description text instead of any component */}
-              <p>
-                Clinical assessment reveals the presence of a slight unseat
-                involving the patient's right coxofemoral prosthesis.{" "}
-              </p>
+              {/* Clinical assessment section removed */}
             </div>
           </div>
         </CardBody>
@@ -1001,11 +1229,140 @@ const Monitoring = ({ patient }) => {
         rightData={rightData}
       />
 
-      <DetailedStatsModal
-        isOpen={statsModalOpen}
-        toggle={handleCloseStatsModal}
-        statsData={statsData}
-      />
+      {/* Fullscreen Image Modal */}
+      <Modal 
+        isOpen={fullscreenImageModalOpen} 
+        toggle={closeFullscreenImageModal} 
+        size="xl" 
+        centered
+        className="fullscreen-image-modal"
+        style={{ 
+          maxWidth: '95vw', 
+          maxHeight: '95vh',
+          width: '90vw',
+          height: '90vh'
+        }}
+      >
+        <ModalHeader toggle={closeFullscreenImageModal} style={{ padding: '15px 20px' }}>
+          <div className="d-flex align-items-center">
+            <span>Fullscreen Image Viewer</span>
+            {fullscreenImages.length > 0 && (
+              <span className="ms-2 text-muted">
+                ({fullscreenImageIndex + 1} of {fullscreenImages.length})
+              </span>
+            )}
+          </div>
+        </ModalHeader>
+        <ModalBody className="p-0" style={{ 
+          background: '#000', 
+          height: 'calc(90vh - 120px)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          overflow: 'hidden'
+        }}>
+          {fullscreenImages[fullscreenImageIndex] && (
+            <div className="position-relative" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img
+                src={fullscreenImages[fullscreenImageIndex].src}
+                alt={`Fullscreen scan ${fullscreenImageIndex + 1}`}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  width: 'auto',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  display: 'block'
+                }}
+              />
+              
+              {/* Navigation Buttons */}
+              <Button
+                color="light"
+                className="position-absolute"
+                style={{
+                  top: '50%',
+                  left: '20px',
+                  transform: 'translateY(-50%)',
+                  zIndex: 1000,
+                  opacity: 0.8
+                }}
+                onClick={goToPreviousFullscreenImage}
+                disabled={fullscreenImageIndex === 0}
+              >
+                <i className="mdi mdi-chevron-left"></i>
+              </Button>
+              
+              <Button
+                color="light"
+                className="position-absolute"
+                style={{
+                  top: '50%',
+                  right: '20px',
+                  transform: 'translateY(-50%)',
+                  zIndex: 1000,
+                  opacity: 0.8
+                }}
+                onClick={goToNextFullscreenImage}
+                disabled={fullscreenImageIndex === fullscreenImages.length - 1}
+              >
+                <i className="mdi mdi-chevron-right"></i>
+              </Button>
+
+              {/* Image Info Overlay */}
+              <div className="position-absolute" style={{
+                bottom: '20px',
+                left: '20px',
+                right: '20px',
+                background: 'rgba(0,0,0,0.7)',
+                color: 'white',
+                padding: '15px',
+                borderRadius: '8px'
+              }}>
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 className="mb-1">Scan Image</h6>
+                    <small>{fullscreenImageData?.date}</small>
+                  </div>
+                  <div className="text-end">
+                    <small>Image {fullscreenImageIndex + 1}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <div className="d-flex justify-content-between align-items-center w-100">
+            <small className="text-muted">
+              Use arrow keys or click buttons to navigate • Press ESC to close
+            </small>
+            <div>
+              <Button 
+                color="info" 
+                size="sm"
+                onClick={() => {
+                  if (fullscreenImages[fullscreenImageIndex]) {
+                    const link = document.createElement("a");
+                    link.href = fullscreenImages[fullscreenImageIndex].src;
+                    link.download = `fullscreen-scan-${fullscreenImageIndex + 1}.jpg`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }
+                }}
+                className="me-2"
+              >
+                <i className="mdi mdi-download me-1"></i>
+                Download
+              </Button>
+              <Button color="secondary" onClick={closeFullscreenImageModal}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 };

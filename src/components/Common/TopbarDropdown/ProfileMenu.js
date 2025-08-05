@@ -14,8 +14,7 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import withRouter from "../withRouter";
 
-// users
-import user1 from "../../../assets/images/users/avatar-1.jpg";
+
 
 const ProfileMenu = props => {
   // Declare a new state variable, which we'll call "menu"
@@ -50,11 +49,19 @@ const ProfileMenu = props => {
           id="page-header-user-dropdown"
           tag="button"
         >
-          <img
-            className="rounded-circle header-profile-user"
-            src={user1}
-            alt="Header Avatar"
-          />
+          {/* Alternative icon options:
+          ri-user-line - Simple user icon
+          ri-user-3-line - User with circle background
+          ri-user-settings-line - User with settings
+          ri-account-circle-line - Account circle
+          ri-user-star-line - User with star
+          ri-user-heart-line - User with heart
+          ri-user-smile-line - User with smile
+          ri-user-voice-line - User with voice
+          ri-user-location-line - User with location
+          ri-user-settings-3-line - User with gear
+          */}
+          <i className="ri-user-3-line header-profile-icon"></i>
           <span className="d-none d-xl-inline-block ms-2 me-2">{username}</span>
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
         </DropdownToggle>

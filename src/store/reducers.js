@@ -7,6 +7,9 @@ import tutorialsReducer from "./tutorials/reducer";
 import faqsReducer from './faqs/reducer';
 import notificationsReducer from './notifications/reducer';
 import alertsReducer from './alerts/reducer';
+import ordersReducer from './orders/reducer';
+import referralsReducer from './referrals/reducer';
+import genericRecordsReducer from './genericRecords/reducer';
 
 // Front
 import Layout from "./layout/reducer";
@@ -41,6 +44,9 @@ const appReducer = combineReducers({
   faqs: faqsReducer,
   notifications: notificationsReducer,
   alerts: alertsReducer,
+  orders: ordersReducer,
+  referrals: referralsReducer,
+  genericRecords: genericRecordsReducer,
 });
 
 // Wrap it in a root reducer that can handle full reset

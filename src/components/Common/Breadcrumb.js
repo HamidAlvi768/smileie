@@ -16,7 +16,7 @@ const Breadcrumbs = (props) => {
               <div className="page-title-right ms-3">
               <Breadcrumb listClassName="m-0">
                 <BreadcrumbItem>
-                  <Link to="#">{props.title}</Link>
+                  <Link to="/dashboard">{props.title}</Link>
                 </BreadcrumbItem>
                   <BreadcrumbItem>
                     {props.breadcrumbItem2 || props.breadcrumbItem3 ? (

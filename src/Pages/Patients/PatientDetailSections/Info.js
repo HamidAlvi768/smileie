@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input } from 'reactstrap';
+import { Button, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { updatePatientDetail } from '../../../store/patients/actions';
+import { getDoctors } from '../../../store/doctors/actions';
 import { useToast } from '../../../components/Common/ToastContext';
-import Select from 'react-select';
 import { useRoleAccess } from '../../../Hooks/RoleHooks';
 import RoleBasedRender from '../../../components/Common/RoleBasedRender';
+import PatientForm from '../PatientForm';
 
 const Info = ({ patient }) => {
   const navigate = useNavigate();
@@ -18,11 +19,13 @@ const Info = ({ patient }) => {
   const patientDetail = useSelector(state => state.patients.patientDetail) || {};
   const updatingDetail = useSelector(state => state.patients.updatingDetail);
   const updateDetailError = useSelector(state => state.patients.updateDetailError);
+  const doctors = useSelector((state) => state.doctor.doctors) || [];
   const showToast = useToast();
 
   // State for edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editedInfo, setEditedInfo] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
 
   // Add country/state/city options and loading states
   const [countries, setCountries] = useState([]);
@@ -36,16 +39,17 @@ const Info = ({ patient }) => {
   const prevCountry = React.useRef();
   const prevState = React.useRef();
 
-  // Fetch countries when edit modal opens
+  // Fetch doctors and countries when edit modal opens
   useEffect(() => {
     if (isEditModalOpen) {
+      dispatch(getDoctors());
       setIsLoadingCountries(true);
       fetch('https://countriesnow.space/api/v0.1/countries/iso')
         .then(res => res.json())
         .then(data => setCountries(data.data.map(c => c.name)))
         .finally(() => setIsLoadingCountries(false));
     }
-  }, [isEditModalOpen]);
+  }, [isEditModalOpen, dispatch]);
 
   // Fetch states when country changes (but not just on modal open)
   useEffect(() => {
@@ -93,15 +97,19 @@ const Info = ({ patient }) => {
     }
   }, [isEditModalOpen, editedInfo && editedInfo.state, editedInfo && editedInfo.country]);
 
-  // Map API fields to UI fields
+  // Map API fields to UI fields (matching PatientForm structure)
   const patientInfo = {
-    firstName: patientDetail.first_name || '',
-    lastName: patientDetail.last_name || '',
+    coupon_code: patientDetail.coupon_code || '',
+    first_name: patientDetail.first_name || '',
+    last_name: patientDetail.last_name || '',
     email: patientDetail.email || '',
     phone: patientDetail.phone || '',
-    alignerType: patientDetail.aligner_type || patient?.aligner_type || '',
-    dateOfBirth: patientDetail.dob || '',
+    dob: patientDetail.dob || '',
     gender: patientDetail.gender || '',
+    doctor_id: patientDetail.doctor_id || '',
+    doctor_name: patientDetail.doctor_name || '',
+    patient_source: patientDetail.patient_source || '',
+    aligner_type: patientDetail.aligner_type || patient?.aligner_type || '',
     address: patientDetail.address || '',
     address2: patientDetail.address2 || '',
     zip_code: patientDetail.zip_code || '',
@@ -110,38 +118,91 @@ const Info = ({ patient }) => {
     country: patientDetail.country || '',
   };
 
+  // Helper function to find doctor ID by name
+  const findDoctorIdByName = (doctorName) => {
+    if (!doctorName || !doctors.length) return '';
+    const doctor = doctors.find(doc => doc.full_name === doctorName);
+    return doctor ? doctor.id : '';
+  };
+
+  // Helper function to normalize gender value
+  const normalizeGender = (gender) => {
+    if (!gender) return '';
+    // Convert to title case to match dropdown options
+    return gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase();
+  };
+
   // When opening the modal, initialize editedInfo with current values
   const toggleEditModal = () => {
     if (!isEditModalOpen) {
-      setEditedInfo({ ...patientInfo });
+      // Map API response fields to form fields
+      const formData = {
+        coupon_code: patientDetail.coupon_code || '',
+        first_name: patientDetail.first_name || '',
+        last_name: patientDetail.last_name || '',
+        email: patientDetail.email || '',
+        phone: patientDetail.phone || '',
+        dob: patientDetail.dob || '',
+        gender: normalizeGender(patientDetail.gender) || '',
+        doctor_id: patientDetail.doctor_id || findDoctorIdByName(patientDetail.doctor_name) || '',
+        doctor_name: patientDetail.doctor_name || '',
+        patient_source: patientDetail.patient_source || '',
+        aligner_type: patientDetail.aligner_type || '',
+        address: patientDetail.address || '',
+        address2: patientDetail.address2 || '',
+        zip_code: patientDetail.zip_code || '',
+        city: patientDetail.city || '',
+        state: patientDetail.state || '',
+        country: patientDetail.country || '',
+      };
+
+      console.log('Initializing form with data:', formData);
+      console.log('Gender normalization:', { original: patientDetail.gender, normalized: normalizeGender(patientDetail.gender) });
+      setEditedInfo(formData);
     }
     setIsEditModalOpen(!isEditModalOpen);
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { id, value } = e.target;
     setEditedInfo(prev => ({
       ...prev,
-      [name]: value
+      [id]: value
     }));
   };
 
   const handleSave = () => {
-    // Prepare data for API (convert UI fields to API fields)
+    // Validate form
+    const errors = validatePatientForm(editedInfo);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      showToast({
+        message: "Please fill all the required fields",
+        type: "error",
+        title: "Validation Error",
+      });
+      return;
+    }
+
+    // Prepare data for API (fields already match API structure)
     const data = {
-      first_name: editedInfo.firstName,
-      last_name: editedInfo.lastName,
+      ...editedInfo,
+      // Ensure all required fields are present
+      first_name: editedInfo.first_name,
+      last_name: editedInfo.last_name,
       email: editedInfo.email,
       phone: editedInfo.phone,
-      dob: editedInfo.dateOfBirth,
+      dob: editedInfo.dob,
       gender: editedInfo.gender,
+      doctor_id: editedInfo.doctor_id,
+      patient_source: editedInfo.patient_source,
+      aligner_type: editedInfo.aligner_type,
       address: editedInfo.address,
       address2: editedInfo.address2,
       zip_code: editedInfo.zip_code,
       city: editedInfo.city,
       state: editedInfo.state,
       country: editedInfo.country,
-      aligner_type: editedInfo.alignerType, // send aligner_type to payload
     };
     dispatch(updatePatientDetail(patientDetail.id, data));
   };
@@ -152,6 +213,42 @@ const Info = ({ patient }) => {
       setIsEditModalOpen(false);
     }
   }, [updatingDetail]);
+
+  // Clear form errors when modal closes
+  React.useEffect(() => {
+    if (!isEditModalOpen) {
+      setFormErrors({});
+    }
+  }, [isEditModalOpen]);
+
+  // Update editedInfo when patientDetail changes (if modal is open)
+  React.useEffect(() => {
+    if (isEditModalOpen && patientDetail) {
+      const formData = {
+        coupon_code: patientDetail.coupon_code || '',
+        first_name: patientDetail.first_name || '',
+        last_name: patientDetail.last_name || '',
+        email: patientDetail.email || '',
+        phone: patientDetail.phone || '',
+        dob: patientDetail.dob || '',
+        gender: normalizeGender(patientDetail.gender) || '',
+        doctor_id: patientDetail.doctor_id || findDoctorIdByName(patientDetail.doctor_name) || '',
+        doctor_name: patientDetail.doctor_name || '',
+        patient_source: patientDetail.patient_source || '',
+        aligner_type: patientDetail.aligner_type || '',
+        address: patientDetail.address || '',
+        address2: patientDetail.address2 || '',
+        zip_code: patientDetail.zip_code || '',
+        city: patientDetail.city || '',
+        state: patientDetail.state || '',
+        country: patientDetail.country || '',
+      };
+
+      console.log('Updating form with patientDetail:', formData);
+      console.log('Gender normalization:', { original: patientDetail.gender, normalized: normalizeGender(patientDetail.gender) });
+      setEditedInfo(formData);
+    }
+  }, [patientDetail, isEditModalOpen, doctors]);
 
   // Toast handling for update success/error
   const prevUpdatingDetail = React.useRef(false);
@@ -180,212 +277,59 @@ const Info = ({ patient }) => {
     navigate(`/patients/${id}/guardians`);
   };
 
-  // Validation: check if any field is blank
-  const isFormValid = editedInfo && Object.values({
-    firstName: editedInfo.firstName,
-    lastName: editedInfo.lastName,
-    email: editedInfo.email,
-    phone: editedInfo.phone,
-    dateOfBirth: editedInfo.dateOfBirth,
-    gender: editedInfo.gender,
-    address: editedInfo.address,
-    zip_code: editedInfo.zip_code,
-    city: editedInfo.city,
-    state: editedInfo.state,
-    country: editedInfo.country,
-  }).every(val => val && val.trim() !== "");
+  // Validation function (same as in Monitored.js)
+  const validatePatientForm = (form) => {
+    const errors = {};
+    if (!form.first_name) errors.first_name = 'First name is required';
+    if (!form.last_name) errors.last_name = 'Last name is required';
+    if (!form.email) errors.email = 'Email is required';
+    else if (!/^\S+@\S+\.\S+$/.test(form.email)) errors.email = 'Invalid email address';
+    if (!form.phone) errors.phone = 'Mobile phone is required';
+    if (!form.dob) errors.dob = 'Date of birth is required';
+    if (!form.doctor_id) errors.doctor_id = 'Doctor is required';
+    if (!form.gender) errors.gender = 'Gender is required';
+    if (!form.patient_source) errors.patient_source = 'Patient source is required';
+    if (!form.country) errors.country = 'Country is required';
+    if (!form.state) errors.state = 'State is required';
+    if (!form.city) errors.city = 'City is required';
+    if (!form.address) errors.address = 'Address is required';
+    if (!form.address2) errors.address2 = 'Address line 2 is required';
+    if (!form.zip_code) errors.zip_code = 'Zip code is required';
+    if (!form.aligner_type) errors.aligner_type = 'Aligner type is required';
+    return errors;
+  };
 
-  const renderEditForm = () => (
-    <div className="edit-form-grid">
-      {/* Personal Information Group */}
-      <div className="form-group-row">
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="firstName">First Name</Label>
-            <Input
-              type="text"
-              name="firstName"
-              id="firstName"
-              value={editedInfo.firstName}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-        </div>
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="lastName">Last Name</Label>
-            <Input
-              type="text"
-              name="lastName"
-              id="lastName"
-              value={editedInfo.lastName}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-        </div>
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="email">Email</Label>
-            <Input
-              type="email"
-              name="email"
-              id="email"
-              value={editedInfo.email}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-        </div>
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="phone">Phone</Label>
-            <Input
-              type="text"
-              name="phone"
-              id="phone"
-              value={editedInfo.phone}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-        </div>
-      </div>
-      {/* Settings Group */}
-      <div className="form-group-row">
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="gender">Gender</Label>
-            <Input
-              type="select"
-              name="gender"
-              id="gender"
-              value={editedInfo.gender}
-              onChange={handleInputChange}
-            >
-              <option value="">Select gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </Input>
-          </FormGroup>
-        </div>
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="alignerType">Aligner Type</Label>
-            <Input
-              type="select"
-              name="alignerType"
-              id="alignerType"
-              value={editedInfo.alignerType}
-              onChange={handleInputChange}
-            >
-              <option value="">Select aligner type</option>
-              <option value="Day Aligner">Day Aligner</option>
-              <option value="Night Aligner">Night Aligner</option>
-            </Input>
-          </FormGroup>
-        </div>
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="dateOfBirth">Date of Birth</Label>
-            <Input
-              type="date"
-              name="dateOfBirth"
-              id="dateOfBirth"
-              value={editedInfo.dateOfBirth}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-        </div>
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="country">Country</Label>
-            <Select
-              id="country"
-              options={countries.map(c => ({ value: c, label: c }))}
-              value={editedInfo.country ? { value: editedInfo.country, label: editedInfo.country } : null}
-              onChange={option => setEditedInfo(prev => ({ ...prev, country: option ? option.value : '' }))}
-              isClearable
-              placeholder="Select country"
-              isLoading={isLoadingCountries}
-              loadingMessage={() => "Loading countries..."}
-            />
-          </FormGroup>
-        </div>
-      </div>
-      <div className="form-group-row">
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="zip_code">Zip Code</Label>
-            <Input
-              type="text"
-              name="zip_code"
-              id="zip_code"
-              value={editedInfo.zip_code}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-        </div>
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="state">State</Label>
-            <Select
-              id="state"
-              options={states.map(s => ({ value: s, label: s }))}
-              value={editedInfo.state ? { value: editedInfo.state, label: editedInfo.state } : null}
-              onChange={option => setEditedInfo(prev => ({ ...prev, state: option ? option.value : '' }))}
-              isClearable
-              placeholder="Select state"
-              isDisabled={!editedInfo.country}
-              isLoading={isLoadingStates}
-              loadingMessage={() => "Loading states..."}
-            />
-          </FormGroup>
-        </div>
-        <div className="form-group-fourth">
-          <FormGroup>
-            <Label for="city">City</Label>
-            <Select
-              id="city"
-              options={cities.map(c => ({ value: c, label: c }))}
-              value={editedInfo.city ? { value: editedInfo.city, label: editedInfo.city } : null}
-              onChange={option => setEditedInfo(prev => ({ ...prev, city: option ? option.value : '' }))}
-              isClearable
-              placeholder="Select city"
-              isDisabled={!editedInfo.state}
-              isLoading={isLoadingCities}
-              loadingMessage={() => "Loading cities..."}
-            />
-          </FormGroup>
-        </div>
-      </div>
-      {/* Dedicated row for address fields at the end */}
-      <div className="form-group-row">
-        <div className="form-group-half">
-          <FormGroup>
-            <Label for="address">Address</Label>
-            <Input
-              type="text"
-              name="address"
-              id="address"
-              value={editedInfo.address}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-        </div>
-        <div className="form-group-half">
-          <FormGroup>
-            <Label for="address2">Address Line 2</Label>
-            <Input
-              type="text"
-              name="address2"
-              id="address2"
-              value={editedInfo.address2}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-        </div>
-      </div>
-    </div>
-  );
+  // Validation: check if any field is blank
+  const isFormValid = editedInfo && Object.keys(validatePatientForm(editedInfo)).length === 0;
+
+
+
+    const renderEditForm = () => {
+    // Debug logging to verify form values
+    console.log('PatientForm Debug - editedInfo:', editedInfo);
+    console.log('PatientForm Debug - gender:', editedInfo?.gender);
+    console.log('PatientForm Debug - doctor_id:', editedInfo?.doctor_id);
+    console.log('PatientForm Debug - doctor_name:', editedInfo?.doctor_name);
+    console.log('PatientForm Debug - patient_source:', editedInfo?.patient_source);
+    console.log('PatientForm Debug - aligner_type:', editedInfo?.aligner_type);
+    console.log('PatientForm Debug - doctors:', doctors);
+    console.log('PatientForm Debug - patientDetail:', patientDetail);
+    
+    return (
+      <PatientForm
+        formState={editedInfo}
+        onChange={handleInputChange}
+        doctors={doctors}
+        countries={countries}
+        states={states}
+        cities={cities}
+        isLoadingCountries={isLoadingCountries}
+        isLoadingStates={isLoadingStates}
+        isLoadingCities={isLoadingCities}
+        errors={formErrors}
+      />
+    );
+  };
 
   return (
     <div className="info-section">
@@ -403,12 +347,16 @@ const Info = ({ patient }) => {
         <CardBody>
           <div className="info-grid">
             <div className="info-item">
+              <label>Coupon Code</label>
+              <div>{patientInfo.coupon_code || 'Not set'}</div>
+            </div>
+            <div className="info-item">
               <label>First Name</label>
-              <div>{patientInfo.firstName}</div>
+              <div>{patientInfo.first_name}</div>
             </div>
             <div className="info-item">
               <label>Last Name</label>
-              <div>{patientInfo.lastName}</div>
+              <div>{patientInfo.last_name}</div>
             </div>
             <div className="info-item">
               <label>Email</label>
@@ -419,30 +367,41 @@ const Info = ({ patient }) => {
               <div>{patientInfo.phone}</div>
             </div>
             <div className="info-item">
+              <label>Date of Birth</label>
+              <div>{patientInfo.dob}</div>
+            </div>
+            <div className="info-item">
               <label>Gender</label>
               <div>{patientInfo.gender}</div>
             </div>
             <div className="info-item">
+              <label>Doctor Name</label>
+              <div>{patientInfo.doctor_name || 'Not assigned'}</div>
+            </div>
+            <div className="info-item">
+              <label>Patient Source</label>
+              <div>{patientInfo.patient_source || 'Not set'}</div>
+            </div>
+            <div className="info-item">
               <label>Aligner Type</label>
-              <div>{patientInfo.alignerType}</div>
+              <div>{patientInfo.aligner_type}</div>
             </div>
             <div className="info-item">
-              <label>Zip Code</label>
-              <div>{patientInfo.zip_code}</div>
-            </div>
-            <div className="info-item">
-              <label>City</label>
-              <div>{patientInfo.city}</div>
+              <label>Country</label>
+              <div>{patientInfo.country}</div>
             </div>
             <div className="info-item">
               <label>State</label>
               <div>{patientInfo.state}</div>
             </div>
             <div className="info-item">
-              <label>Country</label>
-              <div>{patientInfo.country}</div>
+              <label>City</label>
+              <div>{patientInfo.city}</div>
             </div>
-            {/* Dedicated row for address fields at the end */}
+            <div className="info-item">
+              <label>Zip Code</label>
+              <div>{patientInfo.zip_code}</div>
+            </div>
             <div className="info-item">
               <label>Address</label>
               <div>{patientInfo.address}</div>
@@ -450,10 +409,6 @@ const Info = ({ patient }) => {
             <div className="info-item">
               <label>Address Line 2</label>
               <div>{patientInfo.address2}</div>
-            </div>
-            <div className="info-item">
-              <label>Date of Birth</label>
-              <div>{patientInfo.dateOfBirth}</div>
             </div>
           </div>
         </CardBody>

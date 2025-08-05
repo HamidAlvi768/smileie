@@ -20,6 +20,9 @@ export * from "./stats/actions";
 // Patients module
 export * from "./patients/actions";
 
+// Orders module
+export * from "./orders/actions";
+
 export * from "./alerts/actions";
 
 export const GET_FAQS = 'GET_FAQS';

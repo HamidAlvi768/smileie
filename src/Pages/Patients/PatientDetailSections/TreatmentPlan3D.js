@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardBody, Button, Input, FormGroup, Label, Form, Badge, Spinner, Alert } from 'reactstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { create3DPlan, get3DPlan, update3DPlan, delete3DPlan } from '../../../store/patients/actions';
+import { getPatientStatsAPI } from '../../../helpers/api_helper';
 // import './TreatmentPlan3DStepper.css'; // (optional: for custom stepper styling)
 
 const getCurrentStep = (threeDPlan, editing) => {
@@ -70,6 +71,11 @@ const TreatmentPlan3D = ({ patient }) => {
   const patientDetail = useSelector(state => state.patients.patientDetail);
   const patientAlignerType = patientDetail?.aligner_type || '';
 
+  // State for patient stats from API
+  const [patientStats, setPatientStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState(null);
+
   // Local state for form
   const [reelLink, setReelLink] = useState('');
   const [description, setDescription] = useState('');
@@ -82,8 +88,8 @@ const TreatmentPlan3D = ({ patient }) => {
   const [urlError, setUrlError] = useState('');
 
   // Local state for 3rd step fields
-  // Use patientAlignerType as default if no 3D plan arch_type
-  const [archTypeStep3, setArchTypeStep3] = useState(threeDPlan?.arch_type || patientAlignerType || 'day_dual');
+  // Use stats API aligner_type as default if no 3D plan arch_type
+  const [archTypeStep3, setArchTypeStep3] = useState(threeDPlan?.arch_type || patientStats?.aligner_type || 'day_dual');
   const [upperAligners, setUpperAligners] = useState(0);
   const [lowerAligners, setLowerAligners] = useState(0);
   // Track if step 3 was saved successfully
@@ -115,6 +121,25 @@ const TreatmentPlan3D = ({ patient }) => {
     }
   }, [dispatch, patient?.id]);
 
+  // Load patient stats when component mounts
+  useEffect(() => {
+    if (patient?.id) {
+      setStatsLoading(true);
+      setStatsError(null);
+      getPatientStatsAPI(patient.id)
+        .then((res) => {
+          console.log('Patient stats API response:', res);
+          setPatientStats(res.data || null);
+          setStatsLoading(false);
+        })
+        .catch((err) => {
+          console.error('Error fetching patient stats:', err);
+          setStatsError("Failed to load patient stats");
+          setStatsLoading(false);
+        });
+    }
+  }, [patient?.id]);
+
   // Update local state when 3D plan is loaded
   useEffect(() => {
     if (threeDPlan) {
@@ -128,30 +153,30 @@ const TreatmentPlan3D = ({ patient }) => {
     }
   }, [threeDPlan, patientAlignerType]);
 
-  // When threeDPlan changes, update local state for step 3
+  // When threeDPlan or patientStats changes, update local state for step 3
   useEffect(() => {
     if (threeDPlan) {
-      setArchTypeStep3(threeDPlan.arch_type || patientAlignerType || 'day_dual');
+      setArchTypeStep3(threeDPlan.arch_type || patientStats?.aligner_type || 'day_dual');
       setUpperAligners(threeDPlan.upper_aligners || 0);
       setLowerAligners(threeDPlan.lower_aligners || 0);
-    } else if (patientAlignerType) {
-      setArchTypeStep3(patientAlignerType);
+    } else if (patientStats?.aligner_type) {
+      setArchTypeStep3(patientStats.aligner_type);
     }
-  }, [threeDPlan, patientAlignerType]);
+  }, [threeDPlan, patientStats]);
 
   // Add after the useEffect that updates local state from threeDPlan
   useEffect(() => {
     if (!threeDPlan && patient?.id) {
       setReelLink('');
       setDescription('');
-      setArchType(patientAlignerType || 'both');
+      setArchType(patientStats?.aligner_type || 'both');
       setTotalAligners(0);
-      setArchTypeStep3(patientAlignerType || 'day_dual');
+      setArchTypeStep3(patientStats?.aligner_type || 'day_dual');
       setUpperAligners(0);
       setLowerAligners(0);
       setEditing(false);
     }
-  }, [threeDPlan, patient?.id, patientAlignerType]);
+  }, [threeDPlan, patient?.id, patientStats]);
 
   // Automatically go to step 2 after successful save in step 1
   useEffect(() => {
@@ -168,10 +193,10 @@ const TreatmentPlan3D = ({ patient }) => {
     }
   }, [updating3DPlan, threeDPlanError]);
 
-  // Reset isStep3Saved if user changes any step 3 field
+  // Reset isStep3Saved if user changes any step 3 field or stats change
   useEffect(() => {
     setIsStep3Saved(false);
-  }, [archTypeStep3, upperAligners, lowerAligners]);
+  }, [archTypeStep3, upperAligners, lowerAligners, patientStats?.aligner_type]);
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -220,10 +245,16 @@ const TreatmentPlan3D = ({ patient }) => {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  // Helper: determine which aligner fields to enable
-  const isDual = archTypeStep3.includes('dual');
-  const isUpper = archTypeStep3.includes('upper');
-  const isLower = archTypeStep3.includes('lower');
+  // Helper: determine which aligner fields to enable based on stats API aligner_type
+  const statsAlignerType = patientStats?.aligner_type || '';
+  const isDual = statsAlignerType.includes('dual');
+  const isUpper = statsAlignerType.includes('upper');
+  const isLower = statsAlignerType.includes('lower');
+
+  // Debug logging
+  console.log('Patient Stats:', patientStats);
+  console.log('Stats Aligner Type:', statsAlignerType);
+  console.log('Is Dual:', isDual, 'Is Upper:', isUpper, 'Is Lower:', isLower);
 
   return (
     <div className="treatment-plan-3d-section">
@@ -360,7 +391,7 @@ const TreatmentPlan3D = ({ patient }) => {
                     e.preventDefault();
                     dispatch(update3DPlan({
                       ...threeDPlan,
-                      arch_type: archTypeStep3,
+                      arch_type: patientStats?.aligner_type || archTypeStep3,
                       upper_aligners: upperAligners,
                       lower_aligners: lowerAligners,
                       patient_id: patient.id,
@@ -372,14 +403,18 @@ const TreatmentPlan3D = ({ patient }) => {
                           <Label for="archTypeStep3">Arch Type</Label>
                           <Input
                             id="archTypeStep3"
-                            type="select"
-                            value={archTypeStep3}
-                            onChange={e => setArchTypeStep3(e.target.value)}
-                          >
-                            {ARCH_TYPE_OPTIONS.map(opt => (
-                              <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                          </Input>
+                            type="text"
+                            value={patientStats?.aligner_type || 'Loading...'}
+                            disabled
+                            className="form-control-plaintext"
+                            style={{ backgroundColor: '#f8f9fa', border: '1px solid #dee2e6' }}
+                          />
+                          {statsLoading && (
+                            <small className="text-muted">Loading arch type from patient stats...</small>
+                          )}
+                          {statsError && (
+                            <small className="text-danger">Failed to load arch type: {statsError}</small>
+                          )}
                         </FormGroup>
                       </div>
                       <div className="col-md-4">
@@ -391,7 +426,7 @@ const TreatmentPlan3D = ({ patient }) => {
                             min="0"
                             value={upperAligners}
                             onChange={e => setUpperAligners(Number(e.target.value))}
-                            disabled={!(isDual || isUpper)}
+                            disabled={!(isDual || isUpper) || (threeDPlan.upper_aligners > 0)}
                           />
                         </FormGroup>
                       </div>
@@ -404,7 +439,7 @@ const TreatmentPlan3D = ({ patient }) => {
                             min="0"
                             value={lowerAligners}
                             onChange={e => setLowerAligners(Number(e.target.value))}
-                            disabled={!(isDual || isLower)}
+                            disabled={!(isDual || isLower) || (threeDPlan.lower_aligners > 0)}
                           />
                         </FormGroup>
                       </div>
@@ -414,6 +449,7 @@ const TreatmentPlan3D = ({ patient }) => {
                         disabled={
                           updating3DPlan ||
                           isStep3Saved ||
+                          statsLoading ||
                           (threeDPlan.upper_aligners > 0 || threeDPlan.lower_aligners > 0)
                         }
                       >

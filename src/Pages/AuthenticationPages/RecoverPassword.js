@@ -5,6 +5,7 @@ import logodark from "../../assets/images/logo-dark.png";
 
 import { Container, Row, Col, Card, CardBody, Alert } from "reactstrap";
 import { Link } from "react-router-dom";
+import { passwordResetAPI } from "../../helpers/api_helper";
 
 const RecoverPassword = () => {
   const [email, setEmail] = useState("");
@@ -21,16 +22,11 @@ const RecoverPassword = () => {
     setError("");
     setLoading(true);
     try {
-      const response = await fetch("https://smileie.jantrah.com/backend/api/users/password-reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setSuccess(data.message || "Password reset instructions sent to your email.");
+      const response = await passwordResetAPI(email);
+      if (response.success) {
+        setSuccess(response.message || "Password reset instructions sent to your email.");
       } else {
-        setError(data.message || "Failed to send password reset email.");
+        setError(response.message || "Failed to send password reset email.");
       }
     } catch (err) {
       setError("An error occurred. Please try again later.");

@@ -81,3 +81,33 @@ export const CHANGE_ALIGNER_API = '/patients/change-aligner';
 export const GET_TREATMENT_ISSUES_API = '/treatment/issues';
 //alerts
 export const GET_ALERTS_API = '/app/notifications';
+
+//orders
+export const GET_ORDERS_API = '/orders';
+export const ADD_ORDER_API = '/orders/create';
+
+//impressions
+export const GET_IMPRESSIONS_API = '/patients/impressions';
+
+//contact us
+export const GET_CONTACT_US_API = '/contactus';
+
+//account/user management
+export const GET_USER_PROFILE_API = '/users/view';
+export const UPDATE_USER_PROFILE_API = '/users/update';
+export const PASSWORD_RESET_API = '/users/password-reset';
+export const LOGIN_API = '/users/login';
+
+//patient progress and history
+export const GET_PATIENT_PROGRESS_API = '/patients/progress';
+export const GET_PATIENT_HISTORY_API = '/patients/history';
+
+//page management
+export const GET_PAGE_API = '/page/get';
+export const SET_PAGE_API = '/page/set';
+
+//referrals
+export const GET_REFERRALS_API = '/patients/referrals';
+export const UPDATE_REFERRAL_STATUS_API = '/patients/referrals/status';
+export const GET_REFERRAL_AMOUNT_API = '/patients/referrals/amount';
+export const PAY_REFERRALS_API = '/patients/referrals/paid';

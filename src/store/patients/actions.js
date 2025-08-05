@@ -55,3 +55,8 @@ export const changeAlignerFail = (error) => ({ type: 'CHANGE_ALIGNER_FAIL', payl
 export const getTreatmentIssues = (patientId) => ({ type: 'GET_TREATMENT_ISSUES', payload: patientId });
 export const getTreatmentIssuesSuccess = (issues) => ({ type: 'GET_TREATMENT_ISSUES_SUCCESS', payload: issues });
 export const getTreatmentIssuesFail = (error) => ({ type: 'GET_TREATMENT_ISSUES_FAIL', payload: error });
+
+// Impressions actions
+export const getImpressions = (patientId) => ({ type: 'GET_IMPRESSIONS', payload: patientId });
+export const getImpressionsSuccess = (impressions) => ({ type: 'GET_IMPRESSIONS_SUCCESS', payload: impressions });
+export const getImpressionsFail = (error) => ({ type: 'GET_IMPRESSIONS_FAIL', payload: error });

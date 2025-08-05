@@ -16,6 +16,7 @@ import {
 } from "reactstrap";
 import { API_URL } from "../../config";
 import { useToast } from '../../components/Common/ToastContext';
+import { getUserProfileAPI, updateUserProfileAPI } from "../../helpers/api_helper";
 
 const countryCodes = [
   { code: "+1", label: "US/Canada" },
@@ -34,7 +35,6 @@ function MyAccount() {
     firstName: "",
     lastName: "",
     phone: "",
-    currentPassword: "",
     newPassword: "",
     confirmPassword: "",
     dentalNotation: "FDI",
@@ -54,8 +54,7 @@ function MyAccount() {
       return;
     }
     
-    fetch(API_URL + `users/view?id=${userId}`)
-      .then(response => response.json())
+    getUserProfileAPI(userId)
       .then(data => {
         console.log("Profile data fetched:", data);
         const profile = data.data || {};
@@ -67,7 +66,6 @@ function MyAccount() {
           phone: profile.phone || form.phone,
           language: profile.language || form.language,
           redacted: profile.redacted || form.redacted,
-          currentPassword: profile.currentPassword || form.currentPassword,
           newPassword: profile.newPassword || form.newPassword,
           confirmPassword: profile.confirmPassword || form.confirmPassword,
           dentalNotation: profile.dentalNotation || form.dentalNotation,
@@ -115,20 +113,9 @@ function MyAccount() {
         new_password: form.newPassword,
         confirm_password: form.confirmPassword,
       };
-      const response = await fetch(API_URL + 'users/update?id=' + userId, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update profile.');
-      }
-      const responseData = await response.json();
-      if (responseData.status === 'error') {
-        throw new Error(responseData.message || 'Failed to update profile.');
+      const response = await updateUserProfileAPI(userId, payload);
+      if (response.status === 'error') {
+        throw new Error(response.message || 'Failed to update profile.');
       }
       showToast({
         message: 'Profile updated successfully!',
@@ -284,19 +271,7 @@ function MyAccount() {
 
                   {/* Password Fields Row */}
                   <Row>
-                    <Col md={4}>
-                      <FormGroup>
-                        <Label for="currentPassword">Current Password</Label>
-                        <Input
-                          id="currentPassword"
-                          name="currentPassword"
-                          type="password"
-                          value={form.currentPassword}
-                          onChange={handleChange}
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col md={4}>
+                    <Col md={6}>
                       <FormGroup>
                         <Label for="newPassword">New Password</Label>
                         <Input
@@ -308,7 +283,7 @@ function MyAccount() {
                         />
                       </FormGroup>
                     </Col>
-                    <Col md={4}>
+                    <Col md={6}>
                       <FormGroup>
                         <Label for="confirmPassword">Confirm New Password</Label>
                         <Input

@@ -1,14 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import ReactApexChart from "react-apexcharts";
-import { useSelector, useDispatch } from 'react-redux';
-import { getStats } from '../../store/stats/actions';
+import { useSelector } from 'react-redux';
 
 const LineColumnArea = () => {
-  const dispatch = useDispatch();
-  const stats = useSelector(state => state.stats.stats);
-  React.useEffect(() => {
-    dispatch(getStats());
-  }, [dispatch]);
+  const stats = useSelector((state) => state.stats.stats);
 
   // Debug: Log stats and monthly data
   console.log('Stats from Redux:', stats);

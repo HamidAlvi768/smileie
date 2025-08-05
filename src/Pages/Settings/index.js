@@ -8,12 +8,12 @@ const settingsData = [
   {
     section: "General Settings",
     cards: [
-      {
-        name: "Application Settings",
-        description: "Configure general application settings.",
-        icon: "ri-settings-3-line",
-        url: "/settings/application-settings",
-      },
+      // {
+      //   name: "Application Settings",
+      //   description: "Configure general application settings.",
+      //   icon: "ri-settings-3-line",
+      //   url: "/settings/application-settings",
+      // },
       {
         name: "Dropdown Settings",
         // count: "3",
@@ -39,7 +39,7 @@ const settingsData = [
         url: "/settings/contact-us",
       },
       {
-        name: "Instructions",
+        name: "Treatment Instructions",
         description: "Update instructions shown to users.",
         icon: "ri-file-text-line",
         url: "/settings/instructions",
@@ -92,7 +92,7 @@ const Settings = () => {
         <Container fluid={true}>
           <Breadcrumbs
             title="Smileie"
-            breadcrumbItem="General Settings"
+            breadcrumbItem="Settings"
           />
 
           {settingsData.map((sectionData, sectionIdx) => (

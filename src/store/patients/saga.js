@@ -14,6 +14,7 @@ import {
   delete3DPlanAPI,
   changeAlignerAPI,
   getTreatmentIssuesAPI,
+  getImpressionsAPI,
 } from "../../helpers/api_helper";
 import {
   GET_PATIENTS,
@@ -31,6 +32,7 @@ import {
   GET_TREATMENT_STEPS,
   GET_SCAN_DETAIL,
   CHANGE_ALIGNER,
+  GET_IMPRESSIONS,
 } from "./actionTypes";
 import {
   getPatientsSuccess,
@@ -65,6 +67,8 @@ import {
   getTreatmentSteps,
   getTreatmentIssuesSuccess,
   getTreatmentIssuesFail,
+  getImpressionsSuccess,
+  getImpressionsFail,
 } from "./actions";
 import {
   getTreatmentStepsAPI,
@@ -263,6 +267,15 @@ function* fetchTreatmentIssues({ payload }) {
   }
 }
 
+function* fetchImpressions({ payload }) {
+  try {
+    const response = yield call(getImpressionsAPI, payload);
+    yield put(getImpressionsSuccess(response));
+  } catch (error) {
+    yield put(getImpressionsFail(error));
+  }
+}
+
 function* patientsSaga() {
   yield takeEvery(GET_PATIENTS, fetchPatients);
   yield takeEvery(ADD_PATIENT, addPatientSaga);
@@ -280,6 +293,7 @@ function* patientsSaga() {
   yield takeEvery(GET_SCAN_DETAIL, fetchScanDetail);
   yield takeEvery(CHANGE_ALIGNER, changeAlignerSaga);
   yield takeEvery('GET_TREATMENT_ISSUES', fetchTreatmentIssues);
+  yield takeEvery(GET_IMPRESSIONS, fetchImpressions);
 }
 
 export default patientsSaga;
