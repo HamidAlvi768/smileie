@@ -63,8 +63,111 @@ const shimmerStyles = `
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     height: 16px;
-    border-radius: 2px;
+    border-radius: 4px;
     margin: 4px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .shimmer-table-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Pagination Loading Bar Styles */
+  .pagination-loading-container {
+    padding: 8px 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease-in-out;
+    opacity: 0.7;
+  }
+  
+  .pagination-loading-container.pagination-loading-active {
+    opacity: 1;
+    background: rgba(29, 165, 254, 0.1);
+    border-color: #1da5fe;
+    padding: 12px 16px;
+  }
+  
+  .pagination-loading-container.pagination-loading-inactive {
+    opacity: 0.5;
+    background: #f8f9fa;
+    border-color: #e9ecef;
+  }
+  
+  .pagination-loading-bar {
+    width: 100%;
+    height: 2px;
+    background: #e9ecef;
+    border-radius: 1px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .pagination-loading-container.pagination-loading-active .pagination-loading-bar {
+    height: 3px;
+    background: rgba(29, 165, 254, 0.1);
+  }
+  
+  .pagination-loading-progress {
+    height: 100%;
+    background: #e9ecef;
+    border-radius: 1px;
+    width: 0%;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .pagination-loading-progress.pagination-loading-progress-active {
+    background: linear-gradient(90deg, #1da5fe, #0d8ee6, #1da5fe);
+    background-size: 200% 100%;
+    border-radius: 2px;
+    animation: pagination-loading-progress 1.5s ease-in-out infinite;
+    width: 100%;
+  }
+  
+  .pagination-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes pagination-loading-progress {
+    0% {
+      background-position: -200% 0;
+      transform: translateX(-100%);
+    }
+    50% {
+      background-position: 0% 0;
+      transform: translateX(0%);
+    }
+    100% {
+      background-position: 200% 0;
+      transform: translateX(100%);
+    }
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
@@ -91,7 +194,7 @@ const filterOptions = {
   ],
   alignerStatus: ["All", "In progress", "Finished", "Aligner number not set"],
   appActivation: ["All", "Activated", "Not activated"],
-  monitoringStatus: ["All", "Monitored", "Not Monitored"],
+  monitoringStatus: ["All", "Monitored", "Not Monitored", "Completed", "Other"],
 };
 
 const filterLabels = {
@@ -246,6 +349,9 @@ const customStyles = {
 const PatientsMonitored = ({ pageTitle = "Patients" }) => {
   const [createPatientModal, setCreatePatientModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Start with loading true
+  const [loadingType, setLoadingType] = useState('initial'); // Track loading type
+  const [showShimmer, setShowShimmer] = useState(true); // Control shimmer visibility
+  const [isPaginationLoading, setIsPaginationLoading] = useState(false); // Track pagination loading specifically
   const [tooltipOpen, setTooltipOpen] = useState({});
   const { userRole, canAccessFeature } = useRoleAccess();
   
@@ -275,6 +381,7 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const monitoredPatients = useSelector((state) => state.patients.monitoredPatients);
+  const pagination = useSelector((state) => state.patients.pagination);
   const monitoredLoading = useSelector((state) => state.patients.loading);
   const monitoredError = useSelector((state) => state.patients.error);
   const successMessage = useSelector((state) => state.patients.successMessage);
@@ -315,6 +422,7 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
 
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   // Filter state
   const [filters, setFilters] = useState({
@@ -348,20 +456,41 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
     filters.alignerStatus !== defaultFilters.alignerStatus ||
     filters.appActivation !== defaultFilters.appActivation ||
     filters.monitoringStatus !== defaultFilters.monitoringStatus ||
-    searchTerm.trim() !== "";
+    debouncedSearchTerm.trim() !== "";
 
   const handleClearFilters = () => {
     setFilters({ ...defaultFilters });
     setSearchTerm("");
+    setDebouncedSearchTerm("");
     setCurrentPage(1);
+    // The API call will be triggered automatically by the useOptimizedAPI hook
+    // when the dependencies (filters, debouncedSearchTerm, currentPage) change
   };
 
-  // Use optimized API hook for patients data
-  const { data: patientsData, loading: patientsLoading, error: patientsError } = useOptimizedAPI(
-    () => dispatch(getMonitoredPatients()),
-    [],
-    { cacheTime: 2 * 60 * 1000, refetchOnMount: true }
-  );
+  // Fetch patients data with pagination and filters
+  useEffect(() => {
+    const params = {
+      page: currentPage,
+      perpage: perPage,
+      ...(debouncedSearchTerm && { name: debouncedSearchTerm }),
+      ...(filters.compliance !== 'All patients' && { compliance: getComplianceFilterValue(filters.compliance) }),
+      ...(filters.alignerType !== 'All' && { aligner_type: filters.alignerType }),
+      ...(filters.alignerStatus !== 'All' && { aligner_status: getAlignerStatusFilterValue(filters.alignerStatus) }),
+      ...(filters.appActivation !== 'All' && { app_activation: filters.appActivation === 'Activated' ? 1 : 0 }),
+      ...(filters.monitoringStatus !== 'All' && { 
+        is_patient_monitored: filters.monitoringStatus === 'Monitored' ? 'monitored' : 
+                              filters.monitoringStatus === 'Not Monitored' ? 'not_monitored' :
+                              filters.monitoringStatus === 'Completed' ? 'completed' :
+                              filters.monitoringStatus === 'Other' ? 'other' : null 
+      }),
+    };
+    
+    // Debug: Log the parameters being sent to API
+    console.log('API Call Parameters:', params);
+    console.log('Monitoring Status Filter:', filters.monitoringStatus);
+    
+    dispatch(getMonitoredPatients(params));
+  }, [currentPage, perPage, debouncedSearchTerm, filters, dispatch]);
 
   // Use optimized API hook for doctors data
   const { data: doctorsData, loading: doctorsLoading } = useOptimizedAPI(
@@ -370,22 +499,61 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
     { cacheTime: 10 * 60 * 1000, refetchOnMount: true }
   );
 
-  // Scroll to top on mount and ensure data is loaded
+  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    // Ensure we fetch data if not already loaded
-    if (!monitoredPatients) {
-      dispatch(getMonitoredPatients());
-    }
-  }, [dispatch, monitoredPatients]);
+  }, []);
 
   // Update loading state based on Redux state and API hooks
   useEffect(() => {
     // Show loading if Redux is loading, API hooks are loading, or we don't have data yet
-    const shouldShowLoading = monitoredLoading || patientsLoading || doctorsLoading || !monitoredPatients;
-    setIsLoading(shouldShowLoading);
-  }, [monitoredLoading, patientsLoading, doctorsLoading, monitoredPatients]);
+    const shouldShowLoading = monitoredLoading || doctorsLoading || !monitoredPatients;
+    
+    if (shouldShowLoading) {
+      setIsLoading(true);
+      setShowShimmer(true);
+    } else {
+      // Add a minimum delay to show shimmer for better UX
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+        setShowShimmer(false);
+        // Keep pagination loading state for a bit longer to show completion
+        setTimeout(() => {
+          setIsPaginationLoading(false);
+        }, 300);
+      }, 800); // Minimum 800ms shimmer time
+      
+      return () => clearTimeout(timer);
+    }
+    
+    // Set loading type based on what's happening
+    if (monitoredLoading) {
+      if (searchTerm) {
+        setLoadingType('searching');
+      } else if (hasActiveFilters) {
+        setLoadingType('filtering');
+      } else if (currentPage > 1) {
+        setLoadingType('pagination');
+      } else {
+        setLoadingType('loading');
+      }
+    } else if (doctorsLoading) {
+      setLoadingType('loading');
+    } else if (!monitoredPatients) {
+      setLoadingType('initial');
+    } else {
+      setLoadingType('idle');
+    }
+  }, [monitoredLoading, doctorsLoading, monitoredPatients, searchTerm, hasActiveFilters, currentPage]);
+
+  // Debounce search term to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // Add a handler for row click
   const handleRowClicked = (row) => {
@@ -598,7 +766,30 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
   // Helper function to get status badges
   const getStatusBadges = (appActivation, isPatientMonitored) => {
     const appActivationNum = parseInt(appActivation) || 0;
-    const isMonitored = isPatientMonitored === "monitored" || isPatientMonitored === true || isPatientMonitored === 1;
+    
+    // Handle enum values for monitoring status
+    let monitoringText = "Not Monitored";
+    let monitoringBadge = "bg-warning";
+    
+    switch (isPatientMonitored) {
+      case "monitored":
+        monitoringText = "Monitored";
+        monitoringBadge = "bg-info";
+        break;
+      case "completed":
+        monitoringText = "Completed";
+        monitoringBadge = "bg-success";
+        break;
+      case "other":
+        monitoringText = "Other";
+        monitoringBadge = "bg-secondary";
+        break;
+      case "not_monitored":
+      default:
+        monitoringText = "Not Monitored";
+        monitoringBadge = "bg-warning";
+        break;
+    }
     
     return {
       appActivation: {
@@ -606,8 +797,8 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
         badge: appActivationNum === 1 ? "bg-success" : "bg-secondary"
       },
       monitoring: {
-        text: isMonitored ? "Monitored" : "Not Monitored",
-        badge: isMonitored ? "bg-info" : "bg-warning"
+        text: monitoringText,
+        badge: monitoringBadge
       }
     };
   };
@@ -641,6 +832,38 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
           color: 'bg-secondary',
           tooltip: 'Unknown Source'
         };
+    }
+  };
+
+  // Helper function to convert compliance filter to API value
+  const getComplianceFilterValue = (complianceFilter) => {
+    switch (complianceFilter) {
+      case 'On track (0)':
+        return 0;
+      case '2-7 days late (1-7)':
+        return 1; // API will handle range filtering
+      case '1-2 weeks late (8-14)':
+        return 8; // API will handle range filtering
+      case '2-4 weeks late (15-28)':
+        return 15; // API will handle range filtering
+      case '4+ weeks late (29+)':
+        return 29; // API will handle range filtering
+      default:
+        return null;
+    }
+  };
+
+  // Helper function to convert aligner status filter to API value
+  const getAlignerStatusFilterValue = (alignerStatusFilter) => {
+    switch (alignerStatusFilter) {
+      case 'In progress':
+        return 'inprogress';
+      case 'Finished':
+        return 'finished';
+      case 'Aligner number not set':
+        return 'notset';
+      default:
+        return null;
     }
   };
 
@@ -681,83 +904,8 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
         })
       : [];
 
-  // Filter and search data
-  const filteredData = rawData.filter((item) => {
-    // Search filter
-    const searchMatch = searchTerm
-      ? item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.id && item.id.toString().includes(searchTerm))
-      : true;
-
-    // Monitoring Status filter
-    let monitoringStatusMatch = true;
-    if (filters.monitoringStatus !== 'All') {
-      if (filters.monitoringStatus === 'Monitored') {
-        monitoringStatusMatch = item.is_patient_monitored === "monitored" || item.is_patient_monitored === true || item.is_patient_monitored === 1;
-      } else if (filters.monitoringStatus === 'Not Monitored') {
-        monitoringStatusMatch = item.is_patient_monitored === "not_monitored" || item.is_patient_monitored === false || item.is_patient_monitored === 0;
-      }
-    }
-
-    // App Activation filter
-    let appActivationMatch = true;
-    if (filters.appActivation !== 'All') {
-      if (filters.appActivation === 'Activated') {
-        appActivationMatch = item.app_activation === 1 || item.app_activation === true;
-      } else if (filters.appActivation === 'Not activated') {
-        appActivationMatch = item.app_activation === 0 || item.app_activation === false;
-      }
-    }
-
-    // Aligner Type filter
-    let alignerTypeMatch = true;
-    if (filters.alignerType !== 'All') {
-      alignerTypeMatch = item.alignerType === filters.alignerType;
-    }
-
-    // Aligner Status filter
-    let alignerStatusMatch = true;
-    if (filters.alignerStatus !== 'All') {
-      if (filters.alignerStatus === 'In progress') {
-        alignerStatusMatch = item.alignerStatus === 'inprogress';
-      } else if (filters.alignerStatus === 'Finished') {
-        alignerStatusMatch = item.alignerStatus === 'finished';
-      } else if (filters.alignerStatus === 'Aligner number not set') {
-        alignerStatusMatch = item.alignerStatus === 'notset';
-      }
-    }
-
-    // Compliance filter
-    let complianceMatch = true;
-    if (filters.compliance !== 'All patients') {
-      const complianceNum = parseInt(item.compliance) || 0;
-      
-      if (filters.compliance === 'On track (0)') {
-        complianceMatch = complianceNum === 0;
-      } else if (filters.compliance === '2-7 days late (1-7)') {
-        complianceMatch = complianceNum >= 1 && complianceNum <= 7;
-      } else if (filters.compliance === '1-2 weeks late (8-14)') {
-        complianceMatch = complianceNum >= 8 && complianceNum <= 14;
-      } else if (filters.compliance === '2-4 weeks late (15-28)') {
-        complianceMatch = complianceNum >= 15 && complianceNum <= 28;
-      } else if (filters.compliance === '4+ weeks late (29+)') {
-        complianceMatch = complianceNum >= 29;
-      }
-    }
-
-    // Email filter
-    let emailMatch = true;
-    if (filters.email !== 'All') {
-      if (filters.email === 'Has email') {
-        emailMatch = item.email && item.email.trim() !== '';
-      } else if (filters.email === 'No email') {
-        emailMatch = !item.email || item.email.trim() === '';
-      }
-    }
-
-    return searchMatch && monitoringStatusMatch && appActivationMatch && alignerTypeMatch && alignerStatusMatch && complianceMatch && emailMatch;
-  });
+  // Use raw data directly since filtering is now handled by the server
+  const filteredData = rawData;
 
   const handlePatientFormChange = (e) => {
     const { id, value } = e.target;
@@ -805,28 +953,35 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
 
   // Handle pagination change
   const handlePageChange = (page) => {
+    setIsPaginationLoading(true);
     setCurrentPage(page);
   };
 
   // Handle per page change
   const handlePerRowsChange = (newPerPage, page) => {
+    setIsPaginationLoading(true);
     setPerPage(newPerPage);
     setCurrentPage(page);
   };
+
+
 
   // Handle search change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1); // Reset to first page when searching
+    // The API call will be triggered automatically by the useOptimizedAPI hook
   };
 
   // Handle filter change
   const handleFilterChange = (filterKey, value) => {
+    console.log('Filter Change:', filterKey, 'Value:', value);
     setFilters(prev => ({
       ...prev,
       [filterKey]: value
     }));
     setCurrentPage(1); // Reset to first page when filtering
+    // The API call will be triggered automatically by the useEffect hook
   };
 
   // Toast handling for patient creation success/error
@@ -841,9 +996,26 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
       setPatientForm(initialPatientForm);
       setFormErrors({}); // Clear errors on successful creation
       dispatch(clearPatientMessages());
-      dispatch(getMonitoredPatients()); // Refresh the list after creation
+      
+      // Refresh the patient list to show the newly created patient
+      const params = {
+        page: currentPage,
+        perpage: perPage,
+        ...(debouncedSearchTerm && { name: debouncedSearchTerm }),
+        ...(filters.compliance !== 'All patients' && { compliance: getComplianceFilterValue(filters.compliance) }),
+        ...(filters.alignerType !== 'All' && { aligner_type: filters.alignerType }),
+        ...(filters.alignerStatus !== 'All' && { aligner_status: getAlignerStatusFilterValue(filters.alignerStatus) }),
+        ...(filters.appActivation !== 'All' && { app_activation: filters.appActivation === 'Activated' ? 1 : 0 }),
+        ...(filters.monitoringStatus !== 'All' && { 
+          is_patient_monitored: filters.monitoringStatus === 'Monitored' ? 'monitored' : 
+                                filters.monitoringStatus === 'Not Monitored' ? 'not_monitored' :
+                                filters.monitoringStatus === 'Completed' ? 'completed' :
+                                filters.monitoringStatus === 'Other' ? 'other' : null 
+        }),
+      };
+      dispatch(getMonitoredPatients(params));
     }
-  }, [successMessage, showToast, dispatch]);
+  }, [successMessage, showToast, dispatch, currentPage, perPage, debouncedSearchTerm, filters]);
 
   useEffect(() => {
     if (monitoredError) {
@@ -936,8 +1108,16 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
                   size="sm"
                   className="me-2"
                   onClick={handleClearFilters}
+                  disabled={isLoading}
                 >
-                  Clear Filters
+                  {isLoading ? (
+                    <>
+                      <i className="ri-loader-4-line me-1" style={{ animation: 'spin 1s linear infinite' }}></i>
+                      Clearing...
+                    </>
+                  ) : (
+                    'Clear Filters'
+                  )}
                 </Button>
               )}
               <RoleBasedRender feature="create_patients">
@@ -946,7 +1126,14 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
                   onClick={toggleCreatePatient}
                   disabled={isLoading}
                 >
-                  + New patient
+                  {isLoading ? (
+                    <>
+                      <i className="ri-loader-4-line me-1" style={{ animation: 'spin 1s linear infinite' }}></i>
+                      Loading...
+                    </>
+                  ) : (
+                    '+ New patient'
+                  )}
                 </Button>
               </RoleBasedRender>
             </div>
@@ -999,17 +1186,21 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
                     <label className="form-label" htmlFor="search-input">
                       Search Patients
                     </label>
-                    {isLoading ? (
-                      <div className="shimmer-input" style={{ height: '38px', borderRadius: '4px' }}></div>
-                    ) : (
+                    <div className="position-relative">
                       <Input
                         id="search-input"
                         type="search"
                         placeholder="Patient name"
                         value={searchTerm}
                         onChange={handleSearchChange}
+                        disabled={isLoading}
                       />
-                    )}
+                      {isLoading && loadingType === 'searching' && (
+                        <div className="position-absolute" style={{ top: '50%', right: '12px', transform: 'translateY(-50%)' }}>
+                          <i className="ri-loader-4-line text-muted" style={{ animation: 'spin 1s linear infinite' }}></i>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </Col>
                 {filterRowKeys.map((key) => (
@@ -1017,97 +1208,131 @@ const PatientsMonitored = ({ pageTitle = "Patients" }) => {
                     <label className="form-label" htmlFor={`filter-${key}`}>
                       {filterLabels[key] || key}
                     </label>
-                    {isLoading ? (
-                      <div className="shimmer-input" style={{ height: '38px', borderRadius: '4px' }}></div>
-                    ) : (
+                    <div className="position-relative">
                       <Input 
                         id={`filter-${key}`} 
                         type="select"
                         value={filters[key]}
                         onChange={(e) => handleFilterChange(key, e.target.value)}
+                        disabled={isLoading}
                       >
                         {filterOptions[key].map((opt) => (
                           <option key={opt} value={opt}>{opt}</option>
                         ))}
                       </Input>
-                    )}
+                      {isLoading && loadingType === 'filtering' && (
+                        <div className="position-absolute" style={{ top: '50%', right: '12px', transform: 'translateY(-50%)' }}>
+                          <i className="ri-loader-4-line text-muted" style={{ animation: 'spin 1s linear infinite' }}></i>
+                        </div>
+                      )}
+                    </div>
                   </Col>
                 ))}
               </Row>
             </div>
-            {/* Patient List Table */}
-            <DataTable
-              columns={columnsWithAddLabel}
-              data={filteredData}
-              pagination
-              paginationServer={false}
-              paginationTotalRows={filteredData.length}
-              paginationDefaultPage={currentPage}
-              paginationPerPage={perPage}
-              paginationRowsPerPageOptions={[2, 5, 10, 15, 20, 25, 30]}
-              onChangeRowsPerPage={handlePerRowsChange}
-              onChangePage={handlePageChange}
-              highlightOnHover
-              responsive
-              progressPending={isLoading}
-              progressComponent={
-                <div className="p-4">
-                  <div className="shimmer-table-container">
-                    {/* Table header shimmer */}
-                    <div className="d-flex mb-3" style={{ borderBottom: '2px solid #e9ecef', paddingBottom: '12px' }}>
-                      {['Patient Name', 'Status', 'Latest Activity', 'Aligner Type', 'Compliance'].map((header, index) => (
-                        <div key={index} className="shimmer-table-cell" style={{ 
-                          flex: index === 0 ? 2 : 1, 
-                          marginRight: index < 4 ? '16px' : '0',
-                          height: '20px'
-                        }}></div>
-                      ))}
-                    </div>
-                    {/* Table rows shimmer */}
-                    {Array.from({ length: 8 }).map((_, rowIndex) => (
-                      <div key={rowIndex} className="d-flex align-items-center mb-3" style={{ padding: '12px 0' }}>
-                        <div className="d-flex align-items-center" style={{ flex: 2, marginRight: '16px' }}>
-                          <div className="shimmer-table-cell" style={{ width: '60%', height: '14px', marginRight: '8px' }}></div>
-                          <div className="shimmer-table-cell" style={{ width: '30%', height: '12px' }}></div>
-                        </div>
-                        <div className="d-flex flex-column" style={{ flex: 1, marginRight: '16px' }}>
-                          <div className="shimmer-table-cell" style={{ width: '80%', height: '12px', marginBottom: '4px' }}></div>
-                          <div className="shimmer-table-cell" style={{ width: '60%', height: '12px' }}></div>
-                        </div>
-                        <div className="d-flex flex-column" style={{ flex: 1, marginRight: '16px' }}>
-                          <div className="shimmer-table-cell" style={{ width: '70%', height: '12px', marginBottom: '4px' }}></div>
-                          <div className="shimmer-table-cell" style={{ width: '90%', height: '12px' }}></div>
-                        </div>
-                        <div className="d-flex flex-column" style={{ flex: 1, marginRight: '16px' }}>
-                          <div className="shimmer-table-cell" style={{ width: '85%', height: '12px', marginBottom: '4px' }}></div>
-                          <div className="shimmer-table-cell" style={{ width: '50%', height: '12px' }}></div>
-                        </div>
-                        <div className="d-flex flex-column" style={{ flex: 1 }}>
-                          <div className="shimmer-table-cell" style={{ width: '75%', height: '12px', marginBottom: '4px' }}></div>
-                          <div className="shimmer-table-cell" style={{ width: '40%', height: '12px' }}></div>
-                        </div>
-                      </div>
-                    ))}
+            
+
+            
+            {/* Shimmer Loading Effect */}
+            {showShimmer && (
+              <div className="shimmer-table-container mb-3">
+                {/* Loading indicator */}
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <div className="shimmer-table-cell" style={{ width: '150px', height: '16px' }}></div>
+                  <div className="text-muted small">
+                    <i className="ri-loader-4-line me-1" style={{ animation: 'spin 1s linear infinite' }}></i>
+                    Loading {perPage} patients...
                   </div>
                 </div>
-              }
-              customStyles={{
-                ...customStyles,
-                rows: {
-                  ...customStyles.rows,
-                  style: {
-                    ...customStyles.rows.style,
-                    cursor: "pointer",
-                  },
-                },
-              }}
-              onRowClicked={handleRowClicked}
-              noDataComponent={
-                <div className="text-center p-4">
-                  {searchTerm ? "No patients found matching your search." : "No patients found."}
+                
+                {/* Table header shimmer */}
+                <div className="d-flex mb-3" style={{ borderBottom: '2px solid #e9ecef', paddingBottom: '12px' }}>
+                  {['Patient Name', 'Status', 'Latest Activity', 'Aligner Type', 'Compliance'].map((header, index) => (
+                    <div key={index} className="shimmer-table-cell" style={{ 
+                      flex: index === 0 ? 2 : 1, 
+                      marginRight: index < 4 ? '16px' : '0',
+                      height: '20px'
+                    }}></div>
+                  ))}
                 </div>
-              }
-            />
+                {/* Table rows shimmer */}
+                {Array.from({ length: 8 }).map((_, rowIndex) => (
+                  <div key={rowIndex} className="d-flex align-items-center mb-3" style={{ padding: '12px 0' }}>
+                    <div className="d-flex align-items-center" style={{ flex: 2, marginRight: '16px' }}>
+                      <div className="shimmer-table-cell" style={{ width: '60%', height: '14px', marginRight: '8px' }}></div>
+                      <div className="shimmer-table-cell" style={{ width: '30%', height: '12px' }}></div>
+                    </div>
+                    <div className="d-flex flex-column" style={{ flex: 1, marginRight: '16px' }}>
+                      <div className="shimmer-table-cell" style={{ width: '80%', height: '12px', marginBottom: '4px' }}></div>
+                      <div className="shimmer-table-cell" style={{ width: '60%', height: '12px' }}></div>
+                    </div>
+                    <div className="d-flex flex-column" style={{ flex: 1, marginRight: '16px' }}>
+                      <div className="shimmer-table-cell" style={{ width: '70%', height: '12px', marginBottom: '4px' }}></div>
+                      <div className="shimmer-table-cell" style={{ width: '90%', height: '12px' }}></div>
+                    </div>
+                    <div className="d-flex flex-column" style={{ flex: 1, marginRight: '16px' }}>
+                      <div className="shimmer-table-cell" style={{ width: '85%', height: '12px', marginBottom: '4px' }}></div>
+                      <div className="shimmer-table-cell" style={{ width: '50%', height: '12px' }}></div>
+                    </div>
+                    <div className="d-flex flex-column" style={{ flex: 1 }}>
+                      <div className="shimmer-table-cell" style={{ width: '75%', height: '12px', marginBottom: '4px' }}></div>
+                      <div className="shimmer-table-cell" style={{ width: '40%', height: '12px' }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Patient List Table */}
+            {!showShimmer && (
+              <>
+                <DataTable
+                  columns={columnsWithAddLabel}
+                  data={filteredData}
+                  pagination
+                  paginationServer={true}
+                  paginationTotalRows={pagination?.total_items || 0}
+                  paginationDefaultPage={currentPage}
+                  paginationPerPage={perPage}
+                  paginationRowsPerPageOptions={[2, 5, 10, 15, 20, 25, 30]}
+                  onChangeRowsPerPage={handlePerRowsChange}
+                  onChangePage={handlePageChange}
+                  highlightOnHover
+                  responsive
+                  customStyles={{
+                    ...customStyles,
+                    rows: {
+                      ...customStyles.rows,
+                      style: {
+                        ...customStyles.rows.style,
+                        cursor: "pointer",
+                      },
+                    },
+                  }}
+                  onRowClicked={handleRowClicked}
+                  noDataComponent={
+                    <div className="text-center p-4">
+                      {searchTerm ? "No patients found matching your search." : "No patients found."}
+                    </div>
+                  }
+                />
+                
+                {/* Pagination Loading Bar - Always Visible */}
+                <div className={`pagination-loading-container mt-3 ${isPaginationLoading ? 'pagination-loading-active' : 'pagination-loading-inactive'}`}>
+                  <div className="pagination-loading-bar">
+                    <div className={`pagination-loading-progress ${isPaginationLoading ? 'pagination-loading-progress-active' : ''}`}></div>
+                  </div>
+                  <div className="pagination-loading-text text-center mt-2">
+                    <small className={`${isPaginationLoading ? 'text-primary' : 'text-muted'}`} style={{ color: isPaginationLoading ? '#1da5fe' : undefined }}>
+                      <i className={`ri-loader-4-line me-1 ${isPaginationLoading ? 'pagination-spin' : ''}`}></i>
+                      {isPaginationLoading 
+                        ? `Loading page ${currentPage} of ${pagination?.total_pages || 1}...`
+                        : `Page ${currentPage} of ${pagination?.total_pages || 1}`
+                      }
+                    </small>
+                  </div>
+                </div>
+              </>
+            )}
           </CardBody>
         </Card>
       </Container>

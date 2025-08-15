@@ -1,22 +1,14 @@
-import React, {useEffect} from "react";
-import { useLocation } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { Container, Row, Col } from "reactstrap";
+import { useDispatch, useSelector } from "react-redux";
 import { getStats } from "../../store/stats/actions";
-import UsePanel from "./UserPanel";
-import SocialSource from "./SocialSource";
+import { useLocation } from "react-router-dom";
+import { shouldHaveNavbar } from "../../utils/navbar";
+import UserPanel from "./UserPanel";
 import OverView from "./OverView";
-import RevenueByLocation from "./RevenueByLocation";
+import SocialSource from "./SocialSource";
 import LatestTransation from "./LatestTransation";
-import cities from 'cities.json';
-
-import { Row, Container, Col } from "reactstrap";
-
-//Import Breadcrumb
-import Breadcrumbs from "../../components/Common/Breadcrumb";
-import shouldHaveNavbar from "../../utils/navbar";
-
-// Enhanced components
-import { withPageTransition } from "../../components/Common/PageTransition";
+import RevenueByLocation from "./RevenueByLocation";
 import ShimmerLoader from "../../components/Common/ShimmerLoader";
 
 const Dashboard = () => {
@@ -27,21 +19,24 @@ const Dashboard = () => {
   const stats = useSelector((state) => state.stats.stats);
   const statsLoading = useSelector((state) => state.stats.loading);
   const statsError = useSelector((state) => state.stats.error);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Call stats API once when dashboard loads
   useEffect(() => {
-    console.log('📊 Dashboard mounted - checking stats data...');
-    if (!stats || Object.keys(stats).length === 0) {
-      console.log('📊 Stats data empty - dispatching getStats action...');
-      dispatch(getStats());
-    } else {
-      console.log('📊 Stats data already available - no API call needed');
-    }
-  }, [dispatch, stats]);
-  
+    console.log('📊 Dashboard mounted - dispatching getStats action...');
+    setIsLoading(true);
+    dispatch(getStats());
+  }, [dispatch]);
+
+  // Update loading state when stats are loaded
   useEffect(() => {
-    console.log('cities:', cities);
-  }, []);
+    if (stats && Object.keys(stats).length > 0 && !statsLoading) {
+      setIsLoading(false);
+    }
+  }, [stats, statsLoading]);
+
+  // Show shimmer if still loading or if Redux loading is true
+  const shouldShowShimmer = isLoading || statsLoading;
 
   return (
     <React.Fragment>
@@ -61,17 +56,8 @@ const Dashboard = () => {
           </Row>
           
           {/* Show loading state while stats are being fetched */}
-          {statsLoading ? (
-            <Row>
-              <Col>
-                <div className="text-center py-5">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                  <p className="mt-3 text-muted">Loading dashboard data...</p>
-                </div>
-              </Col>
-            </Row>
+          {shouldShowShimmer ? (
+            <ShimmerLoader type="dashboard" />
           ) : statsError ? (
             <Row>
               <Col>
@@ -84,7 +70,7 @@ const Dashboard = () => {
           ) : (
             <>
               {/* User Panel Charts */}
-              <UsePanel />
+              <UserPanel />
 
               <Row>
                 {/* Overview Chart */}
@@ -107,5 +93,4 @@ const Dashboard = () => {
   );
 };
 
-// Export with page transition
-export default withPageTransition(Dashboard);
+export default Dashboard;

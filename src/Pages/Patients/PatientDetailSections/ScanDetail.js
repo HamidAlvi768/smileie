@@ -72,28 +72,12 @@ const ScanDetail = () => {
     scanData.forEach(scan => {
       const view = scan.view_type || 'front';
       if (!sectionsMap[view]) {
-        sectionsMap[view] = { name: `${view.charAt(0).toUpperCase() + view.slice(1)} View`, subsections: [] };
+        sectionsMap[view] = { name: `${view.charAt(0).toUpperCase() + view.slice(1)} View`, images: [] };
       }
-      // Use scan_type from API, not scan_url
-      const alignerType = scan.scan_type === 'without_aligner' ? 'Without Aligner' : 'With Aligner';
-      let subsection = sectionsMap[view].subsections.find(s => s.name === alignerType);
-      if (!subsection) {
-        subsection = { name: alignerType, images: [] };
-        sectionsMap[view].subsections.push(subsection);
-      }
-      subsection.images.push(scan.scan_url);
+      // Add images directly to section without subsections
+      sectionsMap[view].images.push(scan.scan_url);
     });
-    // Only keep subsections that have real images (not fallback) if there is any real data for that view
-    Object.keys(sectionsMap).forEach(view => {
-      const section = sectionsMap[view];
-      // If this view exists in API data, filter out fallback-only subsections (not needed anymore, but keep for safety)
-      const hasRealData = scanData.some(scan => scan.view_type === view);
-      if (hasRealData) {
-        section.subsections = section.subsections.filter(subsection =>
-          subsection.images.some(img => typeof img === 'string' && img.startsWith('/uploads'))
-        );
-      }
-    });
+    
     // Convert to array
     let sectionsArr = Object.values(sectionsMap);
     // Filter: Only show 'top' view for upper arch, and 'bottom' view for lower arch
@@ -119,10 +103,7 @@ const ScanDetail = () => {
   const hasScans = useMemo(() => {
     return dynamicScan && dynamicScan.sections && dynamicScan.sections.length > 0 && 
            dynamicScan.sections.some(section => 
-             section.subsections && section.subsections.length > 0 &&
-             section.subsections.some(subsection => 
-               subsection.images && subsection.images.length > 0
-             )
+             section.images && section.images.length > 0
            );
   }, [dynamicScan]);
 
@@ -135,26 +116,23 @@ const ScanDetail = () => {
     if (!dynamicScan) return [];
     const images = [];
     dynamicScan.sections.forEach(section => {
-      section.subsections.forEach(subsection => {
-        subsection.images.forEach((img, index) => {
-          images.push({
-            src: img,
-            alt: `${section.name} - ${subsection.name} ${index + 1}`,
-            section: section.name,
-            subsection: subsection.name
-          });
+      section.images.forEach((img, index) => {
+        images.push({
+          src: img,
+          alt: `${section.name} ${index + 1}`,
+          section: section.name
         });
       });
     });
     return images;
   }, [dynamicScan]);
 
-  // Modal and navigation logic (unchanged)
-  const openModal = (sectionName, subsectionName, imageIndexInThatSubsection) => {
-    const imagesForSubsection = allImages.filter(img => img.section === sectionName && img.subsection === subsectionName);
-    setCurrentSectionImages(imagesForSubsection);
-    setCurrentImageIndex(imageIndexInThatSubsection);
-    setCurrentSectionName(`${sectionName} - ${subsectionName}`);
+  // Modal and navigation logic
+  const openModal = (sectionName, imageIndexInSection) => {
+    const imagesForSection = allImages.filter(img => img.section === sectionName);
+    setCurrentSectionImages(imagesForSection);
+    setCurrentImageIndex(imageIndexInSection);
+    setCurrentSectionName(sectionName);
     setIsModalOpen(true);
   };
 
@@ -360,63 +338,50 @@ const ScanDetail = () => {
                 {allImages.length} total
               </Badge>
             </div>
-            {dynamicScan.sections.map((section) => (
-              <div key={section.name} className="mb-4 border bg-light-subtle p-3 rounded">
-                <div className="section-header mb-2">
-                  <h6 className="mb-0 fw-semibold">
-                    {section.name}
-                    {arch && (
-                      <span style={{ color: '#d9534f', marginLeft: 8 }}>
-                        ({arch === 'upper' ? 'Upper Arch' : arch === 'lower' ? 'Lower Arch' : arch})
-                      </span>
-                    )}
-                  </h6>
-                </div>
-                {section.subsections.map((subsection, subIdx) => (
-                  <div key={subsection.name} className="mb-2 ms-3">
-                    <div 
-                      className="mb-1"
-                      style={{
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                        color: '#3b4453',
-                        letterSpacing: '0.01em',
-                      }}
-                    >
-                      {subsection.name}
-                    </div>
-                    <div className="p-3 border rounded bg-light-subtle-darker">
-                      <div className="d-flex flex-wrap gap-3">
-                        {subsection.images.map((img, imgIdx) => (
-                          <img
-                            key={imgIdx}
-                            src={typeof img === 'string' && img.startsWith('/uploads') ? `${WEB_APP_URL}${img}` : img}
-                            alt={`${section.name} - ${subsection.name} ${imgIdx + 1}`}
-                            className="scan-thumbnail"
-                            style={{ 
-                              width: 120, 
-                              height: 90, 
-                              objectFit: 'cover', 
-                              borderRadius: 6, 
-                              border: '1px solid #eee',
-                              cursor: 'pointer',
-                              transition: 'transform 0.2s ease-in-out'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.transform = 'scale(1)';
-                            }}
-                            onClick={() => openModal(section.name, subsection.name, imgIdx)}
-                          />
-                        ))}
-                      </div>
+            <div className="d-flex flex-wrap gap-4">
+              {dynamicScan.sections.map((section) => (
+                <div key={section.name} className="border bg-light-subtle p-3 rounded" style={{ minWidth: '300px', flex: '1' }}>
+                  <div className="section-header mb-3">
+                    <h6 className="mb-0 fw-semibold">
+                      {section.name}
+                      {arch && (
+                        <span style={{ color: '#d9534f', marginLeft: 8 }}>
+                          ({arch === 'upper' ? 'Upper Arch' : arch === 'lower' ? 'Lower Arch' : arch})
+                        </span>
+                      )}
+                    </h6>
+                  </div>
+                  <div className="p-3 border rounded bg-light-subtle-darker">
+                    <div className="d-flex flex-wrap gap-3">
+                      {section.images.map((img, imgIdx) => (
+                        <img
+                          key={imgIdx}
+                          src={typeof img === 'string' && img.startsWith('/uploads') ? `${WEB_APP_URL}${img}` : img}
+                          alt={`${section.name} ${imgIdx + 1}`}
+                          className="scan-thumbnail"
+                          style={{ 
+                            width: 120, 
+                            height: 90, 
+                            objectFit: 'cover', 
+                            borderRadius: 6, 
+                            border: '1px solid #eee',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s ease-in-out'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.transform = 'scale(1.05)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.transform = 'scale(1)';
+                          }}
+                          onClick={() => openModal(section.name, imgIdx)}
+                        />
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            ))}
+                </div>
+              ))}
+            </div>
           </CardBody>
         </Card>
       )}
@@ -559,7 +524,7 @@ const ScanDetail = () => {
                   fontWeight: 'bold',
                 }}
               >
-                {currentImageIndex + 1}/{currentSectionImages.length}
+                {currentSectionName} - {currentImageIndex + 1}/{currentSectionImages.length}
               </div>
             </div>
           )}

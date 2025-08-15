@@ -33,6 +33,7 @@ export const ROUTE_ACCESS = {
   '/settings/instructions': [ROLES.ADMIN],
   '/settings/aligner-tips': [ROLES.ADMIN],
   '/settings/impressions-guide': [ROLES.ADMIN],
+  '/settings/consent-form-questions': [ROLES.ADMIN],
 
   // Calendar - Admin and Doctor
   '/calendar': [ROLES.ADMIN, ROLES.DOCTOR],

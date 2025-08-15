@@ -1,0 +1,279 @@
+// App Loader Styles
+.app-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  overflow: hidden;
+
+  &__container {
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    padding: 2rem;
+  }
+
+  &__logo {
+    margin-bottom: 3rem;
+    animation: fadeInUp 0.8s ease-out;
+
+    &-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 1.5rem;
+      position: relative;
+    }
+
+    &-svg {
+      width: 100%;
+      height: 100%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    &-circle {
+      fill: none;
+      stroke: #1da5fe;
+      stroke-width: 3;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      animation: drawCircle 2s ease-out forwards;
+    }
+
+    &-smile {
+      fill: none;
+      stroke: #1da5fe;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: drawSmile 1.5s ease-out 0.5s forwards;
+    }
+
+    &-eye {
+      fill: #1da5fe;
+      animation: blink 3s ease-in-out infinite;
+    }
+  }
+
+  &__title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1da5fe;
+    margin: 0;
+    text-shadow: 0 4px 8px rgba(29, 165, 254, 0.2);
+    animation: fadeInUp 0.8s ease-out 0.3s both;
+    letter-spacing: 2px;
+  }
+
+  &__progress {
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.8s ease-out 0.6s both;
+
+    &-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(29, 165, 254, 0.2);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      position: relative;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(29, 165, 254, 0.3), transparent);
+        animation: shimmer 2s infinite;
+      }
+    }
+
+    &-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1da5fe, #0d8ee6);
+      border-radius: 3px;
+      transition: width 0.3s ease-out;
+      position: relative;
+      z-index: 1;
+    }
+
+    &-text {
+      color: #1da5fe;
+      font-size: 1rem;
+      font-weight: 500;
+      text-shadow: 0 2px 4px rgba(29, 165, 254, 0.2);
+    }
+  }
+
+  &__animation {
+    animation: fadeInUp 0.8s ease-out 0.9s both;
+  }
+
+  &__dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  &__dot {
+    width: 12px;
+    height: 12px;
+    background: #1da5fe;
+    border-radius: 50%;
+    animation: bounce 1.4s ease-in-out infinite both;
+
+    &:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0s;
+    }
+  }
+}
+
+// Animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes drawCircle {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawSmile {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes blink {
+  0%, 90%, 100% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .app-loader {
+    &__container {
+      padding: 1.5rem;
+    }
+
+    &__logo {
+      &-icon {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 1rem;
+      }
+    }
+
+    &__title {
+      font-size: 2.5rem;
+    }
+  }
+}
+
+// Dark theme support
+@media (prefers-color-scheme: dark) {
+  .app-loader {
+    background: #ffffff;
+    
+    &__logo {
+      &-circle,
+      &-smile,
+      &-eye {
+        stroke: #1da5fe;
+        fill: #1da5fe;
+      }
+    }
+
+    &__title {
+      color: #1da5fe;
+    }
+
+    &__progress {
+      &-bar {
+        background: rgba(29, 165, 254, 0.2);
+      }
+
+      &-fill {
+        background: linear-gradient(90deg, #1da5fe, #0d8ee6);
+      }
+
+      &-text {
+        color: #1da5fe;
+      }
+    }
+
+    &__dot {
+      background: #1da5fe;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .app-loader {
+    &__logo-svg,
+    &__dots,
+    &__dot {
+      animation: none;
+    }
+
+    &__progress-fill {
+      transition: none;
+    }
+  }
+}

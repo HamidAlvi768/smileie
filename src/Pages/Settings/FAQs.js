@@ -109,11 +109,14 @@ const FAQs = () => {
           <Col md={12}>
             <Card>
               <CardBody>
-                <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="header-with-buttons">
                   <h4 className="mb-0">FAQs</h4>
-                  <Button color="primary" onClick={openAddModal} disabled={adding}>
-                    <i className="ri-add-line me-1"></i> Add FAQ
-                  </Button>
+                  <div className="header-buttons">
+                    <Button color="primary" onClick={openAddModal} disabled={adding} className="btn-icon btn-icon-left">
+                      <i className="ri-add-line"></i>
+                      Add FAQ
+                    </Button>
+                  </div>
                 </div>
                 {loading && <div className="text-center py-4"><Spinner color="primary" /></div>}
                 {error && <Alert color="danger">{error}</Alert>}
@@ -138,11 +141,11 @@ const FAQs = () => {
                           <td>{faq.question}</td>
                           <td>{faq.answer}</td>
                           <td>
-                            <div className="d-flex gap-2">
-                              <Button color="outline-primary" size="sm" onClick={() => openEditModal(faq)}>
+                            <div className="action-buttons">
+                              <Button color="outline-primary" size="sm" onClick={() => openEditModal(faq)} className="btn-icon" title="Edit">
                                 <i className="ri-edit-line"></i>
                               </Button>
-                              <Button color="outline-danger" size="sm" onClick={() => openDeleteModal(faq)}>
+                              <Button color="outline-danger" size="sm" onClick={() => openDeleteModal(faq)} className="btn-icon" title="Delete">
                                 <i className="ri-delete-bin-line"></i>
                               </Button>
                             </div>
@@ -192,13 +195,15 @@ const FAQs = () => {
           </FormGroup>
         </ModalBody>
         <ModalFooter>
-          <Button color="light" onClick={() => setModalOpen(false)} disabled={adding || updating}>
-            Cancel
-          </Button>
-          <Button color="primary" onClick={handleSave} disabled={!currentFaq.question.trim() || !currentFaq.answer.trim() || adding || updating}>
-            {(adding || updating) ? <Spinner size="sm" className="me-2" /> : null}
-            {editMode ? "Save Changes" : "Add FAQ"}
-          </Button>
+          <div className="modal-buttons">
+            <Button color="light" onClick={() => setModalOpen(false)} disabled={adding || updating}>
+              Cancel
+            </Button>
+            <Button color="primary" onClick={handleSave} disabled={!currentFaq.question.trim() || !currentFaq.answer.trim() || adding || updating}>
+              {(adding || updating) ? <Spinner size="sm" className="me-2" /> : null}
+              {editMode ? "Save Changes" : "Add FAQ"}
+            </Button>
+          </div>
         </ModalFooter>
       </Modal>
 
@@ -216,13 +221,15 @@ const FAQs = () => {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button color="light" onClick={() => setDeleteModalOpen(false)}>
-            Cancel
-          </Button>
-          <Button color="danger" onClick={handleDelete} disabled={deleting}>
-            {deleting ? <Spinner size="sm" className="me-2" /> : null}
-            Delete
-          </Button>
+          <div className="modal-buttons">
+            <Button color="light" onClick={() => setDeleteModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button color="danger" onClick={handleDelete} disabled={deleting}>
+              {deleting ? <Spinner size="sm" className="me-2" /> : null}
+              Delete
+            </Button>
+          </div>
         </ModalFooter>
       </Modal>
     </div>

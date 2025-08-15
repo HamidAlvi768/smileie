@@ -3,11 +3,101 @@ import { Card, CardBody, Badge, Pagination, PaginationItem, PaginationLink } fro
 import { useDispatch, useSelector } from 'react-redux';
 import { getAlerts, markAlertRead } from '../../../store/alerts/actions';
 
+// Shimmer effect styles
+const shimmerStyles = `
+  .shimmer-timeline-item {
+    background: linear-gradient(90deg, #f8f9fa 25%, #e9ecef 50%, #f8f9fa 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 16px;
+    border: 1px solid #e9ecef;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  .shimmer-title {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    height: 18px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    width: 60%;
+  }
+  
+  .shimmer-date {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    height: 14px;
+    border-radius: 4px;
+    width: 30%;
+    margin-left: auto;
+  }
+  
+  .shimmer-message {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    height: 14px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    width: 100%;
+  }
+  
+  .shimmer-message:last-child {
+    width: 80%;
+  }
+  
+  .shimmer-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
 const Alerts = ({ patientId: propPatientId }) => {
   const dispatch = useDispatch();
   const { alerts, loading } = useSelector(state => state.alerts);
+  
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage] = useState(100);
+  const [perPage, setPerPage] = useState(10);
+  const [showShimmer, setShowShimmer] = useState(true);
+
+  // Inject shimmer styles
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = shimmerStyles;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   useEffect(() => {
     let patientId = propPatientId;
@@ -17,9 +107,13 @@ const Alerts = ({ patientId: propPatientId }) => {
       patientId = user?.id;
     }
     if (patientId) {
-      dispatch(getAlerts(patientId));
+      const params = {
+        page: currentPage,
+        perpage: perPage,
+      };
+      dispatch(getAlerts(patientId, params));
     }
-  }, [dispatch, propPatientId]);
+  }, [dispatch, propPatientId, currentPage, perPage]);
 
   // Handler to mark alert as read
   const handleAlertClick = (id, read_at) => {
@@ -73,15 +167,35 @@ const Alerts = ({ patientId: propPatientId }) => {
     return { date, time };
   };
 
-  // Pagination logic
-  const totalPages = Math.ceil(alerts.length / perPage);
-  const startIndex = (currentPage - 1) * perPage;
-  const endIndex = startIndex + perPage;
-  const currentAlerts = alerts.slice(startIndex, endIndex);
-
+  // Handle pagination change
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
+  // Handle per page change
+  const handlePerRowsChange = (newPerPage, page) => {
+    setPerPage(newPerPage);
+    setCurrentPage(page);
+  };
+
+  // Get pagination info from Redux state (assuming it's available)
+  const pagination = useSelector(state => state.alerts.pagination);
+  const totalItems = pagination?.total_items || alerts.length;
+  const totalPages = pagination?.total_pages || Math.ceil(totalItems / perPage);
+
+  // Update shimmer visibility based on loading state
+  useEffect(() => {
+    if (loading) {
+      setShowShimmer(true);
+    } else {
+      // Add a minimum delay to show shimmer for better UX
+      const timer = setTimeout(() => {
+        setShowShimmer(false);
+      }, 800); // Minimum 800ms shimmer time
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   return (
     <div className="history-section">
@@ -89,26 +203,50 @@ const Alerts = ({ patientId: propPatientId }) => {
         <h4 className="mb-0">Alerts</h4>
         <div className="d-flex align-items-center gap-2">
           <small className="text-muted">
-            Showing {startIndex + 1}-{Math.min(endIndex, alerts.length)} of {alerts.length} alerts
+            Total: {totalItems} alert{totalItems !== 1 ? 's' : ''}
           </small>
         </div>
       </div>
       <Card>
         <CardBody>
-          {loading ? (
-            <div className="text-center text-muted py-5">
-              <i className="mdi mdi-bell-alert-outline mb-3" style={{ fontSize: '3rem' }}></i>
-              <p className="mb-0">Loading alerts...</p>
+          {/* Shimmer Loading Effect */}
+          {showShimmer && (
+            <div className="shimmer-container">
+              {/* Loading indicator */}
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="shimmer-title" style={{ width: '100px' }}></div>
+                <div className="text-muted small">
+                  <i className="ri-loader-4-line me-1" style={{ animation: 'spin 1s linear infinite' }}></i>
+                  Loading {perPage} alerts...
+                </div>
+              </div>
+              
+              {/* Timeline items shimmer */}
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="shimmer-timeline-item">
+                  <div className="d-flex align-items-center justify-content-between mb-2">
+                    <div className="shimmer-title"></div>
+                    <div className="shimmer-date"></div>
+                  </div>
+                  <div className="shimmer-message"></div>
+                  <div className="shimmer-message"></div>
+                </div>
+              ))}
             </div>
-          ) : alerts.length === 0 ? (
-            <div className="text-center text-muted py-5">
-              <i className="mdi mdi-bell-alert-outline mb-3" style={{ fontSize: '3rem' }}></i>
-              <p className="mb-0">No alerts to display.</p>
-            </div>
-          ) : (
+          )}
+          
+          {/* Actual Content */}
+          {!showShimmer && (
             <>
-              <div className="timeline-list">
-                {currentAlerts.map((alert) => (
+              {alerts.length === 0 ? (
+                <div className="text-center text-muted py-5">
+                  <i className="mdi mdi-bell-alert-outline mb-3" style={{ fontSize: '3rem' }}></i>
+                  <p className="mb-0">No alerts to display.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="timeline-list">
+                    {alerts.map((alert) => (
                   <div
                     key={alert.id}
                     className={`timeline-item d-flex align-items-start ${alert.read_at ? 'read' : 'unread'}`}
@@ -130,39 +268,41 @@ const Alerts = ({ patientId: propPatientId }) => {
               </div>
 
               {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="d-flex justify-content-center mt-4">
-                  <Pagination>
-                    <PaginationItem disabled={currentPage === 1}>
-                      <PaginationLink previous onClick={() => handlePageChange(currentPage - 1)} />
-                    </PaginationItem>
-
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = currentPage - 2 + i;
-                      }
-
-                      return (
-                        <PaginationItem key={pageNum} active={pageNum === currentPage}>
-                          <PaginationLink onClick={() => handlePageChange(pageNum)}>
-                            {pageNum}
-                          </PaginationLink>
+                  {totalPages > 1 && (
+                    <div className="d-flex justify-content-center mt-4">
+                      <Pagination>
+                        <PaginationItem disabled={currentPage === 1}>
+                          <PaginationLink previous onClick={() => handlePageChange(currentPage - 1)} />
                         </PaginationItem>
-                      );
-                    })}
 
-                    <PaginationItem disabled={currentPage === totalPages}>
-                      <PaginationLink next onClick={() => handlePageChange(currentPage + 1)} />
-                    </PaginationItem>
-                  </Pagination>
-                </div>
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <PaginationItem key={pageNum} active={pageNum === currentPage}>
+                              <PaginationLink onClick={() => handlePageChange(pageNum)}>
+                                {pageNum}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+
+                        <PaginationItem disabled={currentPage === totalPages}>
+                          <PaginationLink next onClick={() => handlePageChange(currentPage + 1)} />
+                        </PaginationItem>
+                      </Pagination>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}

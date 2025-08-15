@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Card, CardBody, Button, Badge, Tooltip } from 'reactstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,9 +16,11 @@ const Scans = ({ patient }) => {
   console.log('Raw treatmentSteps from backend:', treatmentSteps);
   const [infoTooltipOpen, setInfoTooltipOpen] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState({});
-  const toggleTooltip = (id) => {
+  const [hoveredScan, setHoveredScan] = useState(null);
+  
+  const toggleTooltip = useCallback((id) => {
     setTooltipOpen((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+  }, []);
 
   React.useEffect(() => {
     if (id) dispatch(getTreatmentSteps(id));
@@ -70,6 +72,13 @@ const Scans = ({ patient }) => {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
+  // Helper to format time nicely
+  function formatTime(dateStr) {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
   // Helper to get status label from backend
   function getStatus(scan, isLate) {
     if (isLate) return 'Late';
@@ -90,6 +99,145 @@ const Scans = ({ patient }) => {
     return 'Unknown';
   }
 
+  // Helper to get status icon
+  function getStatusIcon(status) {
+    switch (status) {
+      case 'completed': return 'ri-checkbox-circle-fill';
+      case 'current': return 'ri-play-circle-fill';
+      case 'inprogress': return 'ri-loader-4-line';
+      case 'pending': return 'ri-time-line';
+      case 'not_started': return 'ri-circle-line';
+      case 'skipped': return 'ri-skip-forward-fill';
+      default: return 'ri-information-line';
+    }
+  }
+
+  // Helper to get status color
+  function getStatusColor(status) {
+    switch (status) {
+      case 'completed': return '#43a047';
+      case 'current': return '#1da5fe';
+      case 'inprogress': return '#1da5fe';
+      case 'pending': return '#adb5bd';
+      case 'not_started': return '#adb5bd';
+      case 'skipped': return '#ffb300';
+      default: return '#adb5bd';
+    }
+  }
+
+  // Helper to calculate days remaining or overdue
+  function getDaysInfo(scan) {
+    if (!scan.end_date) return null;
+    
+    const dueDate = new Date(scan.end_date);
+    const today = new Date();
+    const diffTime = dueDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays > 0) {
+      return { type: 'remaining', days: diffDays };
+    } else if (diffDays < 0) {
+      return { type: 'overdue', days: Math.abs(diffDays) };
+    } else {
+      return { type: 'due', days: 0 };
+    }
+  }
+
+  // Enhanced tooltip content component
+  const EnhancedTooltipContent = useMemo(() => {
+    return ({ scan, arch, isLate }) => {
+      const daysInfo = getDaysInfo(scan);
+      const statusColor = getStatusColor(scan.status);
+      const statusIcon = getStatusIcon(scan.status);
+      
+      return (
+        <div className="enhanced-scan-tooltip">
+          <div className="tooltip-header">
+            <div className="tooltip-title">
+              <i className={`${statusIcon} me-2`} style={{ color: statusColor }}></i>
+              <span className="fw-bold">Aligner #{scan.step_number}</span>
+              <Badge 
+                color={scan.status === 'completed' ? 'success' : 
+                       scan.status === 'current' || scan.status === 'inprogress' ? 'primary' : 
+                       scan.status === 'skipped' ? 'warning' : 'secondary'}
+                className="ms-2"
+                style={{ fontSize: '0.7rem' }}
+              >
+                {getStatus(scan, isLate)}
+              </Badge>
+            </div>
+            <div className="tooltip-subtitle">
+              {arch === 'upper' ? 'Upper Arch' : 'Lower Arch'}
+            </div>
+          </div>
+          
+          <div className="tooltip-content">
+            <div className="tooltip-section">
+              <div className="tooltip-row">
+                <span className="tooltip-label">
+                  <i className="ri-calendar-line me-1"></i>
+                  Start Date:
+                </span>
+                <span className="tooltip-value">{formatDate(scan.start_date) || 'Not set'}</span>
+              </div>
+              
+              <div className="tooltip-row">
+                <span className="tooltip-label">
+                  <i className="ri-calendar-check-line me-1"></i>
+                  Due Date:
+                </span>
+                <span className="tooltip-value">{formatDate(scan.end_date) || 'Not set'}</span>
+              </div>
+              
+              {scan.created_at && (
+                <div className="tooltip-row">
+                  <span className="tooltip-label">
+                    <i className="ri-upload-line me-1"></i>
+                    Uploaded:
+                  </span>
+                  <span className="tooltip-value">
+                    {formatDate(scan.created_at)}
+                  </span>
+                </div>
+              )}
+              
+              {daysInfo && (
+                <div className="tooltip-row">
+                  <span className="tooltip-label">
+                    <i className={`${daysInfo.type === 'overdue' ? 'ri-error-warning-line' : 'ri-time-line'} me-1`}></i>
+                    {daysInfo.type === 'overdue' ? 'Overdue:' : daysInfo.type === 'due' ? 'Due:' : 'Remaining:'}
+                  </span>
+                  <span className={`tooltip-value ${daysInfo.type === 'overdue' ? 'text-danger' : daysInfo.type === 'due' ? 'text-warning' : 'text-success'}`}>
+                    {daysInfo.type === 'overdue' ? `${daysInfo.days} day${daysInfo.days > 1 ? 's' : ''} overdue` :
+                     daysInfo.type === 'due' ? 'Due today' : `${daysInfo.days} day${daysInfo.days > 1 ? 's' : ''} remaining`}
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            {scan.notes && (
+              <div className="tooltip-section">
+                <div className="tooltip-row">
+                  <span className="tooltip-label">
+                    <i className="ri-file-text-line me-1"></i>
+                    Notes:
+                  </span>
+                  <span className="tooltip-value">{scan.notes}</span>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="tooltip-footer">
+            <small className="text-muted">
+              Click to view details
+            </small>
+          </div>
+        </div>
+      );
+    };
+  }, []);
+
   // Adjusted styles for larger square cards
   const SQUARE_CARD_STYLE = {
     width: '110px',
@@ -104,7 +252,8 @@ const Scans = ({ patient }) => {
     margin: '0.75rem',
     borderRadius: '14px',
     boxSizing: 'border-box',
-    transition: 'box-shadow 0.2s',
+    transition: 'all 0.3s ease-in-out',
+    cursor: 'pointer',
   };
 
   const STATUS_COLORS = {
@@ -166,8 +315,8 @@ const Scans = ({ patient }) => {
             </div>
           </Tooltip>
         </div>
-        {/* <span className="text-muted small">26 result(s)</span> */}
       </div>
+      
       {/* Upper Section in its own card */}
       <Card className="mb-4">
         <CardBody className='pt-3'>
@@ -210,6 +359,7 @@ const Scans = ({ patient }) => {
               const statusKey = scan.status === 'inprogress' ? 'inprogress' : scan.status;
               const statusColor = STATUS_COLORS[statusKey] || '#adb5bd';
               const isSkipped = scan.status === 'skipped';
+              
               return (
                 <div key={idx} style={{ display: 'inline-block' }}>
                   <Card
@@ -222,6 +372,8 @@ const Scans = ({ patient }) => {
                       boxShadow: (scan.status === 'inprogress' || scan.status === 'current') ? '0 0 0 3px #1da5fe33' : 'none',
                     }}
                     className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}${isDisabled ? ' scan-card-disabled' : ''}`}
+                    onMouseEnter={() => setHoveredScan({ scan, arch: 'upper', idx })}
+                    onMouseLeave={() => setHoveredScan(null)}
                     {...(isClickable
                       ? {
                           onClick: () => handleScanCardClick('upper', idx, scan),
@@ -247,35 +399,27 @@ const Scans = ({ patient }) => {
                         )}
                       </div>
                     </CardBody>
-                    {tooltipOpen[tooltipId] && (
-                      <Tooltip
-                        placement="top"
-                        isOpen={tooltipOpen[tooltipId]}
-                        target={tooltipId}
-                        toggle={() => toggleTooltip(tooltipId)}
-                        autohide={false}
-                        delay={{ show: 100, hide: 100 }}
-                        className="scan-card-tooltip-white"
-                      >
-                        <div style={{ textAlign: 'left', minWidth: 160 }}>
-                          <div><strong>Aligner #:</strong> {scan.step_number}</div>
-                          {isPending ? (
-                            <div><strong>Starting :</strong> {formatDate(scan.start_date)}</div>
-                          ) : showUploaded ? (
-                            <div><strong>Uploaded:</strong> {formatDate(scan.created_at)}</div>
-                          ) : null}
-                          <div><strong>Due date:</strong> {formatDate(scan.end_date)}</div>
-                          <div><strong>Status:</strong> {getStatus(scan, isLate)}</div>
-                        </div>
-                      </Tooltip>
-                    )}
                   </Card>
+                  
+                  {/* Enhanced Tooltip */}
+                  <Tooltip
+                    placement="top"
+                    isOpen={hoveredScan && hoveredScan.scan.step_number === scan.step_number && hoveredScan.arch === 'upper'}
+                    target={tooltipId}
+                    toggle={() => {}}
+                    autohide={false}
+                    delay={{ show: 300, hide: 100 }}
+                    className="enhanced-scan-tooltip-container"
+                  >
+                    <EnhancedTooltipContent scan={scan} arch="upper" isLate={isLate} />
+                  </Tooltip>
                 </div>
               );
             })}
           </div>
         </CardBody>
       </Card>
+      
       {/* Lower Section in its own card */}
       <Card>
         <CardBody className='pt-3'>
@@ -318,6 +462,7 @@ const Scans = ({ patient }) => {
               const statusKey = scan.status === 'inprogress' ? 'inprogress' : scan.status;
               const statusColor = STATUS_COLORS[statusKey] || '#adb5bd';
               const isSkipped = scan.status === 'skipped';
+              
               return (
                 <div key={idx} style={{ display: 'inline-block' }}>
                   <Card
@@ -330,6 +475,8 @@ const Scans = ({ patient }) => {
                       boxShadow: (scan.status === 'inprogress' || scan.status === 'current') ? '0 0 0 3px #1da5fe33' : 'none',
                     }}
                     className={`scan-card-ui text-center d-flex align-items-center justify-content-center mx-auto mb-1${isClickable ? ' scan-card-clickable' : ''}${cardStateClass}${isLate ? ' scan-card-late' : ''}${isDisabled ? ' scan-card-disabled' : ''}`}
+                    onMouseEnter={() => setHoveredScan({ scan, arch: 'lower', idx })}
+                    onMouseLeave={() => setHoveredScan(null)}
                     {...(isClickable
                       ? {
                           onClick: () => handleScanCardClick('lower', idx, scan),
@@ -355,29 +502,20 @@ const Scans = ({ patient }) => {
                         )}
                       </div>
                     </CardBody>
-                    {tooltipOpen[tooltipId] && (
-                      <Tooltip
-                        placement="top"
-                        isOpen={tooltipOpen[tooltipId]}
-                        target={tooltipId}
-                        toggle={() => toggleTooltip(tooltipId)}
-                        autohide={false}
-                        delay={{ show: 100, hide: 100 }}
-                        className="scan-card-tooltip-white"
-                      >
-                        <div style={{ textAlign: 'left', minWidth: 160 }}>
-                          <div><strong>Aligner #:</strong> {scan.step_number}</div>
-                          {isPending ? (
-                            <div><strong>Starting :</strong> {formatDate(scan.start_date)}</div>
-                          ) : showUploaded ? (
-                            <div><strong>Uploaded:</strong> {formatDate(scan.created_at)}</div>
-                          ) : null}
-                          <div><strong>Due date:</strong> {formatDate(scan.end_date)}</div>
-                          <div><strong>Status:</strong> {getStatus(scan, isLate)}</div>
-                        </div>
-                      </Tooltip>
-                    )}
                   </Card>
+                  
+                  {/* Enhanced Tooltip */}
+                  <Tooltip
+                    placement="top"
+                    isOpen={hoveredScan && hoveredScan.scan.step_number === scan.step_number && hoveredScan.arch === 'lower'}
+                    target={tooltipId}
+                    toggle={() => {}}
+                    autohide={false}
+                    delay={{ show: 300, hide: 100 }}
+                    className="enhanced-scan-tooltip-container"
+                  >
+                    <EnhancedTooltipContent scan={scan} arch="lower" isLate={isLate} />
+                  </Tooltip>
                 </div>
               );
             })}

@@ -1,10 +1,5 @@
 // Shimmer Loader Styles
-.shimmer-card,
-.shimmer-table,
-.shimmer-list,
-.shimmer-chart,
-.shimmer-custom,
-.shimmer-default {
+.shimmer-loader {
   position: relative;
   overflow: hidden;
   background: #f6f7f8;
@@ -33,6 +28,278 @@
   }
   100% {
     left: 100%;
+  }
+}
+
+// Dashboard Shimmer
+.shimmer-dashboard {
+  padding: 20px;
+  
+  .shimmer-user-panel {
+    margin-bottom: 24px;
+    
+    .shimmer-card-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+      
+      .shimmer-stat-card {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        
+        .shimmer-card-header {
+          display: flex;
+          align-items: center;
+          
+          .shimmer-avatar-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #e1e9ee;
+            margin-right: 12px;
+            flex-shrink: 0;
+          }
+          
+          .shimmer-content {
+            flex: 1;
+            
+            .shimmer-line {
+              height: 12px;
+              background: #e1e9ee;
+              border-radius: 4px;
+              margin-bottom: 8px;
+              
+              &:last-child {
+                margin-bottom: 0;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .shimmer-chart-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+    
+    .shimmer-overview-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      
+      .shimmer-card-header {
+        margin-bottom: 20px;
+        
+        .shimmer-line {
+          height: 16px;
+          background: #e1e9ee;
+          border-radius: 4px;
+        }
+      }
+      
+      .shimmer-chart-area {
+        height: 200px;
+        margin-bottom: 20px;
+        
+        .shimmer-chart-bars {
+          display: flex;
+          align-items: end;
+          justify-content: space-between;
+          height: 100%;
+          padding: 0 10px;
+          
+          .shimmer-bar {
+            width: 30px;
+            background: #e1e9ee;
+            border-radius: 4px 4px 0 0;
+            min-height: 20px;
+          }
+        }
+      }
+      
+      .shimmer-card-footer {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 16px;
+        border-top: 1px solid #f0f0f0;
+        
+        .shimmer-stat-item {
+          display: flex;
+          align-items: center;
+          flex: 1;
+          justify-content: center;
+          gap: 8px;
+          
+          .shimmer-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e1e9ee;
+          }
+          
+          .shimmer-line {
+            height: 12px;
+            background: #e1e9ee;
+            border-radius: 4px;
+          }
+        }
+      }
+    }
+    
+    .shimmer-social-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      
+      .shimmer-card-header {
+        margin-bottom: 20px;
+        
+        .shimmer-line {
+          height: 16px;
+          background: #e1e9ee;
+          border-radius: 4px;
+        }
+      }
+      
+      .shimmer-pie-chart {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        
+        .shimmer-circle {
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          background: #e1e9ee;
+        }
+      }
+      
+      .shimmer-legend {
+        .shimmer-legend-item {
+          display: flex;
+          align-items: center;
+          margin-bottom: 12px;
+          gap: 8px;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          .shimmer-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e1e9ee;
+          }
+          
+          .shimmer-line {
+            height: 12px;
+            background: #e1e9ee;
+            border-radius: 4px;
+          }
+        }
+      }
+    }
+  }
+  
+  .shimmer-data-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    
+    .shimmer-table-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      
+      .shimmer-card-header {
+        margin-bottom: 20px;
+        
+        .shimmer-line {
+          height: 16px;
+          background: #e1e9ee;
+          border-radius: 4px;
+        }
+      }
+      
+      .shimmer-table {
+        .shimmer-table-header {
+          display: flex;
+          padding: 12px 0;
+          border-bottom: 1px solid #f0f0f0;
+          margin-bottom: 12px;
+          
+          .shimmer-table-cell {
+            height: 16px;
+            background: #e1e9ee;
+            border-radius: 4px;
+            margin-right: 16px;
+            
+            &:last-child {
+              margin-right: 0;
+            }
+          }
+        }
+        
+        .shimmer-table-row {
+          display: flex;
+          padding: 12px 0;
+          border-bottom: 1px solid #f0f0f0;
+          
+          &:last-child {
+            border-bottom: none;
+          }
+          
+          .shimmer-table-cell {
+            height: 16px;
+            background: #e1e9ee;
+            border-radius: 4px;
+            margin-right: 16px;
+            
+            &:last-child {
+              margin-right: 0;
+            }
+          }
+        }
+      }
+    }
+    
+    .shimmer-map-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      
+      .shimmer-card-header {
+        margin-bottom: 20px;
+        
+        .shimmer-line {
+          height: 16px;
+          background: #e1e9ee;
+          border-radius: 4px;
+        }
+      }
+      
+      .shimmer-map-area {
+        height: 200px;
+        
+        .shimmer-map-placeholder {
+          width: 100%;
+          height: 100%;
+          background: #e1e9ee;
+          border-radius: 4px;
+        }
+      }
+    }
   }
 }
 
@@ -185,6 +452,11 @@
   .shimmer-line {
     background: #e1e9ee;
     border-radius: 4px;
+    margin-bottom: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 }
 
@@ -195,17 +467,17 @@
   .shimmer-line {
     background: #e1e9ee;
     border-radius: 4px;
+    margin-bottom: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 }
 
 // Dark theme support
 [data-bs-theme="dark"] {
-  .shimmer-card,
-  .shimmer-table,
-  .shimmer-list,
-  .shimmer-chart,
-  .shimmer-custom,
-  .shimmer-default {
+  .shimmer-loader {
     background: #2a2a2a;
     
     &::before {
@@ -218,17 +490,71 @@
     }
   }
   
-  .shimmer-avatar,
-  .shimmer-avatar-small,
-  .shimmer-line,
-  .shimmer-cell,
-  .shimmer-bar {
-    background: #404040 !important;
+  .shimmer-dashboard {
+    .shimmer-stat-card,
+    .shimmer-overview-card,
+    .shimmer-social-card,
+    .shimmer-table-card,
+    .shimmer-map-card {
+      background: #3a3a3a;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+  }
+  
+  .shimmer-card,
+  .shimmer-table,
+  .shimmer-list,
+  .shimmer-chart,
+  .shimmer-custom,
+  .shimmer-default {
+    .shimmer-avatar,
+    .shimmer-avatar-small,
+    .shimmer-avatar-circle,
+    .shimmer-line,
+    .shimmer-cell,
+    .shimmer-bar,
+    .shimmer-dot,
+    .shimmer-circle,
+    .shimmer-map-placeholder {
+      background: #404040;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-loader::before {
+    animation: none;
+  }
+  
+  .shimmer-chart .shimmer-bar {
+    animation: none;
   }
 }
 
 // Responsive adjustments
 @media (max-width: 768px) {
+  .shimmer-dashboard {
+    padding: 16px;
+    
+    .shimmer-user-panel {
+      .shimmer-card-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+    
+    .shimmer-chart-row {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    
+    .shimmer-data-row {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+  
   .shimmer-card {
     padding: 16px;
     
@@ -242,25 +568,13 @@
   
   .shimmer-table {
     .shimmer-row {
-      padding: 10px 12px;
-      
-      .shimmer-cell {
-        margin-right: 12px;
-      }
+      padding: 8px 12px;
     }
   }
   
-  .shimmer-chart {
-    padding: 16px;
-    
-    .shimmer-chart-body {
-      .shimmer-bars {
-        height: 100px;
-        
-        .shimmer-bar {
-          width: 24px;
-        }
-      }
+  .shimmer-list {
+    .shimmer-list-item {
+      padding: 8px 12px;
     }
   }
 } 

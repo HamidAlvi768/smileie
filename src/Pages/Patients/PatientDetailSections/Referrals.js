@@ -92,8 +92,9 @@ const Referrals = ({ patientId }) => {
         type: "success",
         title: "Success",
       });
-      // Refresh the referral amount
+      // Refresh both referrals list and amount after payment
       updateAxiosHeaders(); // Ensure headers are current
+      dispatch(getReferrals(patientId));
       dispatch(getReferralAmount(patientId));
       // Clear the success message
       dispatch(clearReferralStatusMessages());
@@ -144,6 +145,8 @@ const Referrals = ({ patientId }) => {
         return <Badge color="danger">Declined</Badge>;
       case 'pending':
         return <Badge color="warning">Pending</Badge>;
+      case 'paid':
+        return <Badge color="info">Paid</Badge>;
       default:
         return <Badge color="secondary">{status}</Badge>;
     }
@@ -228,8 +231,7 @@ const Referrals = ({ patientId }) => {
                     </div>
                     <div className="text-end">
                       <div className="small text-muted mb-1">Paid: ${referralAmount?.total_paid || '0.00'}</div>
-                      <div className="small text-muted mb-1">Pending: ${referralAmount?.total_pending || '0.00'}</div>
-                      <div className="small text-muted">Rejected: ${referralAmount?.total_rejected || '0.00'}</div>
+                      <div className="small text-muted">Approved: ${referralAmount?.total_approved || '0.00'}</div>
                     </div>
                   </div>
                 </div>
@@ -248,7 +250,7 @@ const Referrals = ({ patientId }) => {
                         color="primary"
                         size="sm"
                         onClick={handlePayReferrals}
-                        disabled={payingReferrals || !referralAmount || parseFloat(referralAmount.total_pending || 0) <= 0}
+                        disabled={payingReferrals || !referralAmount || parseFloat(referralAmount.total_approved || 0) <= 0}
                         className="px-3"
                       >
                         {payingReferrals ? (
@@ -338,7 +340,7 @@ const Referrals = ({ patientId }) => {
                              </Button>
                            </div>
                          )}
-                         {referral.status.toLowerCase() !== 'pending' && (
+                         {(referral.status.toLowerCase() === 'approved' || referral.status.toLowerCase() === 'declined' || referral.status.toLowerCase() === 'paid') && (
                            <span className="text-muted small">No actions available</span>
                          )}
                        </td>
@@ -354,7 +356,7 @@ const Referrals = ({ patientId }) => {
       {/* Confirmation Modal */}
       <Modal isOpen={confirmModal} toggle={() => setConfirmModal(false)} centered>
         <ModalHeader toggle={() => setConfirmModal(false)}>
-          Confirm {selectedAction === 'approved' ? 'Approval' : 'Decline'}
+          Confirm {selectedAction === 'approved' ? 'Approval' : selectedAction === 'declined' ? 'Decline' : 'Payment'}
         </ModalHeader>
         <ModalBody>
           {selectedReferral && (
@@ -379,7 +381,7 @@ const Referrals = ({ patientId }) => {
             Cancel
           </Button>
           <Button
-            color={selectedAction === 'approved' ? 'success' : 'danger'}
+            color={selectedAction === 'approved' ? 'success' : selectedAction === 'declined' ? 'danger' : 'info'}
             onClick={confirmStatusUpdate}
             disabled={updatingStatus}
           >
@@ -389,7 +391,7 @@ const Referrals = ({ patientId }) => {
                 Processing...
               </>
             ) : (
-              `Confirm ${selectedAction === 'approved' ? 'Approval' : 'Decline'}`
+              `Confirm ${selectedAction === 'approved' ? 'Approval' : selectedAction === 'declined' ? 'Decline' : 'Payment'}`
             )}
           </Button>
         </ModalFooter>
@@ -409,13 +411,20 @@ const Referrals = ({ patientId }) => {
               <strong>Payment Summary:</strong>
               <ul className="mb-0 mt-2">
                 <li>Total Amount: <strong>${referralAmount?.total_amount || '0.00'}</strong></li>
-                <li>Pending Amount: <strong>${referralAmount?.total_pending || '0.00'}</strong></li>
+                <li>Approved Amount: <strong>${referralAmount?.total_approved || '0.00'}</strong></li>
                 <li>Already Paid: <strong>${referralAmount?.total_paid || '0.00'}</strong></li>
+                <li>Amount to Pay: <strong>${(parseFloat(referralAmount?.total_approved || 0) - parseFloat(referralAmount?.total_paid || 0)).toFixed(2)}</strong></li>
               </ul>
             </div>
+            {parseFloat(referralAmount?.total_approved || 0) <= parseFloat(referralAmount?.total_paid || 0) && (
+              <div className="alert alert-warning">
+                <i className="mdi mdi-alert-outline me-2"></i>
+                All approved referrals have already been paid.
+              </div>
+            )}
             <div className="alert alert-warning">
               <i className="mdi mdi-alert-outline me-2"></i>
-              This action will mark all pending referrals as paid and cannot be undone.
+              This action will mark all approved referrals as paid and cannot be undone.
             </div>
           </div>
         </ModalBody>

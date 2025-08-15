@@ -7,6 +7,7 @@ import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
 import RightSidebar from '../../components/Common/RightSideBar';
+import ContentTransition from '../../components/Common/ContentTransition';
 
 //redux
 import { useSelector, useDispatch } from "react-redux";
@@ -152,7 +153,11 @@ const Layout = props => {
           type={leftSideBarType}
           isMobile={isMobile}
         />
-        <div className="main-content">{props.children}</div>
+        <div className="main-content">
+          <ContentTransition>
+            {props.children}
+          </ContentTransition>
+        </div>
         <Footer />
       </div>
       {showRightSidebar ? <RightSidebar /> : null}

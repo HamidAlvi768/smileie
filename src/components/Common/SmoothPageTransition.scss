@@ -1,0 +1,52 @@
+// Smooth Page Transition Styles
+.smooth-page-transition {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: inherit;
+  transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
+  
+  &.enter {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  &.exit {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  
+  &.transitioning {
+    pointer-events: none;
+  }
+}
+
+// Prevent layout shifts during transitions
+.smooth-page-transition * {
+  transition: inherit;
+}
+
+// Dark theme support
+[data-bs-theme="dark"] {
+  .smooth-page-transition {
+    background: var(--bs-body-bg, #1a1a1a);
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .smooth-page-transition {
+    transition: none;
+    
+    * {
+      transition: none;
+    }
+  }
+}
+
+// Mobile optimizations
+@media (max-width: 768px) {
+  .smooth-page-transition {
+    transition-duration: 0.1s;
+  }
+}

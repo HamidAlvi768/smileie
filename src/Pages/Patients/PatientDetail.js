@@ -52,6 +52,7 @@ import ConsentForms from "./PatientDetailSections/ConsentForms";
 import TreatmentPlan3D from "./PatientDetailSections/TreatmentPlan3D";
 import InitialTeeth from "./PatientDetailSections/InitialTeeth";
 import { getPatientStatsAPI, getPatientAlignersAPI } from '../../helpers/api_helper';
+import ContentTransition from '../../components/Common/ContentTransition';
 
 const OBSERVATION_SUB_OBSERVATIONS_DATA = {
   Tracking: [
@@ -173,7 +174,7 @@ const PatientDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
 
-  const { patientDetail, loadingDetail, error, changingAligner, changeAlignerError, changeAlignerResult, treatmentIssues, treatmentIssuesLoading, treatmentIssuesError } = useSelector((state) => state.patients);
+  const { patientDetail, loadingDetail, error, changingAligner, changeAlignerError, changeAlignerResult, treatmentIssues, treatmentIssuesLoading, treatmentIssuesError, updatingDetail, updateDetailError } = useSelector((state) => state.patients);
 
   const staticPatientData = {
     id: "P-00123",
@@ -579,8 +580,30 @@ const PatientDetail = () => {
     }
   }, [changeAlignerResult, changingAligner, id]);
 
+  // Refresh patient stats after successful patient detail update
+  useEffect(() => {
+    if (!updatingDetail && !updateDetailError && patientDetail) {
+      // Refresh patient stats to show updated information
+      if (id) {
+        setStatsLoading(true);
+        setStatsError(null);
+        getPatientStatsAPI(id)
+          .then((res) => {
+            console.log('Patient stats refreshed after detail update:', res);
+            setPatientStats(res.data || null);
+            setStatsLoading(false);
+          })
+          .catch((err) => {
+            setStatsError("Failed to refresh patient stats");
+            setStatsLoading(false);
+          });
+      }
+    }
+  }, [updatingDetail, updateDetailError, patientDetail, id]);
+
   return (
-    <div className="page-content">
+    <div className="page-content" style={{paddingLeft:"0px",paddingRight:"0px"}}>
+      {/* Static Navbar - No Animation */}
       <div className="topnav patient-detail-topnav">
         <Container fluid>
           <nav
@@ -614,364 +637,369 @@ const PatientDetail = () => {
           </nav>
         </Container>
       </div>
-      <Container fluid>
-        <div className="patient-header">
+      
+      {/* Animated Content Area */}
+      <ContentTransition>
+        <Container fluid>
+          <div className="patient-header" style={{marginTop:"10px"}}>
+            <Button
+              color="link"
+              className="back-button"
+              onClick={() => navigate("/patients")}
+            >
+              <i className="mdi mdi-chevron-left"></i>
+            </Button>
+            <div className="patient-avatar">
+              <i className="mdi mdi-account-circle-outline"></i>
+            </div>
+            <div className="patient-info">
+              <div className="info-row">
+                <span className="patient-name">
+                  {loadingDetail ? "Loading..." : patient.name}
+                </span>
+                <span className="patient-id">
+                  ({patientDetail?.public_id || "A78B-58F2-W"})
+                </span>
+              </div>
+            </div>
+          </div>
+        </Container>
+        <Container fluid>
+          <Row>
+            <Col md={4} lg={3}>
+              <Card className="mb-3" style={{ minHeight: '400px' }}>
+                <CardHeader
+                  className="d-flex justify-content-between align-items-center cursor-pointer"
+                  onClick={() => toggleCollapsibleSection("monitoring")}
+                >
+                  <span>Monitoring Information</span>
+                  <Button color="link" size="lg">
+                    {openCollapsibles.monitoring ? "−" : "+"}
+                  </Button>
+                </CardHeader>
+                <Collapse isOpen={openCollapsibles.monitoring}>
+                  <CardBody className="py-4">
+                    <div className="mb-4 d-flex align-items-center justify-content-between">
+                      <strong className="text-muted">Aligner Type:</strong>
+                      <div className="d-flex flex-column align-items-end">
+                        <span className="fw-bold">{patientStats?.aligner_type || 'Not set'}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-4 d-flex align-items-center justify-content-between">
+                      <strong className="text-muted">Started:</strong>
+                      <div className="d-flex flex-column align-items-end">
+                        <span className="fw-bold">{formatDate(patientStats?.first_step_started_at)}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-4 d-flex align-items-center justify-content-between">
+                      <strong className="text-muted">Patient app:</strong>
+                      <span className={`badge ${typeof patientStats?.app_activation !== 'undefined' && patientStats.app_activation === 1 ? 'bg-success' : 'bg-secondary'}`}>
+                        {typeof patientStats?.app_activation !== 'undefined'
+                          ? (patientStats.app_activation === 1 ? "Activated" : "Not Activated")
+                          : 'Unknown'}
+                      </span>
+                    </div>
+                    
+                    <div className="mb-4 d-flex align-items-center justify-content-between">
+                      <strong className="text-muted">Coupon Code:</strong>
+                      <span className="badge bg-info text-white">
+                        {patientStats?.coupon_code || 'Not set'}
+                      </span>
+                    </div>
+                    
+                    <div className="mb-4 d-flex align-items-center justify-content-between">
+                      <strong className="text-muted">Aligner Progress:</strong>
+                      <div className="d-flex flex-column align-items-end">
+                        {typeof patientStats?.step_number !== 'undefined' && typeof patientStats?.total_steps !== 'undefined' ? (
+                          <>
+                            <span style={{ fontWeight: 'bold', color: '#1da5fe', fontSize: '1.1em' }}>
+                              Current: <span style={{ fontSize: '1.2em' }}>{patientStats.step_number}</span> / <span style={{ fontSize: '1.1em' }}>{patientStats.total_steps}</span>
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-muted">Not set</span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Only show next aligner start if patient is not on the last aligner */}
+                    {typeof patientStats?.step_number !== 'undefined' && 
+                     typeof patientStats?.total_steps !== 'undefined' && 
+                     patientStats?.step_number < patientStats?.total_steps && (
+                      <div className="mb-4 d-flex align-items-center justify-content-between">
+                        <strong className="text-muted">Next aligner start:</strong>
+                        <span className="fw-bold">{formatDate(patientStats?.next_step_started_at)}</span>
+                      </div>
+                    )}
+                    
+                    <div className="mb-4 d-flex align-items-center justify-content-between">
+                      <strong></strong>
+                      <div className="d-flex align-items-center justify-content-between" style={{ width: '100%', maxWidth: '300px' }}>
+                        <div className="d-flex flex-column align-items-center">
+                          <Button
+                            color="info"
+                            size="sm"
+                            className="px-3 py-2"
+                            onClick={openIssuesModal}
+                            disabled={treatmentIssuesLoading}
+                          >
+                            {treatmentIssuesLoading ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-2"></span>
+                                Loading...
+                              </>
+                            ) : (
+                              <>
+                                <i className="mdi mdi-alert-circle-outline me-1"></i>
+                                Issues
+                              </>
+                            )}
+                          </Button>
+                          <small className="text-muted mt-1" style={{ fontSize: '0.7rem' }}>
+                            View issues
+                          </small>
+                        </div>
+                        
+                        {typeof patientStats?.step_number !== 'undefined' && 
+                         typeof patientStats?.total_steps !== 'undefined' && 
+                         patientStats?.total_steps !== 0 && 
+                         patientStats?.step_number < patientStats?.total_steps ? (
+                          <>
+                            <div className="d-flex flex-column align-items-center">
+                              <Button
+                                color="primary"
+                                size="sm"
+                                className="px-3 py-2"
+                                onClick={() => setMoveNextModalOpen(true)}
+                                disabled={changingAligner || !hasCurrentStepIssues}
+                                title={!hasCurrentStepIssues ? "No issues found for current step" : ""}
+                              >
+                                {changingAligner ? (
+                                  <>
+                                    <span className="spinner-border spinner-border-sm me-2"></span>
+                                    Processing...
+                                  </>
+                                ) : (
+                                  'Move to Next'
+                                )}
+                              </Button>
+                              {!hasCurrentStepIssues && !changingAligner ? (
+                                <small className="text-muted mt-1" style={{ fontSize: '0.7rem' }}>
+                                  No issues for step {patientStats?.step_number}
+                                </small>
+                              ) : (
+                                <small className="text-muted mt-1" style={{ fontSize: '0.7rem' }}>
+                                  Advance treatment
+                                </small>
+                              )}
+                            </div>
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
+                    
+                    {/* Add bottom spacing to match right side height */}
+                    <div style={{ height: '100px' }}></div>
+                  </CardBody>
+                </Collapse>
+              </Card>
+            </Col>
+            <Col md={8} lg={9} style={{ height: "100%" }}>
+              <Routes>
+                <Route
+                  path=""
+                  element={<Navigate to={`/patients/${id}/monitoring`} replace />}
+                />
+                <Route
+                  path="monitoring"
+                  element={<Monitoring patient={patient} />}
+                />
+                <Route
+                  path="info"
+                  element={<Info patient={PATIENT_MOCK_DATA} />}
+                />
+                <Route
+                  path="alerts"
+                  element={<Alerts patientId={id} patient={PATIENT_MOCK_DATA} />}
+                />
+                <Route
+                  path="files"
+                  element={<Files patient={PATIENT_MOCK_DATA} />}
+                />
+                <Route
+                  path="consent-forms"
+                  element={<ConsentForms patientId={patientDetail?.id} patient={patient} />}
+                />
+                <Route
+                  path="treatment-plan-3d"
+                  element={<TreatmentPlan3D patient={patientDetail} />}
+                />
+                <Route
+                  path="scans"
+                  element={<Scans patient={PATIENT_MOCK_DATA} />}
+                />
+                <Route
+                  path="scans/:arch/:scanId"
+                  element={<ScanDetail />}
+                />
+                <Route
+                  path="impressions"
+                  element={<InitialTeeth patientId={id} patient={patient} />}
+                />
+                <Route
+                  path="order"
+                  element={<PatientOrders patientId={id} />}
+                />
+                <Route path="history" element={<History patient={patient} />} />
+                <Route
+                  path="referrals"
+                  element={<Referrals patientId={id} />}
+                />
+                <Route
+                  path="*"
+                  element={<Navigate to={`/patients/${id}/monitoring`} replace />}
+                />
+              </Routes>
+            </Col>
+          </Row>
+        </Container>
+      </ContentTransition>
+      
+      {isCommunicationOpen && (
+        <div
+          className="communication-backdrop"
+          onClick={() => setIsCommunicationOpen(false)}
+        ></div>
+      )}
+      <div
+        className={`communication-panel${isCommunicationOpen ? " open" : " closed"}`}
+      >
+        <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
+          <h5 className="mb-0">Communication</h5>
           <Button
             color="link"
-            className="back-button"
-            onClick={() => navigate("/patients")}
+            className="p-0"
+            onClick={() => setIsCommunicationOpen(false)}
           >
-            <i className="mdi mdi-chevron-left"></i>
+            <i className="mdi mdi-chevron-right"></i>
           </Button>
-          <div className="patient-avatar">
-            <i className="mdi mdi-account-circle-outline"></i>
-          </div>
-          <div className="patient-info">
-            <div className="info-row">
-              <span className="patient-name">
-                {loadingDetail ? "Loading..." : patient.name}
-              </span>
-              <span className="patient-id">
-                ({patientDetail?.public_id || "A78B-58F2-W"})
-              </span>
-            </div>
+        </div>
+        <div className="messages-container">
+          <div className="messages">
+            {loading ? (
+              <div className="text-center text-muted py-3">
+                Loading messages...
+              </div>
+            ) : error ? (
+              <div className="text-center text-danger py-3">{error}</div>
+            ) : messages && messages.length > 0 ? (
+              messages.map((msg, idx) => (
+                <Message
+                  key={msg.id || idx}
+                  sender={msg.sender_id || "Unknown"}
+                  imagepath={msg.attachment_url ? WEB_APP_URL + msg.attachment_url : ""}
+                  content={msg.message || msg.content}
+                  date={msg.created_at ? msg.created_at.split(" ")[0] : ""}
+                  time={msg.created_at ? msg.created_at.split(" ")[1] : ""}
+                  index={idx}
+                  myId={myId}
+                  onImageClick={(src) => {
+                    setImageModalSrc(src);
+                    setImageModalOpen(true);
+                  }}
+                />
+              ))
+            ) : (
+              <div className="text-center text-muted py-3">
+                No messages yet.
+              </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
         </div>
-      </Container>
-      <Container fluid>
-        <Row>
-          <Col md={4} lg={3}>
-            <Card className="mb-3" style={{ minHeight: '400px' }}>
-              <CardHeader
-                className="d-flex justify-content-between align-items-center cursor-pointer"
-                onClick={() => toggleCollapsibleSection("monitoring")}
-              >
-                <span>Monitoring Information</span>
-                <Button color="link" size="lg">
-                  {openCollapsibles.monitoring ? "−" : "+"}
-                </Button>
-              </CardHeader>
-              <Collapse isOpen={openCollapsibles.monitoring}>
-                <CardBody className="py-4">
-                  <div className="mb-4 d-flex align-items-center justify-content-between">
-                    <strong className="text-muted">Aligner Type:</strong>
-                    <div className="d-flex flex-column align-items-end">
-                      <span className="fw-bold">{patientStats?.aligner_type || 'Not set'}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4 d-flex align-items-center justify-content-between">
-                    <strong className="text-muted">Started:</strong>
-                    <div className="d-flex flex-column align-items-end">
-                      <span className="fw-bold">{formatDate(patientStats?.first_step_started_at)}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4 d-flex align-items-center justify-content-between">
-                    <strong className="text-muted">Patient app:</strong>
-                    <span className={`badge ${typeof patientStats?.app_activation !== 'undefined' && patientStats.app_activation === 1 ? 'bg-success' : 'bg-secondary'}`}>
-                      {typeof patientStats?.app_activation !== 'undefined'
-                        ? (patientStats.app_activation === 1 ? "Activated" : "Not Activated")
-                        : 'Unknown'}
-                    </span>
-                  </div>
-                  
-                  <div className="mb-4 d-flex align-items-center justify-content-between">
-                    <strong className="text-muted">Coupon Code:</strong>
-                    <span className="badge bg-info text-white">
-                      {patientStats?.coupon_code || 'Not set'}
-                    </span>
-                  </div>
-                  
-                  <div className="mb-4 d-flex align-items-center justify-content-between">
-                    <strong className="text-muted">Aligner Progress:</strong>
-                    <div className="d-flex flex-column align-items-end">
-                      {typeof patientStats?.step_number !== 'undefined' && typeof patientStats?.total_steps !== 'undefined' ? (
-                        <>
-                          <span style={{ fontWeight: 'bold', color: '#1da5fe', fontSize: '1.1em' }}>
-                            Current: <span style={{ fontSize: '1.2em' }}>{patientStats.step_number}</span> / <span style={{ fontSize: '1.1em' }}>{patientStats.total_steps}</span>
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-muted">Not set</span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Only show next aligner start if patient is not on the last aligner */}
-                  {typeof patientStats?.step_number !== 'undefined' && 
-                   typeof patientStats?.total_steps !== 'undefined' && 
-                   patientStats?.step_number < patientStats?.total_steps && (
-                    <div className="mb-4 d-flex align-items-center justify-content-between">
-                      <strong className="text-muted">Next aligner start:</strong>
-                      <span className="fw-bold">{formatDate(patientStats?.next_step_started_at)}</span>
-                    </div>
-                  )}
-                  
-                  <div className="mb-4 d-flex align-items-center justify-content-between">
-                    <strong></strong>
-                    <div className="d-flex align-items-center justify-content-between" style={{ width: '100%', maxWidth: '300px' }}>
-                      <div className="d-flex flex-column align-items-center">
-                        <Button
-                          color="info"
-                          size="sm"
-                          className="px-3 py-2"
-                          onClick={openIssuesModal}
-                          disabled={treatmentIssuesLoading}
-                        >
-                          {treatmentIssuesLoading ? (
-                            <>
-                              <span className="spinner-border spinner-border-sm me-2"></span>
-                              Loading...
-                            </>
-                          ) : (
-                            <>
-                              <i className="mdi mdi-alert-circle-outline me-1"></i>
-                              Issues
-                            </>
-                          )}
-                        </Button>
-                        <small className="text-muted mt-1" style={{ fontSize: '0.7rem' }}>
-                          View issues
-                        </small>
-                      </div>
-                      
-                      {typeof patientStats?.step_number !== 'undefined' && 
-                       typeof patientStats?.total_steps !== 'undefined' && 
-                       patientStats?.total_steps !== 0 && 
-                       patientStats?.step_number < patientStats?.total_steps ? (
-                        <>
-                          <div className="d-flex flex-column align-items-center">
-                            <Button
-                              color="primary"
-                              size="sm"
-                              className="px-3 py-2"
-                              onClick={() => setMoveNextModalOpen(true)}
-                              disabled={changingAligner || !hasCurrentStepIssues}
-                              title={!hasCurrentStepIssues ? "No issues found for current step" : ""}
-                            >
-                              {changingAligner ? (
-                                <>
-                                  <span className="spinner-border spinner-border-sm me-2"></span>
-                                  Processing...
-                                </>
-                              ) : (
-                                'Move to Next'
-                              )}
-                            </Button>
-                            {!hasCurrentStepIssues && !changingAligner ? (
-                              <small className="text-muted mt-1" style={{ fontSize: '0.7rem' }}>
-                                No issues for step {patientStats?.step_number}
-                              </small>
-                            ) : (
-                              <small className="text-muted mt-1" style={{ fontSize: '0.7rem' }}>
-                                Advance treatment
-                              </small>
-                            )}
-                          </div>
-                        </>
-                      ) : null}
-                    </div>
-                  </div>
-                  
-                  {/* Add bottom spacing to match right side height */}
-                  <div style={{ height: '100px' }}></div>
-                </CardBody>
-              </Collapse>
-            </Card>
-          </Col>
-          <Col md={8} lg={9} style={{ height: "100%" }}>
-            <Routes>
-              <Route
-                path=""
-                element={<Navigate to={`/patients/${id}/monitoring`} replace />}
+        <div className="input-area border-top">
+          <div className="mb-2">
+            <Button
+              outline
+              color="primary"
+              size="sm"
+              className="w-100"
+              onClick={openQuickReplyModal}
+            >
+              <i className="mdi mdi-lightning-bolt-outline me-1"></i>
+              Use a quick reply
+            </Button>
+          </div>
+          <Input
+            type="textarea"
+            value={communicationPanelMessage}
+            onChange={(e) => setCommunicationPanelMessage(e.target.value)}
+            placeholder="Type a message..."
+            rows="3"
+            className="mb-2"
+            disabled={sending || communicationPanelFileLoading}
+          />
+          {communicationPanelFile && (
+            <div className="mb-2 d-flex align-items-center gap-2">
+              <span className="badge bg-info text-white">
+                {communicationPanelFile.name}
+              </span>
+              {communicationPanelFileLoading && (
+                <span className="text-muted small">Loading...</span>
+              )}
+              <Button
+                close
+                aria-label="Remove file"
+                onClick={handleRemoveFile}
+                size="sm"
               />
-              <Route
-                path="monitoring"
-                element={<Monitoring patient={patient} />}
-              />
-              <Route
-                path="info"
-                element={<Info patient={PATIENT_MOCK_DATA} />}
-              />
-              <Route
-                path="alerts"
-                element={<Alerts patientId={id} patient={PATIENT_MOCK_DATA} />}
-              />
-              <Route
-                path="files"
-                element={<Files patient={PATIENT_MOCK_DATA} />}
-              />
-              <Route
-                path="consent-forms"
-                element={<ConsentForms patientId={patientDetail?.id} />}
-              />
-              <Route
-                path="treatment-plan-3d"
-                element={<TreatmentPlan3D patient={patientDetail} />}
-              />
-              <Route
-                path="scans"
-                element={<Scans patient={PATIENT_MOCK_DATA} />}
-              />
-              <Route
-                path="scans/:arch/:scanId"
-                element={<ScanDetail />}
-              />
-              <Route
-                path="impressions"
-                element={<InitialTeeth patientId={id} patient={patient} />}
-              />
-              <Route
-                path="order"
-                element={<PatientOrders patientId={id} />}
-              />
-              <Route path="history" element={<History patient={patient} />} />
-              <Route
-                path="referrals"
-                element={<Referrals patientId={id} />}
-              />
-              <Route
-                path="*"
-                element={<Navigate to={`/patients/${id}/monitoring`} replace />}
-              />
-            </Routes>
-          </Col>
-          {isCommunicationOpen && (
-            <div
-              className="communication-backdrop"
-              onClick={() => setIsCommunicationOpen(false)}
-            ></div>
+            </div>
           )}
-          <div
-            className={`communication-panel${isCommunicationOpen ? " open" : " closed"}`}
-          >
-            <div className="d-flex justify-content-between align-items-center p-3 border-bottom">
-              <h5 className="mb-0">Communication</h5>
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex gap-2">
               <Button
                 color="link"
+                size="sm"
                 className="p-0"
-                onClick={() => setIsCommunicationOpen(false)}
+                onClick={handleFileButtonClick}
               >
-                <i className="mdi mdi-chevron-right"></i>
+                <i className="mdi mdi-paperclip"></i>
               </Button>
-            </div>
-            <div className="messages-container">
-              <div className="messages">
-                {loading ? (
-                  <div className="text-center text-muted py-3">
-                    Loading messages...
-                  </div>
-                ) : error ? (
-                  <div className="text-center text-danger py-3">{error}</div>
-                ) : messages && messages.length > 0 ? (
-                  messages.map((msg, idx) => (
-                    <Message
-                      key={msg.id || idx}
-                      sender={msg.sender_id || "Unknown"}
-                      imagepath={msg.attachment_url ? WEB_APP_URL + msg.attachment_url : ""}
-                      content={msg.message || msg.content}
-                      date={msg.created_at ? msg.created_at.split(" ")[0] : ""}
-                      time={msg.created_at ? msg.created_at.split(" ")[1] : ""}
-                      index={idx}
-                      myId={myId}
-                      onImageClick={(src) => {
-                        setImageModalSrc(src);
-                        setImageModalOpen(true);
-                      }}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center text-muted py-3">
-                    No messages yet.
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            </div>
-            <div className="input-area border-top">
-              <div className="mb-2">
-                <Button
-                  outline
-                  color="primary"
-                  size="sm"
-                  className="w-100"
-                  onClick={openQuickReplyModal}
-                >
-                  <i className="mdi mdi-lightning-bolt-outline me-1"></i>
-                  Use a quick reply
-                </Button>
-              </div>
-              <Input
-                type="textarea"
-                value={communicationPanelMessage}
-                onChange={(e) => setCommunicationPanelMessage(e.target.value)}
-                placeholder="Type a message..."
-                rows="3"
-                className="mb-2"
-                disabled={sending || communicationPanelFileLoading}
+              <input
+                type="file"
+                style={{ display: "none" }}
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="*"
               />
-              {communicationPanelFile && (
-                <div className="mb-2 d-flex align-items-center gap-2">
-                  <span className="badge bg-info text-white">
-                    {communicationPanelFile.name}
-                  </span>
-                  {communicationPanelFileLoading && (
-                    <span className="text-muted small">Loading...</span>
-                  )}
-                  <Button
-                    close
-                    aria-label="Remove file"
-                    onClick={handleRemoveFile}
-                    size="sm"
-                  />
-                </div>
-              )}
-              <div className="d-flex justify-content-between align-items-center">
-                <div className="d-flex gap-2">
-                  <Button
-                    color="link"
-                    size="sm"
-                    className="p-0"
-                    onClick={handleFileButtonClick}
-                  >
-                    <i className="mdi mdi-paperclip"></i>
-                  </Button>
-                  <input
-                    type="file"
-                    style={{ display: "none" }}
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept="*"
-                  />
-                </div>
-                <Button
-                  color="primary"
-                  size="sm"
-                  onClick={handleSendMessage}
-                  disabled={
-                    sending ||
-                    communicationPanelFileLoading ||
-                    (!communicationPanelMessage.trim() && !communicationPanelFileBase64)
-                  }
-                >
-                  {sending ? (
-                    <span className="spinner-border spinner-border-sm"></span>
-                  ) : (
-                    <i className="mdi mdi-send"></i>
-                  )}
-                </Button>
-              </div>
             </div>
+            <Button
+              color="primary"
+              size="sm"
+              onClick={handleSendMessage}
+              disabled={
+                sending ||
+                communicationPanelFileLoading ||
+                (!communicationPanelMessage.trim() && !communicationPanelFileBase64)
+              }
+            >
+              {sending ? (
+                <span className="spinner-border spinner-border-sm"></span>
+              ) : (
+                <i className="mdi mdi-send"></i>
+              )}
+            </Button>
           </div>
-          <div
-            className={`communication-fab${isCommunicationOpen ? " communication-fab--hidden" : ""}`}
-            onClick={() => setIsCommunicationOpen(!isCommunicationOpen)}
-          >
-            <i className="mdi mdi-message-text-outline"></i>
-          </div>
-        </Row>
-      </Container>
+        </div>
+      </div>
+      <div
+        className={`communication-fab${isCommunicationOpen ? " communication-fab--hidden" : ""}`}
+        onClick={() => setIsCommunicationOpen(!isCommunicationOpen)}
+      >
+        <i className="mdi mdi-message-text-outline"></i>
+      </div>
 
       {/* Quick Reply Modal */}
       <Modal

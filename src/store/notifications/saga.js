@@ -6,10 +6,11 @@ import axios from 'axios';
 // API endpoint
 const NOTIFICATIONS_API = 'https://smileie.jantrah.com/backend/api/notifications';
 
-function* fetchNotifications() {
+function* fetchNotifications(action) {
   try {
-    const response = yield call(axios.get, NOTIFICATIONS_API);
-    // API returns { status, code, data: [ { notification, user } ] }
+    const params = action.payload || {};
+    const response = yield call(axios.get, NOTIFICATIONS_API, { params });
+    // API returns { status, code, data: [ { notification, user } ], pagination }
     const notifications = (response.data || []).map(item => ({
       id: item.notification.id,
       title: item.notification.title,
@@ -18,7 +19,7 @@ function* fetchNotifications() {
       ...item.notification,
       user: item.user
     }));
-    yield put(getNotificationsSuccess(notifications));
+    yield put(getNotificationsSuccess({ notifications, pagination: response.pagination }));
   } catch (error) {
     yield put(getNotificationsFail(error.message || 'Failed to fetch notifications'));
   }

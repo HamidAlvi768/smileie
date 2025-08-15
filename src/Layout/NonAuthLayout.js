@@ -1,10 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import withRouter from "../components/Common/withRouter";
+import ContentTransition from "../components/Common/ContentTransition";
 
 const NonAuthLayout = (props) => {
   return (
-    <React.Fragment>{props.children}</React.Fragment>
+    <React.Fragment>
+      <ContentTransition>
+        {props.children}
+      </ContentTransition>
+    </React.Fragment>
   );
 };
 

@@ -10,6 +10,7 @@ import alertsReducer from './alerts/reducer';
 import ordersReducer from './orders/reducer';
 import referralsReducer from './referrals/reducer';
 import genericRecordsReducer from './genericRecords/reducer';
+import consentFormQuestionsReducer from './consentFormQuestions/reducer';
 
 // Front
 import Layout from "./layout/reducer";
@@ -47,6 +48,7 @@ const appReducer = combineReducers({
   orders: ordersReducer,
   referrals: referralsReducer,
   genericRecords: genericRecordsReducer,
+  consentFormQuestions: consentFormQuestionsReducer,
 });
 
 // Wrap it in a root reducer that can handle full reset

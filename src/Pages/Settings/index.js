@@ -56,31 +56,37 @@ const settingsData = [
         icon: "ri-book-open-line",
         url: "/settings/impressions-guide",
       },
-    ],
-  },
-  {
-    section: "Reminders & Plans",
-    cards: [
       {
-        name: "Scan Reminder",
-        description: "Set the frequency for patient scan notifications.",
-        icon: "ri-notification-line",
-        url: "/settings/scan-notification-frequency",
+        name: "Consent Form Questions",
+        description: "Manage consent form questions for patients.",
+        icon: "ri-file-list-3-line",
+        url: "/settings/consent-form-questions",
       },
-      // {
-      //   name: "Next Step Reminder",
-      //   description: "Configure reminders for upcoming patient actions.",
-      //   icon: "ri-arrow-right-circle-line",
-      //   url: "/settings/next-step-reminder",
-      // },
-      // {
-      //   name: "Manage Treatment Plans",
-      //   description: "Create, edit, and organize treatment plans.",
-      //   icon: "ri-file-list-3-line",
-      //   url: "/settings/treatment-plans",
-      // },
     ],
   },
+  // {
+  //   section: "Reminders & Plans",
+  //   cards: [
+  //     {
+  //       name: "Scan Reminder",
+  //       description: "Set the frequency for patient scan notifications.",
+  //       icon: "ri-notification-line",
+  //       url: "/settings/scan-notification-frequency",
+  //     },
+  //     // {
+  //     //   name: "Next Step Reminder",
+  //     //   description: "Configure reminders for upcoming patient actions.",
+  //     //   icon: "ri-arrow-right-circle-line",
+  //     //   url: "/settings/next-step-reminder",
+  //     // },
+  //     // {
+  //     //   name: "Manage Treatment Plans",
+  //     //   description: "Create, edit, and organize treatment plans.",
+  //     //   icon: "ri-file-list-3-line",
+  //     //   url: "/settings/treatment-plans",
+  //     // },
+  //   ],
+  // },
 ];
 
 const Settings = () => {
@@ -143,4 +149,5 @@ const Settings = () => {
 export { default as Instructions } from './Instructions';
 export { default as AlignerTips } from './AlignerTips';
 export { default as ImpressionsGuide } from './ImpressionsGuide';
+export { default as ConsentFormQuestions } from './ConsentFormQuestions';
 export default Settings; 

@@ -54,6 +54,9 @@ import {
   UPDATE_REFERRAL_STATUS_API,
   GET_REFERRAL_AMOUNT_API,
   PAY_REFERRALS_API,
+  CREATE_CONSENT_FORM_QUESTIONS_API,
+  GET_CONSENT_FORM_QUESTIONS_API,
+  GET_CONSENT_FORM_VIEW_API,
 } from "./url_helper";
 
 /**
@@ -118,6 +121,13 @@ axios.interceptors.response.use(
     ) {
       return Promise.reject("Failed to create patient");
     }
+    if (
+      error.config &&
+      error.config.url &&
+      error.config.url.includes("/consent-form/create")
+    ) {
+      return Promise.reject("Failed to create consent form questions");
+    }
     // Fallback generic message
     return Promise.reject("An error occurred");
   }
@@ -169,7 +179,7 @@ class APIClient {
       ? `&_=${Date.now()}`
       : `?_=${Date.now()}`;
     const roleParam = `&role=${userRole}`;
-    return axios.get(`${url}${currentTime}${roleParam}`, params);
+    return axios.get(`${url}${currentTime}${roleParam}`, { params });
   };
 
   /**
@@ -321,11 +331,13 @@ export const loginAPI = async (email, password) => {
 };
 
 // Patients API
-export const getPatientsAPI = () => api.get(GET_MONITORED_PATIENTS_API); // General patients endpoint
-export const getMonitoredPatientsAPI = () =>
-  api.get(GET_MONITORED_PATIENTS_API);
-export const getNotMonitoredPatientsAPI = () =>
-  api.get(GET_NOT_MONITORED_PATIENTS_API);
+export const getPatientsAPI = (params = {}) => api.get(GET_MONITORED_PATIENTS_API, params); // General patients endpoint
+export const getMonitoredPatientsAPI = (params = {}) => {
+  console.log('getMonitoredPatientsAPI called with params:', params);
+  return api.get(GET_MONITORED_PATIENTS_API, params);
+};
+export const getNotMonitoredPatientsAPI = (params = {}) =>
+  api.get(GET_NOT_MONITORED_PATIENTS_API, params);
 export const addPatientAPI = (patient) => api.create(ADD_PATIENT_API, patient);
 export const getRecentPatientsAPI = () => api.get(GET_RECENT_PATIENTS_API);
 export const getPatientDetailAPI = (id) =>
@@ -369,12 +381,12 @@ export const getScanDetailAPI = (id, step_number) =>
   api.get(`${GET_SCAN_DETAIL_API}?id=${id}&step_number=${step_number}`);
 
 // Alerts API
-export const getAlertsAPI = (userId) =>
-  api.get(`${GET_ALERTS_API}?id=${userId}`);
+export const getAlertsAPI = (userId, params = {}) =>
+  api.get(`${GET_ALERTS_API}?id=${userId}`, params);
 
 // Patient History API
-export const getPatientHistoryAPI = (patientId) =>
-  api.get(`${GET_PATIENT_HISTORY_API}?id=${patientId}`);
+export const getPatientHistoryAPI = (patientId, params = {}) =>
+  api.get(`${GET_PATIENT_HISTORY_API}?id=${patientId}`, params);
 
 export const getPatientStatsAPI = (patientId) =>
   api.get(`${GET_PATIENT_STATS_API}?id=${patientId}`);
@@ -492,3 +504,15 @@ export const getContactUsAPI = () => api.get(GET_CONTACT_US_API);
 export const getUserProfileAPI = (userId) => api.get(`${GET_USER_PROFILE_API}?id=${userId}`);
 export const updateUserProfileAPI = (userId, userData) => api.update(`${UPDATE_USER_PROFILE_API}?id=${userId}`, userData);
 export const passwordResetAPI = (email) => api.create(PASSWORD_RESET_API, { email });
+
+// Consent Form Questions API
+export const createConsentFormQuestionsAPI = (payload) => {
+  // Handle both old format (questions array) and new format (object with questions and deletedIds)
+  if (Array.isArray(payload)) {
+    return api.create(CREATE_CONSENT_FORM_QUESTIONS_API, { questions: payload });
+  } else {
+    return api.create(CREATE_CONSENT_FORM_QUESTIONS_API, payload);
+  }
+};
+export const getConsentFormQuestionsAPI = () => api.get(GET_CONSENT_FORM_QUESTIONS_API);
+export const getConsentFormViewAPI = (patientId) => api.get(`${GET_CONSENT_FORM_VIEW_API}?id=${patientId}`);

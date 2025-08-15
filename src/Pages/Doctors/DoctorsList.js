@@ -20,6 +20,8 @@ import {
 } from "reactstrap";
 import DataTable from "react-data-table-component";
 import { useToast } from "../../components/Common/ToastContext";
+import ShimmerLoader from "../../components/Common/ShimmerLoader";
+import usePerformanceOptimization from "../../Hooks/usePerformanceOptimization";
 
 // Filter options will be populated from API data
 const getFilterOptions = (specialties, practices) => ({
@@ -98,111 +100,77 @@ const columns = [
 ];
 
 const customStyles = {
+  headRow: {
+    style: {
+      backgroundColor: "#f8f9fa",
+      borderBottom: "2px solid #dee2e6",
+      fontWeight: "bold",
+    },
+  },
   rows: {
     style: {
-      minHeight: "56px",
-      paddingTop: "8px",
-      paddingBottom: "8px",
-      cursor: "pointer",
-    },
-  },
-  headCells: {
-    style: {
-      paddingLeft: "16px",
-      paddingRight: "16px",
-      fontWeight: "bold",
-      fontSize: "0.9rem",
-      backgroundColor: "#f8f9fa",
-      color: "#495057",
-      borderBottom: "2px solid #e9ecef",
-    },
-  },
-  cells: {
-    style: {
-      paddingLeft: "16px",
-      paddingRight: "16px",
-      fontSize: "0.85rem",
-      verticalAlign: "middle",
-      margin: "4px 0",
+      minHeight: "60px",
+      "&:hover": {
+        backgroundColor: "#f8f9fa",
+        cursor: "pointer",
+      },
     },
   },
 };
 
 const DoctorsList = ({ pageTitle = "Doctors" }) => {
+  document.title = `${pageTitle} | Smileie`;
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { doctors = [], loading = false, error = null } = useSelector((state) => state.doctor || {});
+  const { specialties = [], practices = [], specialtiesLoading = false, practicesLoading = false, error: genericRecordsError = null } = useSelector((state) => state.genericRecords || {});
   const showToast = useToast();
+  const { debounce } = usePerformanceOptimization();
 
-  // Redux state selectors
-  const doctorsData = useSelector((state) => state.doctor);
-  const {
-    doctors: allDoctors = [],
-    loading = false,
-    error = null,
-    success = false,
-    successMessage = null,
-  } = doctorsData;
-
-  // Generic records state
-  const genericRecordsData = useSelector((state) => {
-    console.log('Redux state accessed:', state.genericRecords);
-    return state.genericRecords;
-  });
-  const {
-    specialties = [],
-    practices = [],
-    specialtiesLoading = false,
-    practicesLoading = false,
-    error: genericRecordsError = null
-  } = genericRecordsData;
-
-  // Local state for pagination and filters
+  // State
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
-  const [createDoctorModal, setCreateDoctorModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [filters, setFilters] = useState({
     specialty: "All specialties",
     practice: "All practices",
   });
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const initialFormState = {
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
     full_name: "",
-    specialty: "",
     email: "",
     phone: "",
-    practice: "",
-  };
-  const [form, setForm] = useState(initialFormState);
-
-  // Form validation
+    specialty_id: "",
+    practice_id: "",
+  });
   const [formErrors, setFormErrors] = useState({});
 
-  // Debounced search effect
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
+  // Debounced search handler
+  const debouncedSearch = debounce((value) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Reset to first page when search changes
     }, 300);
 
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedSearch(value);
+  };
 
   // Process doctors data to handle latest_activity
   const processedDoctors = useMemo(() => {
-    return allDoctors.map(doctor => {
+    return doctors.map(doctor => {
       let latestActivity = "No activity";
       let latestActivityTime = "";
 
       if (doctor.latest_activity) {
         if (typeof doctor.latest_activity === 'object' && doctor.latest_activity !== null) {
-          // Handle object format with detailed activity
           latestActivity = doctor.latest_activity.description || doctor.latest_activity.action || "Activity";
           latestActivityTime = doctor.latest_activity.created_at || "";
         } else if (typeof doctor.latest_activity === 'string') {
-          // Handle string format (e.g., "Account created")
           latestActivity = doctor.latest_activity;
-          latestActivityTime = doctor.created_at || ""; // Use account creation time as fallback
+          latestActivityTime = doctor.created_at || "";
         }
       }
 
@@ -212,25 +180,22 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
         latestActivityTime
       };
     });
-  }, [allDoctors.length]); // Only recalculate when doctors array length changes
+  }, [doctors]);
 
-  // Filter and search logic - frontend only
+  // Filter and search logic
   const filteredDoctors = useMemo(() => {
     let filtered = [...processedDoctors];
 
-    // Apply specialty filter
     if (filters.specialty !== "All specialties") {
       filtered = filtered.filter((doctor) => doctor.specialty === filters.specialty);
     }
 
-    // Apply practice filter
     if (filters.practice !== "All practices") {
       filtered = filtered.filter((doctor) => doctor.practice === filters.practice);
     }
 
-    // Apply search filter
-    if (debouncedSearchTerm.trim()) {
-      const searchLower = debouncedSearchTerm.toLowerCase().trim();
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
       filtered = filtered.filter(
         (doctor) =>
           doctor.full_name?.toLowerCase().includes(searchLower) ||
@@ -242,209 +207,35 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
     }
 
     return filtered;
-  }, [processedDoctors, filters.specialty, filters.practice, debouncedSearchTerm]);
+  }, [processedDoctors, filters.specialty, filters.practice, searchTerm]);
 
   // Handle pagination change
   const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
   }, []);
 
-  // Handle per page change
   const handlePerRowsChange = useCallback((newPerPage, page) => {
     setPerPage(newPerPage);
     setCurrentPage(page);
   }, []);
 
-  const validateForm = useCallback(() => {
-    const errors = {};
-
-    if (!form.full_name.trim()) {
-      errors.full_name = "Doctor name is required";
-    }
-
-    if (!form.specialty) {
-      errors.specialty = "Specialty is required";
-    }
-
-    if (!form.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      errors.email = "Please enter a valid email address";
-    }
-
-    if (!form.practice) {
-      errors.practice = "Practice is required";
-    }
-
-    if (form.phone && !/^[\d\s\-\+\(\)]+$/.test(form.phone)) {
-      errors.phone = "Please enter a valid phone number";
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  }, [form]);
-
-  const resetForm = useCallback(() => {
-    setForm(initialFormState);
-    setFormErrors({});
+  const handleFilterChange = useCallback((e) => {
+    const { id, value } = e.target;
+    const filterKey = id.replace('filter-', '');
+    setFilters(prev => ({ ...prev, [filterKey]: value }));
+    setCurrentPage(1);
   }, []);
 
-  const toggleCreateDoctor = useCallback(() => {
-    setCreateDoctorModal((prev) => {
-      if (prev) {
-        // Closing modal - reset form
-        resetForm();
-      }
-      return !prev;
-    });
-  }, [resetForm]);
-
-  const fetchDoctors = useCallback(async () => {
-    try {
-      await dispatch(getDoctors({}));
-    } catch (error) {
-      console.error("Error fetching doctors:", error);
-      showToast({
-        message: error?.message || "Failed to fetch doctors",
-        type: "error",
-        title: "Error",
-      });
-    }
-  }, [dispatch, showToast]);
-
-
-
-  // Only fetch once on component mount
-  useEffect(() => {
-    console.log('Component mounted - fetching data...');
-    console.log('Dispatching getSpecialties action...');
-    console.log('Dispatching getPractices action...');
-    fetchDoctors();
-    dispatch(getSpecialties());
-    dispatch(getPractices());
-    window.scrollTo(0, 0);
-  }, []); // Empty dependency array - only run once
-
-  // Debug effect to log state changes (only when data changes, not on every render)
-  useEffect(() => {
-    console.log('=== REDUX STATE DEBUG ===');
-    console.log('Specialties:', specialties);
-    console.log('Practices:', practices);
-    console.log('Specialties Loading:', specialtiesLoading);
-    console.log('Practices Loading:', practicesLoading);
-    console.log('Generic Records Error:', genericRecordsError);
-    console.log('Specialties length:', specialties?.length);
-    console.log('Practices length:', practices?.length);
-    console.log('========================');
-  }, [specialties, practices, specialtiesLoading, practicesLoading, genericRecordsError]);
-
-  // Handle success/error states from Redux
-  useEffect(() => {
-    if (successMessage) {
-      showToast({
-        message: successMessage || "Doctor created successfully!",
-        type: "success",
-        title: "Success",
-      });
-      setCreateDoctorModal(false);
-      resetForm();
-      dispatch(clearDoctorError());
-    }
-  }, [successMessage, showToast, dispatch, resetForm]);
-
-  useEffect(() => {
-    if (error) {
-      showToast({
-        message: typeof error === 'string' ? error : 'Failed to create doctor',
-        type: 'error',
-        title: 'Error',
-      });
-      // Do NOT close the modal or reset the form on error
-      dispatch(clearDoctorError());
-    }
-  }, [error, showToast, dispatch]);
-
-  // Handle generic records errors
-  useEffect(() => {
-    if (genericRecordsError) {
-      showToast({
-        message: typeof genericRecordsError === 'string' ? genericRecordsError : 'Failed to fetch data',
-        type: 'error',
-        title: 'Error',
-      });
-    }
-  }, [genericRecordsError, showToast]);
-
-  const handleFilterChange = useCallback(
-    (e) => {
-      const { id, value } = e.target;
-      const filterKey = id.replace("filter-", "");
-      setFilters((prev) => ({ ...prev, [filterKey]: value }));
-      setCurrentPage(1); // Reset to first page when filters change
-    },
-    []
-  );
-
-  const handleSearchChange = useCallback(
-    (e) => {
-      setSearchTerm(e.target.value);
-      setCurrentPage(1); // Reset to first page when search changes
-    },
-    []
-  );
-
-  const handleInputChange = useCallback((e) => {
-    const { id, value } = e.target;
-    setForm((prev) => ({ ...prev, [id]: value }));
-
-    // Clear specific field error when user starts typing
-    if (formErrors[id]) {
-      setFormErrors((prev) => ({ ...prev, [id]: "" }));
-    }
-  }, [formErrors]);
-
-  const handleCreateDoctor = useCallback(
-    async (e) => {
-      e.preventDefault();
-
-      if (!validateForm()) {
-        showToast({
-          message: "Please fill all the required fields",
-          type: "error",
-          title: "Validation Error",
-        });
-        return;
-      }
-
-      setIsSubmitting(true);
-      try {
-        await dispatch(addDoctor(form));
-        fetchDoctors();
-        setCurrentPage(1); // Reset to first page
-      } catch (error) {
-        console.error("Error creating doctor:", error);
-        // Error toast is handled in useEffect
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-    [dispatch, form, validateForm, fetchDoctors, showToast]
-  );
-
-  const handleRowClicked = useCallback(
-    (row) => {
+  const handleRowClicked = useCallback((row) => {
       if (!row.id) {
         console.warn("Doctor row missing ID:", row);
         return;
       }
       navigate(`/doctors/${row.id}`);
-    },
-    [navigate]
-  );
+  }, [navigate]);
 
   const handleClearSearch = useCallback(() => {
     setSearchTerm("");
-    setDebouncedSearchTerm("");
     setCurrentPage(1);
   }, []);
 
@@ -454,22 +245,98 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
       practice: "All practices",
     });
     setSearchTerm("");
-    setDebouncedSearchTerm("");
     setCurrentPage(1);
   }, []);
 
   // Get dynamic filter options from API data
   const filterOptions = useMemo(() => {
     return getFilterOptions(specialties || [], practices || []);
-  }, [specialties.length, practices.length]); // Only recalculate when length changes
+  }, [specialties, practices]);
 
   const hasActiveFilters = useMemo(() => {
     return (
       filters.specialty !== "All specialties" ||
       filters.practice !== "All practices" ||
-      debouncedSearchTerm.trim() !== ""
+      searchTerm.trim() !== ""
     );
-  }, [filters.specialty, filters.practice, debouncedSearchTerm]);
+  }, [filters.specialty, filters.practice, searchTerm]);
+
+  // Form validation
+  const validateForm = useCallback(() => {
+    const errors = {};
+
+    if (!formData.full_name.trim()) {
+      errors.full_name = "Doctor name is required";
+    }
+
+    if (!formData.specialty_id) {
+      errors.specialty = "Specialty is required";
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.practice_id) {
+      errors.practice = "Practice is required";
+    }
+
+    if (formData.phone && !/^[\d\s\-\+\(\)]+$/.test(formData.phone)) {
+      errors.phone = "Please enter a valid phone number";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [formData]);
+
+  const resetForm = useCallback(() => {
+    setFormData({
+      full_name: "",
+      email: "",
+      phone: "",
+      specialty_id: "",
+      practice_id: "",
+    });
+    setFormErrors({});
+  }, []);
+
+  const handleCreateDoctor = useCallback(async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await dispatch(addDoctor(formData));
+      showToast({
+        message: "Doctor created successfully!",
+        type: "success",
+        title: "Success",
+      });
+      setShowCreateModal(false);
+      resetForm();
+      dispatch(clearDoctorError());
+    } catch (error) {
+      showToast({
+        message: error.message || "Failed to create doctor",
+        type: "error",
+        title: "Error",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [dispatch, formData, validateForm, showToast, resetForm]);
+
+  // Load data on component mount
+  useEffect(() => {
+    dispatch(getDoctors());
+    dispatch(getSpecialties());
+    dispatch(getPractices());
+  }, [dispatch]);
 
   return (
     <div className="page-content no-navbar">
@@ -480,45 +347,19 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
             <h4 className="mb-0">{pageTitle}</h4>
           </Col>
           <Col md={4} xs={6} className="text-end">
-            {hasActiveFilters && (
-              <Button
-                color="outline-secondary"
-                size="sm"
-                className="me-2"
-                onClick={handleClearFilters}
-              >
-                Clear Filters
-              </Button>
-            )}
-            {/* <Button 
-              color="outline-info" 
-              size="sm" 
-              className="me-2"
-              onClick={() => {
-                console.log('Manual fetch triggered');
-                console.log('Current specialties:', specialties);
-                console.log('Current practices:', practices);
-                console.log('Current loading states:', { specialtiesLoading, practicesLoading });
-                dispatch(getSpecialties());
-                dispatch(getPractices());
-              }}
-              disabled={specialtiesLoading || practicesLoading}
-            >
-              Refresh Data ({specialties.length}/{practices.length})
-            </Button> */}
-            <Button color="primary" onClick={toggleCreateDoctor} disabled={isSubmitting}>
-              + New doctor
+            <Button color="primary" onClick={() => setShowCreateModal(true)}>
+              <i className="ri-add-line me-1"></i> Add Doctor
             </Button>
           </Col>
         </Row>
 
         {/* Create Doctor Modal */}
-        <Modal isOpen={createDoctorModal} toggle={toggleCreateDoctor} size="lg" centered>
-          <ModalHeader toggle={toggleCreateDoctor}>
-            <h4 className="modal-title">Create a new doctor</h4>
+        <Modal isOpen={showCreateModal} toggle={() => setShowCreateModal(false)} size="lg">
+          <ModalHeader toggle={() => setShowCreateModal(false)}>
+            Create New Doctor
           </ModalHeader>
           <ModalBody>
-            <Form onSubmit={handleCreateDoctor} noValidate>
+            <Form onSubmit={handleCreateDoctor}>
               <Row>
                 <Col md={6}>
                   <FormGroup className="mb-3">
@@ -528,11 +369,16 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                     <Input
                       type="text"
                       id="full_name"
-                      value={form.full_name}
-                      onChange={handleInputChange}
+                      value={formData.full_name}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, full_name: e.target.value }))}
                       placeholder="Enter doctor's name"
                       required
                     />
+                    {formErrors.full_name && (
+                      <div className="text-danger mt-1" style={{ fontSize: "0.875rem" }}>
+                        {formErrors.full_name}
+                      </div>
+                    )}
                   </FormGroup>
                 </Col>
                 <Col md={6}>
@@ -543,11 +389,16 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                     <Input
                       type="email"
                       id="email"
-                      value={form.email}
-                      onChange={handleInputChange}
+                      value={formData.email}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                       placeholder="Enter email address"
                       required
                     />
+                    {formErrors.email && (
+                      <div className="text-danger mt-1" style={{ fontSize: "0.875rem" }}>
+                        {formErrors.email}
+                      </div>
+                    )}
                   </FormGroup>
                 </Col>
                 <Col md={6}>
@@ -556,57 +407,39 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                     <Input
                       type="tel"
                       id="phone"
-                      value={form.phone}
-                      onChange={handleInputChange}
+                      value={formData.phone}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
                       placeholder="Enter phone number"
                     />
+                    {formErrors.phone && (
+                      <div className="text-danger mt-1" style={{ fontSize: "0.875rem" }}>
+                        {formErrors.phone}
+                      </div>
+                    )}
                   </FormGroup>
                 </Col>
                 <Col md={6}>
                   <FormGroup className="mb-3">
                     <Label for="specialty">
                       Specialty <span style={{ color: 'red' }}>*</span>
-                      {genericRecordsError && (
-                        <Button
-                          color="link"
-                          size="sm"
-                          className="ms-2 p-0"
-                          onClick={() => dispatch(getSpecialties())}
-                          disabled={specialtiesLoading}
-                        >
-                          <i className="fas fa-sync-alt"></i>
-                        </Button>
-                      )}
                     </Label>
                     <Input
                       type="select"
                       id="specialty"
-                      value={form.specialty}
-                      onChange={handleInputChange}
+                      value={formData.specialty_id}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, specialty_id: e.target.value }))}
                       required
                       disabled={specialtiesLoading}
                     >
                       <option value="">
                         {specialtiesLoading ? "Loading specialties..." : "Select specialty"}
                       </option>
-                      {specialtiesLoading && (
-                        <option value="" disabled>
-                          Loading specialties...
-                        </option>
-                      )}
-                      {Array.isArray(specialties) && specialties.length > 0 ? (
-                        specialties.map((spec) => {
-                          console.log('Rendering specialty option:', spec);
-                          return (
-                            <option key={spec.id || spec.title} value={spec.title}>
+                      {Array.isArray(specialties) && specialties.length > 0 && (
+                        specialties.map((spec) => (
+                          <option key={spec.id || spec.title} value={spec.id}>
                               {spec.title}
                             </option>
-                          );
-                        })
-                      ) : (
-                        <option value="" disabled>
-                          {specialtiesLoading ? "Loading..." : genericRecordsError ? "Error loading specialties" : "No specialties available"}
-                        </option>
+                        ))
                       )}
                     </Input>
                     {formErrors.specialty && (
@@ -620,47 +453,24 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                   <FormGroup className="mb-3">
                     <Label for="practice">
                       Practice <span style={{ color: 'red' }}>*</span>
-                      {genericRecordsError && (
-                        <Button
-                          color="link"
-                          size="sm"
-                          className="ms-2 p-0"
-                          onClick={() => dispatch(getPractices())}
-                          disabled={practicesLoading}
-                        >
-                          <i className="fas fa-sync-alt"></i>
-                        </Button>
-                      )}
                     </Label>
                     <Input
                       type="select"
                       id="practice"
-                      value={form.practice}
-                      onChange={handleInputChange}
+                      value={formData.practice_id}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, practice_id: e.target.value }))}
                       required
                       disabled={practicesLoading}
                     >
                       <option value="">
                         {practicesLoading ? "Loading practices..." : "Select practice"}
                       </option>
-                      {practicesLoading && (
-                        <option value="" disabled>
-                          Loading practices...
-                        </option>
-                      )}
-                      {Array.isArray(practices) && practices.length > 0 ? (
-                        practices.map((prac) => {
-                          console.log('Rendering practice option:', prac);
-                          return (
-                            <option key={prac.id || prac.title} value={prac.title}>
+                      {Array.isArray(practices) && practices.length > 0 && (
+                        practices.map((prac) => (
+                          <option key={prac.id || prac.title} value={prac.id}>
                               {prac.title}
                             </option>
-                          );
-                        })
-                      ) : (
-                        <option value="" disabled>
-                          {practicesLoading ? "Loading..." : genericRecordsError ? "Error loading practices" : "No practices available"}
-                        </option>
+                        ))
                       )}
                     </Input>
                     {formErrors.practice && (
@@ -671,12 +481,11 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                   </FormGroup>
                 </Col>
               </Row>
-              <div className="text-end mt-4">
+              <div className="d-flex justify-content-end gap-2">
                 <Button
-                  color="light"
-                  className="me-2"
-                  onClick={toggleCreateDoctor}
+                  color="secondary"
                   type="button"
+                  onClick={() => setShowCreateModal(false)}
                   disabled={isSubmitting}
                 >
                   Cancel
@@ -684,7 +493,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
                 <Button color="primary" type="submit" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status" />
+                      <ShimmerLoader type="custom" width="16px" height="16px" lines={1} />
                       Creating...
                     </>
                   ) : (
@@ -697,7 +506,8 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
         </Modal>
 
         <Card>
-          <CardBody>   <div className="control-panel">
+          <CardBody>
+            <div className="control-panel">
             {/* Search Bar */}
             <Row className="mb-3 align-items-center">
               <Col lg={3} md={4} sm={6} xs={12}>
@@ -750,7 +560,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
             {/* Data Table */}
             <DataTable
               columns={columns}
-              data={filteredDoctors} // Fixed: Changed from filteredData to filteredDoctors
+              data={filteredDoctors}
               pagination
               paginationServer={false}
               paginationTotalRows={filteredDoctors.length}
@@ -765,10 +575,7 @@ const DoctorsList = ({ pageTitle = "Doctors" }) => {
               progressPending={loading}
               progressComponent={
                 <div className="text-center py-5">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                  <p className="mt-2">Loading doctors...</p>
+                  <ShimmerLoader type="table" lines={8} />
                 </div>
               }
               noDataComponent={

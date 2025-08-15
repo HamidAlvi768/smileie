@@ -103,7 +103,8 @@
 
 .page-content {
     padding: calc(70px + 24px) calc(24px / 2) 60px calc(24px / 2);
-
+    padding-right: 0px;
+    padding-left: 0px;
     &.no-navbar {
         padding-top: 1rem;
     }

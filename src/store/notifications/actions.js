@@ -1,6 +1,6 @@
 import { GET_NOTIFICATIONS, GET_NOTIFICATIONS_SUCCESS, GET_NOTIFICATIONS_FAIL, MARK_NOTIFICATION_READ } from './actionTypes';
 
-export const getNotifications = () => ({ type: GET_NOTIFICATIONS });
+export const getNotifications = (params = {}) => ({ type: GET_NOTIFICATIONS, payload: params });
 export const getNotificationsSuccess = (data) => ({ type: GET_NOTIFICATIONS_SUCCESS, payload: data });
 export const getNotificationsFail = (error) => ({ type: GET_NOTIFICATIONS_FAIL, payload: error });
 

@@ -71,6 +71,11 @@ export const ADD_FAQ_API = '/faqs/create';
 export const UPDATE_FAQ_API = '/faqs/update';
 export const DELETE_FAQ_API = '/faqs/delete';
 
+//consent form questions
+export const CREATE_CONSENT_FORM_QUESTIONS_API = '/consent-form/create';
+export const GET_CONSENT_FORM_QUESTIONS_API = '/consent-form';
+export const GET_CONSENT_FORM_VIEW_API = '/consent-form/view';
+
 //treatment steps (scans)
 export const GET_TREATMENT_STEPS_API = '/treatment/steps';
 export const GET_SCAN_DETAIL_API = '/treatment/scans';

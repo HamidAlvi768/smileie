@@ -8,13 +8,13 @@ import { getPatientStatsAPI } from '../../../helpers/api_helper';
 const getCurrentStep = (threeDPlan, editing) => {
   if (editing || !threeDPlan) return 1;
   if (threeDPlan && threeDPlan.approved !== 1) return 2;
-  if (threeDPlan && threeDPlan.approved === 1) return 3;
+  if (threeDPlan && threeDPlan.approved === 1) return 2; // Changed from 3 to 2
   return 1;
 };
 
 const Stepper = ({ currentStep, maxStepReached, onStepClick }) => (
   <div className="treatment-stepper d-flex align-items-center mb-4">
-    {[1, 2, 3].map((step, idx) => (
+    {[1, 2].map((step, idx) => ( // Changed from [1, 2, 3] to [1, 2]
       <React.Fragment key={step}>
         <div
           className={`step-circle${currentStep === step ? ' active' : ''}${currentStep > step ? ' completed' : ''}${step <= maxStepReached ? ' clickable' : ''}`}
@@ -28,9 +28,9 @@ const Stepper = ({ currentStep, maxStepReached, onStepClick }) => (
           onClick={() => step <= maxStepReached && onStepClick && onStepClick(step)}
           style={{ cursor: step <= maxStepReached ? 'pointer' : 'default' }}
         >{
-          step === 1 ? 'URL & Description' : step === 2 ? 'Approval & 3D View' : 'Arch Type & Aligners'
+          step === 1 ? 'URL, Description & Aligners' : 'Approval & 3D View' // Updated step 1 label
         }</div>
-        {step < 3 && <div className={`step-bar${currentStep > step ? ' completed' : ''}`}></div>}
+        {step < 2 && <div className={`step-bar${currentStep > step ? ' completed' : ''}`}></div>}
       </React.Fragment>
     ))}
   </div>
@@ -87,20 +87,18 @@ const TreatmentPlan3D = ({ patient }) => {
   // Validation state for URL
   const [urlError, setUrlError] = useState('');
 
-  // Local state for 3rd step fields
+  // Local state for aligner fields (moved from step 3)
   // Use stats API aligner_type as default if no 3D plan arch_type
-  const [archTypeStep3, setArchTypeStep3] = useState(threeDPlan?.arch_type || patientStats?.aligner_type || 'day_dual');
+  const [archTypeStep1, setArchTypeStep1] = useState(threeDPlan?.arch_type || patientStats?.aligner_type || 'day_dual');
   const [upperAligners, setUpperAligners] = useState(0);
   const [lowerAligners, setLowerAligners] = useState(0);
-  // Track if step 3 was saved successfully
-  const [isStep3Saved, setIsStep3Saved] = useState(false);
 
   // Track current step in local state for navigation
   const [currentStep, setCurrentStep] = useState(getCurrentStep(threeDPlan, editing));
   // Compute maxStepReached based on data
   let maxStepReached = 1;
   if (threeDPlan) {
-    maxStepReached = threeDPlan.approved === 1 ? 3 : 2;
+    maxStepReached = threeDPlan.approved === 1 ? 2 : 2; // Changed from 3 to 2
   }
   // Keep currentStep in sync with data/logic
   useEffect(() => {
@@ -153,14 +151,14 @@ const TreatmentPlan3D = ({ patient }) => {
     }
   }, [threeDPlan, patientAlignerType]);
 
-  // When threeDPlan or patientStats changes, update local state for step 3
+  // When threeDPlan or patientStats changes, update local state for aligner fields
   useEffect(() => {
     if (threeDPlan) {
-      setArchTypeStep3(threeDPlan.arch_type || patientStats?.aligner_type || 'day_dual');
+      setArchTypeStep1(threeDPlan.arch_type || patientStats?.aligner_type || 'day_dual');
       setUpperAligners(threeDPlan.upper_aligners || 0);
       setLowerAligners(threeDPlan.lower_aligners || 0);
     } else if (patientStats?.aligner_type) {
-      setArchTypeStep3(patientStats.aligner_type);
+      setArchTypeStep1(patientStats.aligner_type);
     }
   }, [threeDPlan, patientStats]);
 
@@ -171,7 +169,7 @@ const TreatmentPlan3D = ({ patient }) => {
       setDescription('');
       setArchType(patientStats?.aligner_type || 'both');
       setTotalAligners(0);
-      setArchTypeStep3(patientStats?.aligner_type || 'day_dual');
+      setArchTypeStep1(patientStats?.aligner_type || 'day_dual');
       setUpperAligners(0);
       setLowerAligners(0);
       setEditing(false);
@@ -185,18 +183,6 @@ const TreatmentPlan3D = ({ patient }) => {
       setEditing(false);
     }
   }, [creating3DPlan, updating3DPlan, editing, threeDPlan]);
-
-  // Track successful save for step 3
-  useEffect(() => {
-    if (!updating3DPlan && !threeDPlanError) {
-      setIsStep3Saved(true);
-    }
-  }, [updating3DPlan, threeDPlanError]);
-
-  // Reset isStep3Saved if user changes any step 3 field or stats change
-  useEffect(() => {
-    setIsStep3Saved(false);
-  }, [archTypeStep3, upperAligners, lowerAligners, patientStats?.aligner_type]);
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -212,8 +198,10 @@ const TreatmentPlan3D = ({ patient }) => {
       patient_id: patient.id,
       plan_url: reelLink,
       description: description,
-      arch_type: archType,
-      total_aligners: parseInt(totalAligners) || 0
+      arch_type: patientStats?.aligner_type || archTypeStep1,
+      total_aligners: parseInt(totalAligners) || 0,
+      upper_aligners: upperAligners,
+      lower_aligners: lowerAligners
     };
     if (threeDPlan?.id) {
       // Update existing plan
@@ -322,29 +310,73 @@ const TreatmentPlan3D = ({ patient }) => {
                   </FormGroup>
                 </div>
               </div>
-              <div className="d-flex justify-content-end gap-2">
-                {threeDPlan && (
-                  <Button 
-                    color="secondary" 
-                    onClick={() => setEditing(false)}
-                    disabled={creating3DPlan || updating3DPlan}
-                  >
-                    Cancel
-                  </Button>
-                )}
+              
+              {/* Aligner fields moved from step 3 to step 1 */}
+              <div className="row mt-3">
+                <div className="col-md-4">
+                  <FormGroup>
+                    <Label for="archTypeStep1">Arch Type</Label>
+                    <Input
+                      id="archTypeStep1"
+                      type="text"
+                      value={patientStats?.aligner_type || 'Loading...'}
+                      disabled
+                      className="form-control-plaintext"
+                      style={{ backgroundColor: '#f8f9fa', border: '1px solid #dee2e6' }}
+                    />
+                    {statsLoading && (
+                      <small className="text-muted">Loading arch type from patient stats...</small>
+                    )}
+                    {statsError && (
+                      <small className="text-danger">Failed to load arch type: {statsError}</small>
+                    )}
+                  </FormGroup>
+                </div>
+                <div className="col-md-4">
+                  <FormGroup>
+                    <Label for="upperAligners">Upper Aligners</Label>
+                    <Input
+                      id="upperAligners"
+                      type="number"
+                      min="0"
+                      value={upperAligners}
+                      onChange={e => setUpperAligners(Number(e.target.value))}
+                      disabled={!(isDual || isUpper) || (threeDPlan?.upper_aligners > 0)}
+                    />
+                  </FormGroup>
+                </div>
+                <div className="col-md-4">
+                  <FormGroup>
+                    <Label for="lowerAligners">Lower Aligners</Label>
+                    <Input
+                      id="lowerAligners"
+                      type="number"
+                      min="0"
+                      value={lowerAligners}
+                      onChange={e => setLowerAligners(Number(e.target.value))}
+                      disabled={!(isDual || isLower) || (threeDPlan?.lower_aligners > 0)}
+                    />
+                  </FormGroup>
+                </div>
+              </div>
+              
+              {/* Save button for the form */}
+              <div className="d-flex justify-content-end mt-3">
                 <Button 
-                  color="primary" 
                   type="submit" 
+                  color="primary" 
                   size="lg"
-                  disabled={creating3DPlan || updating3DPlan || (threeDPlan && !editing)}
+                  disabled={creating3DPlan || updating3DPlan || !reelLink.trim() || !description.trim()}
+                  className="px-5 py-2"
+                  style={{fontWeight: 'bold', fontSize: '16px'}}
                 >
                   {creating3DPlan || updating3DPlan ? (
                     <>
                       <Spinner size="sm" className="me-2" />
-                      {creating3DPlan ? 'Creating...' : 'Updating...'}
+                      Saving...
                     </>
                   ) : (
-                    threeDPlan ? 'Update Plan' : 'Save Plan'
+                    'Save'
                   )}
                 </Button>
               </div>
@@ -382,82 +414,22 @@ const TreatmentPlan3D = ({ patient }) => {
                       <strong>Description:</strong> {threeDPlan.description}
                 </div>
               </div>
-                  {/* No Edit/Delete buttons in step 2 */}
+                  
+                  {/* Show aligner information in step 2 */}
+                  <div className="row mt-3">
+                    <div className="col-md-4">
+                      <strong>Arch Type:</strong> {threeDPlan.arch_type || 'Not specified'}
+                    </div>
+                    <div className="col-md-4">
+                      <strong>Upper Aligners:</strong> {threeDPlan.upper_aligners || 0}
+                    </div>
+                    <div className="col-md-4">
+                      <strong>Lower Aligners:</strong> {threeDPlan.lower_aligners || 0}
+                    </div>
+                  </div>
+                  
+                  {/* Removed Edit/Delete buttons as requested */}
                 </div>
-              )}
-              {currentStep === 3 && threeDPlan && (
-                <>
-                  <Form onSubmit={e => {
-                    e.preventDefault();
-                    dispatch(update3DPlan({
-                      ...threeDPlan,
-                      arch_type: patientStats?.aligner_type || archTypeStep3,
-                      upper_aligners: upperAligners,
-                      lower_aligners: lowerAligners,
-                      patient_id: patient.id,
-                    }));
-                  }} className="d-flex flex-column gap-3">
-                    <div className="row mt-2">
-                      <div className="col-md-4">
-                        <FormGroup>
-                          <Label for="archTypeStep3">Arch Type</Label>
-                          <Input
-                            id="archTypeStep3"
-                            type="text"
-                            value={patientStats?.aligner_type || 'Loading...'}
-                            disabled
-                            className="form-control-plaintext"
-                            style={{ backgroundColor: '#f8f9fa', border: '1px solid #dee2e6' }}
-                          />
-                          {statsLoading && (
-                            <small className="text-muted">Loading arch type from patient stats...</small>
-                          )}
-                          {statsError && (
-                            <small className="text-danger">Failed to load arch type: {statsError}</small>
-                          )}
-                        </FormGroup>
-                      </div>
-                      <div className="col-md-4">
-                        <FormGroup>
-                          <Label for="upperAligners">Upper Aligners </Label>
-                          <Input
-                            id="upperAligners"
-                            type="number"
-                            min="0"
-                            value={upperAligners}
-                            onChange={e => setUpperAligners(Number(e.target.value))}
-                            disabled={!(isDual || isUpper) || (threeDPlan.upper_aligners > 0)}
-                          />
-                        </FormGroup>
-                      </div>
-                      <div className="col-md-4">
-                        <FormGroup>
-                          <Label for="lowerAligners">Lower Aligners</Label>
-                          <Input
-                            id="lowerAligners"
-                            type="number"
-                            min="0"
-                            value={lowerAligners}
-                            onChange={e => setLowerAligners(Number(e.target.value))}
-                            disabled={!(isDual || isLower) || (threeDPlan.lower_aligners > 0)}
-                          />
-                        </FormGroup>
-                      </div>
-                    </div>
-                    <div className="d-flex justify-content-end gap-2">
-                      <Button color="primary" type="submit" size="lg"
-                        disabled={
-                          updating3DPlan ||
-                          isStep3Saved ||
-                          statsLoading ||
-                          (threeDPlan.upper_aligners > 0 || threeDPlan.lower_aligners > 0)
-                        }
-                      >
-                        {updating3DPlan ? <><Spinner size="sm" className="me-2" />Saving...</> : isStep3Saved ? 'Saved' : 'Save'}
-                      </Button>
-                    </div>
-                  </Form>
-                </>
               )}
             </>
           )}

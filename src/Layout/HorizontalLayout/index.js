@@ -26,6 +26,7 @@ import Navbar from "./NavBar";
 import Header from "./Header";
 import Footer from "./Footer";
 import RightSidebar from "../../components/Common/RightSideBar";
+import ContentTransition from "../../components/Common/ContentTransition";
 
 import { createSelector } from "reselect";
 
@@ -155,7 +156,11 @@ const Layout = (props) => {
           openLeftMenuCallBack={openMenu}
         />
         {navbarMenuItems && navbarMenuItems.length > 0 && <Navbar />}
-        <div className="main-content">{props.children}</div>
+        <div className="main-content">
+          <ContentTransition>
+            {props.children}
+          </ContentTransition>
+        </div>
       </div>
 
       {showRightSidebar ? <RightSidebar /> : null}

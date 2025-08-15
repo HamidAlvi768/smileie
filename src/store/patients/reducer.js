@@ -66,7 +66,12 @@ const patientsReducer = (state = INIT_STATE, action) => {
     case UPDATE_PATIENT_DETAIL_FAIL:
       return { ...state, updatingDetail: false, updateDetailError: action.payload };
     case GET_MONITORED_PATIENTS_SUCCESS:
-      return { ...state, monitoredPatients: action.payload.data, error: null };
+      return { 
+        ...state, 
+        monitoredPatients: action.payload.data || [], 
+        pagination: action.payload.pagination || {},
+        error: null 
+      };
     case GET_NOT_MONITORED_PATIENTS_SUCCESS:
       return { ...state, notMonitoredPatients: action.payload.data, error: null };
     case GET_CONSENT_FORMS:

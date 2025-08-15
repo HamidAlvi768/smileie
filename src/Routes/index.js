@@ -11,7 +11,7 @@ import { layoutTypes } from "../constants/layout";
 import NonAuthLayout from "../Layout/NonAuthLayout";
 import VerticalLayout from "../Layout/VerticalLayout/index";
 import HorizontalLayout from "../Layout/HorizontalLayout/index";
-import { AuthProtected } from "./AuthProtected";
+import AuthProtected from "./AuthProtected";
 
 import { authProtectedRoutes, publicRoutes } from "./routes";
 
@@ -52,34 +52,31 @@ const { layoutType } = useSelector(routepage);
       position: 'relative'
     }}>
       <Routes>
-        <Route>
-          {publicRoutes.map((route, idx) => (
-            <Route
-              path={route.path}
-              element={
-                <NonAuthLayout>
-                    {route.component}
-                </NonAuthLayout>
+        {/* Public Routes */}
+        {publicRoutes.map((route, idx) => (
+          <Route
+            key={idx}
+            path={route.path}
+            element={
+              <NonAuthLayout>
+                {route.component}
+              </NonAuthLayout>
             }
-              key={idx}
-              exact={true}
-            />
-          ))}
-        </Route>
+          />
+        ))}
 
-        <Route>
-            {authProtectedRoutes.map((route, idx) => (
-              <Route
-                path={route.path}
-                element={
-                  <AuthProtected route={route.path}>
-                      <Layout>{route.component}</Layout>
-                  </AuthProtected>}
-                key={idx}
-                exact={true}
-              />
-            ))}
-        </Route>
+        {/* Protected Routes */}
+        {authProtectedRoutes.map((route, idx) => (
+          <Route
+            key={idx}
+            path={route.path}
+            element={
+              <AuthProtected route={route.path}>
+                <Layout>{route.component}</Layout>
+              </AuthProtected>
+            }
+          />
+        ))}
       </Routes>
     </div>
   );

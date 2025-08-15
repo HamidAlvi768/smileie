@@ -2,6 +2,7 @@ import { GET_ALERTS, GET_ALERTS_SUCCESS, GET_ALERTS_FAIL, MARK_ALERT_READ_SUCCES
 
 const INIT_STATE = {
   alerts: [],
+  pagination: null,
   loading: false,
   error: null,
 };
@@ -11,7 +12,13 @@ const alertsReducer = (state = INIT_STATE, action) => {
     case GET_ALERTS:
       return { ...state, loading: true, error: null };
     case GET_ALERTS_SUCCESS:
-      return { ...state, loading: false, alerts: action.payload, error: null };
+      return { 
+        ...state, 
+        loading: false, 
+        alerts: action.payload.alerts || action.payload, 
+        pagination: action.payload.pagination || null,
+        error: null 
+      };
     case GET_ALERTS_FAIL:
       return { ...state, loading: false, error: action.payload };
     case MARK_ALERT_READ_SUCCESS:

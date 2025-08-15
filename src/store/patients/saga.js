@@ -75,9 +75,9 @@ import {
   getScanDetailAPI,
 } from "../../helpers/api_helper";
 
-function* fetchPatients() {
+function* fetchPatients({ payload = {} }) {
   try {
-    const response = yield call(getPatientsAPI);
+    const response = yield call(getPatientsAPI, payload);
     yield put(getPatientsSuccess(response));
   } catch (error) {
     yield put(patientsApiFail(error));
@@ -136,18 +136,21 @@ function* updatePatientDetailSaga({ payload }) {
   }
 }
 
-function* fetchMonitoredPatients() {
+function* fetchMonitoredPatients({ payload = {} }) {
   try {
-    const response = yield call(getMonitoredPatientsAPI);
+    console.log('fetchMonitoredPatients saga called with payload:', payload);
+    const response = yield call(getMonitoredPatientsAPI, payload);
+    console.log('fetchMonitoredPatients API response:', response);
     yield put(getMonitoredPatientsSuccess(response));
   } catch (error) {
+    console.error('fetchMonitoredPatients error:', error);
     yield put(patientsApiFail(error));
   }
 }
 
-function* fetchNotMonitoredPatients() {
+function* fetchNotMonitoredPatients({ payload = {} }) {
   try {
-    const response = yield call(getNotMonitoredPatientsAPI);
+    const response = yield call(getNotMonitoredPatientsAPI, payload);
     yield put(getNotMonitoredPatientsSuccess(response));
   } catch (error) {
     yield put(patientsApiFail(error));

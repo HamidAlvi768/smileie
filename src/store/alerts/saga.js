@@ -6,9 +6,9 @@ import axios from 'axios';
 
 function* fetchAlerts(action) {
   try {
-    const userId = action.payload;
-    const response = yield call(getAlertsAPI, userId);
-    // API returns { status, code, data: [ { notification, user } ] }
+    const { userId, params } = action.payload;
+    const response = yield call(getAlertsAPI, userId, params);
+    // API returns { status, code, data: [ { notification, user } ], pagination }
     const alerts = (response.data || []).map(item => ({
       id: item.notification.id,
       title: item.notification.title,
@@ -18,7 +18,7 @@ function* fetchAlerts(action) {
       ...item.notification,
       user: item.user
     }));
-    yield put(getAlertsSuccess(alerts));
+    yield put(getAlertsSuccess({ alerts, pagination: response.pagination }));
   } catch (error) {
     yield put(getAlertsFail(error.message || 'Failed to fetch alerts'));
   }

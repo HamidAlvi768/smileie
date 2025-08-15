@@ -11,6 +11,7 @@ import {
 import { Link } from 'react-router-dom';
 import { getPatients } from '../../store/patients/actions';
 import { getCountryCode } from './countries';
+import ShimmerLoader from "../../components/Common/ShimmerLoader";
 
 // Function to get full country name from country code
 const getCountryName = (countryCode) => {
@@ -332,12 +333,7 @@ const RevenueByLocation = () => {
                         <div style={{ height: "226px", position: "relative" }}>
                             {statsLoading ? (
                                 <div className="d-flex align-items-center justify-content-center h-100">
-                                    <div className="text-center">
-                                        <div className="spinner-border text-primary" role="status">
-                                            <span className="visually-hidden">Loading...</span>
-                                        </div>
-                                        <p className="mt-2 text-muted">Loading map data...</p>
-                                    </div>
+                                    <ShimmerLoader type="chart" />
                                 </div>
                             ) : (
                                 <VectorMap

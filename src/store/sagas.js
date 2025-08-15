@@ -18,6 +18,7 @@ import alertsSaga from './alerts/saga';
 import ordersSaga from './orders/saga';
 import referralsSaga from './referrals/saga';
 import genericRecordsSaga from './genericRecords/saga';
+import consentFormQuestionsSaga from './consentFormQuestions/sagas';
 
 export default function* rootSaga() {
   yield all([
@@ -40,5 +41,6 @@ export default function* rootSaga() {
     fork(ordersSaga),
     fork(referralsSaga),
     fork(genericRecordsSaga),
+    fork(consentFormQuestionsSaga),
   ]);
 }
